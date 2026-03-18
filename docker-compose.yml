@@ -1,42 +1,77 @@
-# Development environment
-
-version: '3.0'
-
-networks:
-  mynetwork:
-    driver: bridge
-
 services:
-  database:
-    image: postgres:11
-
-    container_name: postgres.dev
-    env_file:
-      - ./.env
-    ports:
-      - ${PGPORT}:${PGPORT}
-    networks:
-      - mynetwork
-    volumes:
-      - ${POSTGRES_HOSTDATA}:/var/lib/postgresql/data
-    restart: always
-
-
   server:
+    image: server
     build:
       context: ./server
       dockerfile: Dockerfile.dev
-
-    container_name: server.dev
+    container_name: server
     depends_on:
-      - database
+      - database_seed
     env_file:
-      - ./.env
+      - ./server/.env
     ports:
       - ${SERVER_PORT}:${SERVER_PORT}
     networks:
       - mynetwork
     volumes:
+      - ./server/jest.config.ts:/usr/app/jest.config.ts:ro
+      - ./server/node_modules:/usr/app/node_modules
+      - ./server/package.json:/usr/app/package.json:ro
       - ./server/src:/usr/app/src
-      - ./server/tsconfig.json:/usr/app/tsconfig.json
+      - ./server/tsconfig.json:/usr/app/tsconfig.json:ro
     restart: always
+
+  database:
+    image: postgres:18
+    container_name: database
+    env_file:
+      - ./server/.env
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    networks:
+      - mynetwork
+    restart: always
+
+  database_schema:
+    image: postgres:18
+    container_name: database_schema
+    command: scripts/database_schema.sh
+    env_file: ./server/.env
+    depends_on:
+      - database
+    networks:
+      - mynetwork
+    volumes:
+      - ./server/scripts:/scripts:ro
+
+  database_seed:
+    image: postgres:18
+    container_name: database_seed
+    command: scripts/database_seed.sh
+    env_file: ./server/.env
+    depends_on:
+      - database_schema
+    networks:
+      - mynetwork
+    volumes:
+      - ./server/scripts:/scripts:ro
+
+  client:
+    image: client
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    container_name: client
+    command: npm start
+    ports:
+      - 3000:3000
+    volumes:
+      - ./client/public:/client/public:ro
+      - ./client/src:/client/src:ro
+      - ./client/package.json:/client/package.json:ro
+      - ./client/package-lock.json:/client/package-lock.json:ro
+      - ./client/node_modules:/client/node_modules:ro
+
+networks:
+  mynetwork:
+    driver: bridge

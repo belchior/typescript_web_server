@@ -1,7 +1,6 @@
 
-FROM node:14-alpine as dependencies
+FROM node:24-alpine AS dependencies
 WORKDIR /usr/app
 COPY package*.json ./
 RUN ["npm", "ci"]
-
-CMD ["npm", "run", "start:watch"]
+CMD ["npm", "run", "dev"]

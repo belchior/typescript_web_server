@@ -1,36 +1,6 @@
 {
-  "eslint.workingDirectories": [
-    "./client",
-    "./server"
-  ],
-  "files.exclude": {
-    "**/__generated__": true
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
   },
-  "eslint.format.enable": true,
-  "mdb.useDefaultTemplateForPlayground": false,
-  "pgsql.connections": [
-    {
-      "host": "localhost",
-      "dbname": "learning_graphql",
-      "user": "postgres",
-      "password": "secret",
-      "emptyPasswordInput": false,
-      "port": "5432",
-      "profileName": "learning_graphql",
-      "connectTimeout": 15,
-      "encrypt": false,
-      "applicationName": "vscode-pgsql",
-      "hostaddr": "",
-      "options": "",
-      "sslmode": "prefer",
-      "clientEncoding": "",
-      "sslcompression": true,
-      "sslcert": "",
-      "sslkey": "",
-      "sslrootcert": "",
-      "sslcrl": "",
-      "requirepeer": ""
-    }
-  ],
-  "pgsql.debugServerPort": 6000,
+  "editor.formatOnSave": true,
 }

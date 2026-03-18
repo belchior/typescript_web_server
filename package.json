@@ -1,26 +1,18 @@
 {
-  "name": "learning-graphql",
+  "name": "typescript_web_server",
   "version": "1.0.0",
   "description": "The purpose of this repository is to practice GraphQL acquired knowledge as well as your ecosystem",
   "author": "Belchior",
   "license": "MIT",
   "scripts": {
     "client:lint": "cd client && npm run lint && cd ..",
-    "client:start": "cd client && npm start",
     "client:test": "cd client && npm test && cd ..",
     "lint": "npm run client:lint && npm run server:lint",
     "server:lint": "cd server && npm run lint && cd ..",
-    "server:start": "cd server && npm start",
-    "server:watch": "cd server && npm run start:watch",
     "server:test": "cd server && npm test && cd ..",
     "test": "npm run client:test && npm run server:test"
   },
   "devDependencies": {
-    "husky": "^4.2.5"
-  },
-  "husky": {
-    "hooks": {
-      "pre-push": "npm run lint && npm run test"
-    }
+    "@types/jest": "^30.0.0"
   }
 }
