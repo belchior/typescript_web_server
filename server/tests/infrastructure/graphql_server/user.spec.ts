@@ -1,18 +1,18 @@
 import { createApp } from '../../../src/infrastructure/graphql_server/server'
-import { dbConnect, dbDisconnect } from '../../../src/infrastructure/database/db_connection'
 import { graphqlRequest } from '../../util/graphql_client'
 import { randomId } from '../../util/random'
+import * as db from '../../../src/infrastructure/database/db_connection'
 import * as mockHelper from '../../util/mocked_data'
 
 describe('User', () => {
   const app = createApp()
 
   beforeAll(async () => {
-    await dbConnect()
+    await db.dbConnect()
   })
 
   afterAll(async () => {
-    await dbDisconnect()
+    await db.dbDisconnect()
   })
 
   it('should fetch the user by login', async () => {
@@ -297,11 +297,11 @@ describe('Followed Pagination', () => {
   const app = createApp()
 
   beforeAll(async () => {
-    await dbConnect()
+    await db.dbConnect()
   })
 
   afterAll(async () => {
-    await dbDisconnect()
+    await db.dbDisconnect()
   })
 
   it('should limits the number of users of the pages that will be retrieved from the user followers list', async () => {
@@ -490,11 +490,11 @@ describe('Following Pagination', () => {
   const app = createApp()
 
   beforeAll(async () => {
-    await dbConnect()
+    await db.dbConnect()
   })
 
   afterAll(async () => {
-    await dbDisconnect()
+    await db.dbDisconnect()
   })
 
   it('should limits the number of users of the pages that will be retrieved from the user following list', async () => {
@@ -683,11 +683,11 @@ describe('Repository Pagination', () => {
   const app = createApp()
 
   beforeAll(async () => {
-    await dbConnect()
+    await db.dbConnect()
   })
 
   afterAll(async () => {
-    await dbDisconnect()
+    await db.dbDisconnect()
   })
 
   it('should limits the number of repositories of the pages that will be retrieved from the organization', async () => {

@@ -2,7 +2,7 @@
 
 > The purpose of this repository is to practice GraphQL acquired knowledge as well as your ecosystem
 
-The purpose of this **branch** is to find out the best setup and usage of the specified stack. Each branch at this repo has a unique stack, take a look at [all branches](https://github.com/belchior/learning-graphql/branches/all).
+The purpose of this **branch** is to find out the best setup and usage of the specified stack. Each branch at this repo has a unique stack, take a look at [all branches](https://github.com/belchior/typescript_web_server/branches/all).
 
 ## Stack
 
@@ -28,56 +28,18 @@ The server implement the [GraphQL Cursor Connections Specification](https://rela
 
 ### Server
 
-The data used by this server is strongly based on the [GraphQL API of Github](https://developer.github.com/v4/explorer/), I don't know if I have legal right to share the data that I copy to develop this project, so you must provide your on data.
-
-The better way to run the server is using [docker-compose](https://docs.docker.com/compose/). First you will need to create a `.env` file using the command below at root directory.
+You can start the server in development mode executing the command below
 
 ```shell
-#!/usr/bin/env bash
-
-cat << EOF > ./.env
-# Shared
-PGDATABASE=learning_graphql
-PGPASSWORD=secret
-PGPORT=5432
-PGUSER=learning_graphql
-POSTGRES_PASSWORD=secret
-POSTGRES_USER=learning_graphql
-
-# Database
-POSTGRES_HOSTDATA=/path/to/postgresql/data
-
-# Server
-CLIENT_URL=http://localhost:3000
-DATABASE_HOST=database
-DEBUG=db
-NODE_ENV=development
-SERVER_HOST=localhost
-SERVER_PORT=4000
-
-# Client
-CLIENT_PORT=3000
-SERVER_PROXY_PASS=location /graphql { proxy_pass http://learning-graphql-server:4000/graphql; }
-EOF
+docker compose up server
 ```
 
-You must change the env variable `POSTGRES_HOSTDATA` to a valid path.
-
-Then start the server in development mode executing the compose command
-
+To run test in development mode
 ```shell
-docker-compose up
+docker compose run --rm server npm run test:dev
 ```
 
-#### Debug
-
-You can use the environment variable `DEBUG` to enable some level of debug, it's possible to use more than one, like: `DEBUG='db query'`
-
-| value | description                 |
-|-------|-----------------------------|
-| db    | enable database log         |
-| query | enable GraphQL query log    |
-| *     | enable full application log |
+To run tests
 
 ### Client
 

@@ -18,6 +18,7 @@ services:
       - ./server/node_modules:/usr/app/node_modules
       - ./server/package.json:/usr/app/package.json:ro
       - ./server/src:/usr/app/src
+      - ./server/tests:/usr/app/tests
       - ./server/tsconfig.json:/usr/app/tsconfig.json:ro
     restart: always
 

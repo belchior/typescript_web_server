@@ -36,7 +36,7 @@ describe('CursorConnection', () => {
   it('should return forward cursor connection', () => {
     type Test = { created_at: Date }
     const args: TCursorConnectionArgs<Test> = {
-      referenceFrom: (item) => item.created_at.toString(),
+      referenceFrom: (item) => item.created_at.toISOString(),
       items: [
         { created_at: new Date('2026-01-01T00:00:00.000Z') },
       ],
@@ -45,8 +45,9 @@ describe('CursorConnection', () => {
       ],
     }
 
-    const cursor = 'V2VkIERlYyAzMSAyMDI1IDIxOjAwOjAwIEdNVC0wMzAwIChCcmFzaWxpYSBTdGFuZGFyZCBUaW1lKQ=='
     const connection = cursorConnection(args)
+    const cursor = 'MjAyNi0wMS0wMVQwMDowMDowMC4wMDBa'
+
     expect(connection).toEqual({
       edges: [
         {
@@ -68,7 +69,7 @@ describe('CursorConnection', () => {
   it('should return backward cursor connection', () => {
     type Test = { created_at: Date }
     const args: TCursorConnectionArgs<Test> = {
-      referenceFrom: (item) => item.created_at.toString(),
+      referenceFrom: (item) => item.created_at.toISOString(),
       items: [
         { created_at: new Date('2026-01-01T00:00:00.000Z') },
       ],
@@ -76,9 +77,9 @@ describe('CursorConnection', () => {
         { row: 'prev' },
       ],
     }
-
-    const cursor = 'V2VkIERlYyAzMSAyMDI1IDIxOjAwOjAwIEdNVC0wMzAwIChCcmFzaWxpYSBTdGFuZGFyZCBUaW1lKQ=='
     const connection = cursorConnection(args)
+
+    const cursor = 'MjAyNi0wMS0wMVQwMDowMDowMC4wMDBa'
     expect(connection).toEqual({
       edges: [
         {

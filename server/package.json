@@ -9,17 +9,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/belchior/learning-graphql.git"
+    "url": "git+https://github.com/belchior/typescript_web_server.git"
   },
   "scripts": {
     "build:prd": "tsc --project tsconfig.prod.json",
     "build": "tsc --project tsconfig.json",
     "dev": "node --watch-path=src -r ts-node/register src/infrastructure/graphql_server/server.ts",
     "lint": "tsc --noEmit && eslint 'src/**/*.ts'",
-    "test:ci": "jest --ci --coverage=true src/ tests/",
-    "test:dev": "jest --watch --coverage=false src/ tests/",
-    "test:integration": "jest --watch tests/",
-    "test:unit": "jest --watch --coverage=false src/",
+    "test:ci": "NODE_ENV=test jest --ci --coverage=true src/ tests/",
+    "test:dev": "NODE_ENV=test jest --watch --coverage=false src/ tests/",
+    "test:integration": "NODE_ENV=test jest --watch tests/",
+    "test:unit": "NODE_ENV=test jest --watch --coverage=false src/",
     "write-schema": "node scripts/write-schema.ts"
   },
   "dependencies": {
