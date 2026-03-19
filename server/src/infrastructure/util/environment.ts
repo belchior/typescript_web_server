@@ -1,7 +1,7 @@
 
 export default {
   CLIENT_URL: process.env.CLIENT_URL,
-  DEBUG: process.env.DEBUG,
+  LOG_LEVEL: process.env.LOG_LEVEL,
   NODE_ENV: process.env.NODE_ENV,
   POSTGRES_CONNECTIONS_NUMBER: Number(process.env.POSTGRES_CONNECTIONS_NUMBER),
   POSTGRES_DB: process.env.POSTGRES_DB,

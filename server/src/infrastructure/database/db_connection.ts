@@ -26,8 +26,13 @@ export async function dbConnect() {
     statement_timeout: envs.POSTGRES_TIMEOUT,
   })
 
-  pool.on('error', (err) => {
-    console.error('Unexpected error on idle client', err)
+  pool.on('error', (error) => {
+    logger.error({
+      message: 'Unexpected error on idle client',
+      error: {
+        message: error.message,
+      },
+    })
   })
 
   logger.info({

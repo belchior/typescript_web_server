@@ -6,12 +6,12 @@ import pinoHttp from 'pino-http'
 import { createGraphqlHandler } from './graphql/handler'
 import * as db from '../database/db_connection'
 import envs from '../util/environment'
-import logger from '../util/logger'
+import logger, { logConfig } from '../util/logger'
 
 export function createApp() {
   const app = express()
   app.disable('x-powered-by')
-  app.use(pinoHttp())
+  app.use(pinoHttp(logConfig))
   app.use(cors({ methods: 'GET,POST', origin: envs.CLIENT_URL }))
   app.all('/graphql', createGraphqlHandler())
 
