@@ -14,7 +14,7 @@ export function OrganizationPeople(props: OrganizationPeopleProps) {
   return <div>
     <Title variant="h2">People</Title>
     <PeopleList
-      items={user.people.edges.map(item => item!.node)}
+      users={user.people}
       paginationCtrl={{
         hasMore: false,
         isLoading: false,

@@ -14,7 +14,7 @@ export function OrganizationRepositories(props: OrganizationRepositoriesProps) {
   return <div className="OrganizationRepositories">
     <Title variant="h2">Repositories</Title>
     <RepositoriesList
-      items={organization.repositories.edges.map(item => item!.node)}
+      repositories={organization.repositories}
       paginationCtrl={{
         hasMore: false,
         isLoading: false,

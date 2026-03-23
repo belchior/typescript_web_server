@@ -11,8 +11,6 @@ __generated__/
 ### Files ###
 logs
 *.log
-.env
-.env.*
 npm-debug.log*
 
 
