@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "mrmlnc.vscode-postcss-sorting",
+    "dbaeumer.vscode-eslint",
+    "graphql.vscode-graphql-syntax",
+    "meta.relay"
+  ]
+}

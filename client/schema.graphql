@@ -1,14 +1,7 @@
-type Language {
-  color: String!
-  name: String!
-}
-
-type License {
-  name: String!
-}
-
-interface Node {
-  id: ID!
+type Query {
+  organization(login: ID!): Organization
+  profile(login: ID!): ProfileOwner
+  user(login: ID!): User
 }
 
 type Organization implements Node & ProfileOwner & RepositoryOwner {
@@ -17,7 +10,7 @@ type Organization implements Node & ProfileOwner & RepositoryOwner {
   email: String
   id: ID!
   location: String
-  login: String!
+  login: ID!
   name: String
   people(after: String, before: String, first: Int, last: Int): UserConnection!
   repositories(after: String, before: String, first: Int, last: Int): RepositoryConnection!
@@ -25,45 +18,24 @@ type Organization implements Node & ProfileOwner & RepositoryOwner {
   websiteUrl: String
 }
 
-type OrganizationConnection {
-  edges: [OrganizationEdge]!
-  pageInfo: PageInfo!
+interface Node {
+  id: ID!
 }
 
-type OrganizationEdge {
-  cursor: String!
-  node: Organization
-}
-
-type PageInfo {
-  endCursor: String
-  hasNextPage: Boolean!
-  hasPreviousPage: Boolean!
-  startCursor: String
-}
-
-interface ProfileOwner {
+interface ProfileOwner implements Node {
   avatarUrl: String!
   id: ID!
-  login: String!
+  login: ID!
   name: String
   url: String!
 }
 
-type Query {
-  organization(login: String!): Organization
-  profile(login: String!): ProfileOwner
-  user(login: String!): User
-}
-
-type Repository implements Node {
-  description: String
-  forkCount: Int
+interface RepositoryOwner implements Node {
+  avatarUrl: String!
   id: ID!
-  licenseInfo: License
-  name: String!
-  owner: RepositoryOwner!
-  primaryLanguage: Language
+  login: ID!
+  name: String
+  repositories(after: String, before: String, first: Int, last: Int): RepositoryConnection!
   url: String!
 }
 
@@ -77,13 +49,41 @@ type RepositoryEdge {
   node: Repository
 }
 
-interface RepositoryOwner {
-  avatarUrl: String!
+type Repository implements Node {
+  description: String
+  forkCount: Int
   id: ID!
-  login: String!
-  name: String
-  repositories(after: String, before: String, first: Int, last: Int): RepositoryConnection!
+  licenseInfo: License
+  name: String!
+  owner: RepositoryOwner!
+  primaryLanguage: Language
   url: String!
+}
+
+type License {
+  name: String!
+}
+
+type Language {
+  color: String!
+  name: String!
+}
+
+type PageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+}
+
+type UserConnection {
+  edges: [UserEdge]!
+  pageInfo: PageInfo!
+}
+
+type UserEdge {
+  cursor: String!
+  node: User
 }
 
 type User implements Node & ProfileOwner & RepositoryOwner {
@@ -95,7 +95,7 @@ type User implements Node & ProfileOwner & RepositoryOwner {
   following(after: String, before: String, first: Int, last: Int): UserConnection!
   id: ID!
   location: String
-  login: String!
+  login: ID!
   name: String
   organizations(after: String, before: String, first: Int, last: Int): OrganizationConnection!
   repositories(after: String, before: String, first: Int, last: Int): RepositoryConnection!
@@ -104,12 +104,12 @@ type User implements Node & ProfileOwner & RepositoryOwner {
   websiteUrl: String
 }
 
-type UserConnection {
-  edges: [UserEdge]!
+type OrganizationConnection {
+  edges: [OrganizationEdge]!
   pageInfo: PageInfo!
 }
 
-type UserEdge {
+type OrganizationEdge {
   cursor: String!
-  node: User
+  node: Organization
 }

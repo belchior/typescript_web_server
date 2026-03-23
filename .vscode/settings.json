@@ -3,4 +3,10 @@
     "source.fixAll.eslint": "explicit"
   },
   "editor.formatOnSave": true,
+  "postcssSorting.config": {
+    "properties-order": "alphabetical",
+  },
+  "css.lint.duplicateProperties": "error",
+  "css.lint.emptyRules": "error",
+  "editor.tabSize": 2,
 }
