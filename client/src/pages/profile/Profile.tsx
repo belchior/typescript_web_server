@@ -1,77 +1,51 @@
-import React from 'react';
-import Skeleton from '@material-ui/lab/Skeleton';
-import { QueryRenderer } from 'react-relay';
-import { useParams } from 'react-router-dom';
+import { useLazyLoadQuery } from 'react-relay'
+import { useParams } from 'react-router'
 
-import NotFound from 'pages/notfound/NotFound';
-import OrganizationProfile from './components/OrganizationProfile/OrganizationProfile';
-import UserProfile from './components/UserProfile/UserProfile';
-import { TUserTabs, TOrganizationTabs } from 'utils/interfaces';
-import { environment } from 'utils/environment';
-import { query } from './Profile.relay';
-import { useQueryString } from 'utils/hooks';
-import { TTabs } from 'utils/interfaces';
-import { Typography } from '@material-ui/core';
+import { query } from './Profile.relay'
+import { useCurrentTab } from '../../designSystem/PageMenu/PageMenu.hooks'
+import Container from '../../designSystem/Container/Container'
+import ErrorBoundary from '../../designSystem/ErrorBoundary/ErrorBoundary'
+import NotFound from '../notfound/NotFound'
+import OrganizationProfile from './component/OrganizationProfile/OrganizationProfile'
+import PageMenu from '../../designSystem/PageMenu/PageMenu'
+import type { ProfileQuery, ProfileQuery$data } from './__generated__/ProfileQuery.graphql'
+import type { ProfileTypeName } from '../../util/types'
+import UserProfile from './component/UserProfile/UserProfile'
 
-
-interface IRenderProps {
-  error: Error | null
-  props: any
-  retry: (() => void) | null
+type ProfilePageProps = {
+  data: ProfileQuery$data
+}
+function ProfilePage(props: ProfilePageProps) {
+  const { data } = props
+  switch (data.profile?.__typename) {
+    case 'User': return <UserProfile profile={data.profile} />
+    case 'Organization': return <OrganizationProfile profile={data.profile} />
+    default: return <NotFound />
+  }
 }
 
-const tabs: TTabs[] = ['repositories', 'starredRepositories', 'followers', 'following', 'people'];
+export default function Profile() {
+  const params = useParams()
+  const tabName = useCurrentTab()
+  const data = useLazyLoadQuery<ProfileQuery>(
+    query,
+    {
+      login: params.login!,
+      repositories: tabName === 'repositories',
+      stars: tabName === 'stars',
+      followers: tabName === 'followers',
+      following: tabName === 'following',
+      people: tabName === 'people',
+    }
+  )
 
-const Loading = () => (
-  <Skeleton
-    style={{
-      background: 'rgba(255, 255, 255, 0.3)',
-      width: '100%',
-      height: '3px',
-      position: 'absolute',
-      left: 0,
-      top: 0,
-    }}
-  />
-);
+  return <>
+    <PageMenu profileTypeName={data?.profile?.__typename as ProfileTypeName} />
+    <Container className="AppContent" maxWidth="lg">
+      <ErrorBoundary>
+        <ProfilePage data={data} />
+      </ErrorBoundary>
+    </Container>
+  </>
+}
 
-const Profile = () => {
-  const params = useParams<{ login: string }>();
-  const [search] = useQueryString();
-  const tabIndex = Math.max(0, tabs.indexOf(search.get('tab') as TTabs));
-  const tabName = tabs[tabIndex];
-  const variables = {
-    followers: tabName === 'followers',
-    following: tabName === 'following',
-    login: params.login,
-    people: tabName === 'people',
-    repositories: tabName === 'repositories',
-    starredRepositories: tabName === 'starredRepositories',
-  };
-
-  return (
-    <QueryRenderer
-      environment={environment}
-      query={query}
-      variables={variables}
-      render={(renderProps: IRenderProps) => {
-        const { error, props } = renderProps;
-        if (error) return <div>Error!</div>;
-        if (!props) return (
-          <React.Fragment>
-            <Loading />
-            <Typography align="center">Loading...</Typography>
-          </React.Fragment>
-        );
-
-        switch (props.profile?.__typename) {
-          case 'User': return <UserProfile {...props as any} tabName={tabName as TUserTabs} />;
-          case 'Organization': return <OrganizationProfile {...props as any} tabName={tabName as TOrganizationTabs} />;
-          default: return <NotFound />;
-        }
-      }}
-    />
-  );
-};
-
-export default Profile;

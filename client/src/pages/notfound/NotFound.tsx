@@ -1,20 +1,17 @@
-import React from 'react';
-import Typography from '@material-ui/core/Typography';
+import Container from '../../designSystem/Container/Container'
+import Title from '../../designSystem/Title/Title'
+import './NotFound.css'
 
-import Title from 'components/Title/Title';
-import { useStyles } from './NotFound.styles';
-
-const NotFound = () => {
-  const classes = useStyles();
-
+export default function NotFound() {
   return (
-    <main className={classes.root}>
-      <Title>404 - Not found</Title>
-      <Typography>
-        This is not the web page you are looking for.
-      </Typography>
+    <main className="NotFound">
+      <Container maxWidth="lg">
+        <Title>404 - Not found</Title>
+        <p>
+          This is not the web page you are looking for.
+        </p>
+      </Container>
     </main>
-  );
-};
+  )
+}
 
-export default NotFound;

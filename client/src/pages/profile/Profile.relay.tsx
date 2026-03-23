@@ -1,45 +1,32 @@
-import { graphql } from 'babel-plugin-relay/macro';
-
+import { graphql } from 'react-relay'
 
 export const query = graphql`
-  query ProfileRelayQuery(
+  query ProfileQuery(
     $cursor: String
     $followers: Boolean!
     $following: Boolean!
-    $login: String!
+    $login: ID!
     $people: Boolean!
     $repositories: Boolean!
-    $starredRepositories: Boolean!
+    $stars: Boolean!
   ) {
     profile(login: $login) {
       id
       __typename
+
       ... on User {
-        ...UserSidebarRelay_profile
-        ...FollowersListRelay_user @include(if: $followers) @arguments(cursor: $cursor)
-        ...FollowingListRelay_user @include(if: $following) @arguments(cursor: $cursor)
-        ...RepositoriesListRelay_owner @include(if: $repositories) @arguments(cursor: $cursor)
-        ...StarredRepositoriesListRelay_user @include(if: $starredRepositories) @arguments(cursor: $cursor)
+        ...UserSidebar
+        ...UserRepositories_repositories @arguments(cursor: $cursor) @include(if: $repositories)
+        ...UserRepositories_stars @arguments(cursor: $cursor) @include(if: $stars)
+        ...UserFollowing_followers @arguments(cursor: $cursor) @include(if: $followers)
+        ...UserFollowing_following @arguments(cursor: $cursor) @include(if: $following)
       }
 
       ... on Organization {
-        ...OrganizationHeaderRelay_profile
-        ...RepositoriesListRelay_owner @include(if: $repositories) @arguments(cursor: $cursor)
-        ...PeopleListRelay_organization @include(if: $people) @arguments(cursor: $cursor)
+        ...OrganizationHeader
+        ...OrganizationRepositories @arguments(cursor: $cursor) @include(if: $repositories)
+        ...OrganizationPeople @arguments(cursor: $cursor) @include(if: $people)
       }
     }
   }
-`;
-
-export const getVariables = (props: any, paginationInfo: any, fragmentVariables: any) => ({
-  count: fragmentVariables.count,
-  cursor: paginationInfo.cursor,
-  login: fragmentVariables.login,
-  followers: fragmentVariables.followers,
-  following: fragmentVariables.following,
-  people: fragmentVariables.people,
-  repositories: fragmentVariables.repositories,
-  starredRepositories: fragmentVariables.starredRepositories,
-});
-
-export const connectionConfig = { getVariables, query };
+`
