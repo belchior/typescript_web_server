@@ -12,7 +12,7 @@ export type TUser = {
   company?: string
   created_at: Date
   email: string
-  id: string
+  user_id: string
   location?: string
   login: string
   name?: string
@@ -27,7 +27,7 @@ export type TUserOrganization = TOrganization & { joined_at: Date };
 export async function findUsersByLogins(logins: readonly string[]) {
   try {
     const query = `
-      SELECT *, user_id id, 'User' __typename 
+      SELECT *, 'User' __typename
       FROM users 
       WHERE login = ANY($1)
     `
@@ -53,7 +53,7 @@ export async function findFollowersByUserLogin(login: string, pagination: TPagin
   const query = `
     SELECT *
     FROM (
-      SELECT users.*, user_id id, users_following.created_at AS followed_at
+      SELECT users.*, users_following.created_at AS followed_at
       FROM users
       INNER JOIN users_following ON users.login = users_following.user_login
       WHERE
@@ -81,7 +81,7 @@ export async function findFollowingByUserLogin(login: string, pagination: TPagin
   const query = `
     SELECT *
     FROM (
-      SELECT users.*, user_id id, users_following.created_at AS following_at
+      SELECT users.*, users_following.created_at AS following_at
       FROM users
       INNER JOIN users_following ON users.login = users_following.following_login
       WHERE
@@ -108,7 +108,7 @@ export async function findOrganizationsByUserLogin(login: string, pagination: TP
   const query = `
     SELECT *
     FROM (
-      SELECT organizations.*, organization_id id, users_organizations.created_at AS joined_at
+      SELECT organizations.*, users_organizations.created_at AS joined_at
       FROM users_organizations
       JOIN organizations ON organizations.login = organization_login
       WHERE

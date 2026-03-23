@@ -1,4 +1,5 @@
 import {
+  GraphQLID,
   GraphQLNonNull,
   GraphQLObjectType,
   GraphQLString,
@@ -33,9 +34,12 @@ export const UserType: GraphQLObjectType<TUser> = new GraphQLObjectType({
       args: connectionTypeArgs(),
       resolve: UserResolve.following,
     },
-    id: idType(),
+    id: {
+      type: new GraphQLNonNull(GraphQLID),
+      resolve: (parent) => `users_${parent.user_id}`,
+    },
     location: { type: GraphQLString },
-    login: { type: new GraphQLNonNull(GraphQLString) },
+    login: idType(),
     name: { type: GraphQLString },
     organizations: {
       type: OrganizationConnectionType,

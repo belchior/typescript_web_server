@@ -19,7 +19,6 @@ export type TTableNames =
 export type TOwner = {
   __typename: TUser['__typename'] | TOrganization['__typename']
   avatar_url: string
-  id: string
   login: string
   url: string
 }

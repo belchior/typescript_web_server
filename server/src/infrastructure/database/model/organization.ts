@@ -11,7 +11,7 @@ export type TOrganization = {
   created_at: Date
   description?: string
   email?: string
-  id: string
+  organization_id: string
   location?: string
   login: string
   name?: string
@@ -22,7 +22,7 @@ export type TOrganization = {
 export type TOrganizationMember = TUser & { joined_at: Date };
 
 export async function findOrganizationsByLogins(logins: readonly string[]) {
-  const query = 'SELECT *, organization_id id, \'Organization\' __typename FROM organizations WHERE login = ANY($1)'
+  const query = 'SELECT *, \'Organization\' __typename FROM organizations WHERE login = ANY($1)'
   const args = [logins]
 
   try {
@@ -44,7 +44,7 @@ export async function findOrganizationPeopleByLogin(login: string, pagination: T
   const query = `
     SELECT *
     FROM (
-      SELECT users.*, user_id id, users_organizations.created_at AS joined_at
+      SELECT users.*, users_organizations.created_at AS joined_at
       FROM users_organizations
       JOIN users ON user_login = users.login
       WHERE

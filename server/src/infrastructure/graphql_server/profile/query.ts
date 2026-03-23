@@ -1,10 +1,9 @@
-import { GraphQLNonNull, GraphQLString } from 'graphql'
-
 import { ProfileOwnerInterface } from './type'
 import { ProfileResolve } from './resolve'
+import { idType } from '../graphql/types'
 
 export const ProfileQuery = {
   type: ProfileOwnerInterface,
-  args: { login: { type: new GraphQLNonNull(GraphQLString) } },
+  args: { login: idType() },
   resolve: ProfileResolve.profile,
 }

@@ -20,7 +20,7 @@
     "test:dev": "NODE_ENV=test jest --watch --coverage=false src/ tests/",
     "test:integration": "NODE_ENV=test jest --watch tests/",
     "test:unit": "NODE_ENV=test jest --watch --coverage=false src/",
-    "write-schema": "node scripts/write-schema.ts"
+    "write-schema": "ts-node scripts/write_graphql_schema.ts"
   },
   "dependencies": {
     "body-parser": "^2.2.2",

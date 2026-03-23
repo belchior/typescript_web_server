@@ -1,4 +1,5 @@
 import {
+  GraphQLID,
   GraphQLNonNull,
   GraphQLObjectType,
   GraphQLString,
@@ -22,9 +23,12 @@ export const OrganizationType: GraphQLObjectType<TOrganization> = new GraphQLObj
     },
     description: { type: GraphQLString },
     email: { type: GraphQLString },
-    id: idType(),
+    id: {
+      type: new GraphQLNonNull(GraphQLID),
+      resolve: (parent) => `organizations_${parent.organization_id}`,
+    },
     location: { type: GraphQLString },
-    login: { type: new GraphQLNonNull(GraphQLString) },
+    login: idType(),
     name: { type: GraphQLString },
     people: {
       type: UserConnectionType,

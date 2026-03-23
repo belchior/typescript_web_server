@@ -18,7 +18,7 @@ export type TRepository = {
   created_at: Date
   description?: string
   fork_count: number
-  id: string
+  repository_id: string
   name: string
   owner_login: TOwnerIdentifier['owner_login']
   owner_ref: TOwnerIdentifier['owner_ref']
@@ -59,8 +59,8 @@ function fulfilledValues<T>(result: PromiseSettledResult<T>[]): T[] {
 
 export async function findRepositoryOwners(serializedOwners: readonly string[]) {
   try {
-    const usersQuery = 'SELECT *, user_id id, \'User\' __typename FROM users WHERE login = ANY($1)'
-    const organizationsQuery = 'SELECT *, organization_id id, \'Organization\' __typename FROM organizations WHERE login = ANY($1)'
+    const usersQuery = 'SELECT *, \'User\' __typename FROM users WHERE login = ANY($1)'
+    const organizationsQuery = 'SELECT *, \'Organization\' __typename FROM organizations WHERE login = ANY($1)'
 
     const owners = serializedOwners.map<TOwnerIdentifier>(deserialize)
     const logins = groupByRef(owners)
