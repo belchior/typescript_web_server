@@ -9,7 +9,7 @@ import NotFound from '../notfound/NotFound'
 import OrganizationProfile from './component/OrganizationProfile/OrganizationProfile'
 import PageMenu from '../../designSystem/PageMenu/PageMenu'
 import type { ProfileQuery, ProfileQuery$data } from './__generated__/ProfileQuery.graphql'
-import type { ProfileTypeName } from '../../util/types'
+import type { ProfileOwnerType } from '../../util/types'
 import UserProfile from './component/UserProfile/UserProfile'
 
 type ProfilePageProps = {
@@ -40,7 +40,7 @@ export default function Profile() {
   )
 
   return <>
-    <PageMenu profileTypeName={data?.profile?.__typename as ProfileTypeName} />
+    <PageMenu profileOwnerType={data?.profile?.__typename as ProfileOwnerType} />
     <Container className="AppContent" maxWidth="lg">
       <ErrorBoundary>
         <ProfilePage data={data} />

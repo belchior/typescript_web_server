@@ -1,7 +1,7 @@
 import { useParams } from 'react-router'
 import { useQueryString } from '../../util/hooks'
 import IconBook from '../Icon/Book'
-import type { ProfileTypeName } from '../../util/types'
+import type { ProfileOwnerType } from '../../util/types'
 import type { ReactNode } from 'react'
 import IconRepository from '../Icon/Repository'
 import IconStar from '../Icon/Star'
@@ -28,7 +28,7 @@ type MenuItem = {
 }
 type TabMap<T extends TTabs> = Record<T, MenuItem>
 
-export function useMenuItems(typeName?: ProfileTypeName) {
+export function useMenuItems(typeName?: ProfileOwnerType) {
   const params = useParams()
   const login = params.login ?? ''
 

@@ -1,14 +1,12 @@
-import React from 'react'
+import { type PropsWithChildren } from 'react'
 import './Language.css'
 
-interface ILanguage {
+type LanguageProps = PropsWithChildren & {
   color: string
-  children: React.ReactNode
 }
 
-const Language = (props: ILanguage) => {
+export default function Language(props: LanguageProps) {
   const { children, color } = props
-  // const classes = useStyles()
   return (
     <span className="Language">
       <span className="circle" style={{ backgroundColor: color }} />
@@ -16,5 +14,3 @@ const Language = (props: ILanguage) => {
     </span>
   )
 }
-
-export default Language

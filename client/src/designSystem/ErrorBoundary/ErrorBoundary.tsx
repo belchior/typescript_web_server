@@ -1,21 +1,22 @@
-import React from 'react'
+import React, { type PropsWithChildren } from 'react'
 
-interface IProps {
+type IProps = PropsWithChildren & {
   fallback?: React.ReactNode
-  children: React.ReactNode
 }
-interface IState {
+type IState = {
   hasError: boolean
 }
 
-const ErrorView = () => (
-  <div>
-    <h1>Something went wrong.</h1>
-    <p>Try refresh the page</p>
-  </div>
-)
+function ErrorView() {
+  return (
+    <div>
+      <h1>Something went wrong.</h1>
+      <p>Try refresh the page</p>
+    </div>
+  )
+}
 
-class ErrorBoundary extends React.Component<IProps, IState> {
+export default class ErrorBoundary extends React.Component<IProps, IState> {
   constructor(props: IProps) {
     super(props)
     this.state = { hasError: false }
@@ -31,5 +32,3 @@ class ErrorBoundary extends React.Component<IProps, IState> {
     return <ErrorView />
   }
 }
-
-export default ErrorBoundary

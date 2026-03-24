@@ -1,5 +1,5 @@
 import List, { type PaginationControl } from '../../../../designSystem/List/List'
-import RepositoryItem from '../RepositoryItem/RepositoryItem'
+import RepositoryItem from './RepositoryItem'
 import type { UserRepositories_repositories$data } from '../UserProfile/__generated__/UserRepositories_repositories.graphql'
 
 type RepositoriesListProps = {

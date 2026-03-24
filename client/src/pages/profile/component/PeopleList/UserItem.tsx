@@ -4,10 +4,10 @@ import IconOrganization from '../../../../designSystem/Icon/Organization'
 import Image from '../../../../designSystem/Image/Image'
 import Title from '../../../../designSystem/Title/Title'
 import type { NonNullable } from '../../../../util/types'
-import type { UserFollowing_following$data } from '../UserProfile/__generated__/UserFollowing_following.graphql'
+import type { UserFollowing_followers$data } from '../UserProfile/__generated__/UserFollowing_followers.graphql'
 import './UserItem.css'
 
-type Edge = NonNullable<UserFollowing_following$data['following']['edges'][number]>
+type Edge = NonNullable<UserFollowing_followers$data['followers']['edges'][number]>
 type User = NonNullable<Edge['node']>
 
 type UserItemProps = {

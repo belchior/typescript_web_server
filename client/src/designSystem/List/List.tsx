@@ -8,12 +8,12 @@ export type PaginationControl = {
   isLoading: boolean,
   loadMore: (_count: number) => void,
 }
-interface IProps {
+type ListProps = {
   paginationCtrl: PaginationControl
   children: React.ReactNode
 }
 
-export default function List(props: IProps) {
+export default function List(props: ListProps) {
   const { paginationCtrl, children } = props
 
   const handleLoadMore = () => {
