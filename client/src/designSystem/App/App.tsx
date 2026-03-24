@@ -13,7 +13,7 @@ export default function App(props: AppProps) {
 
   return (
     <div className="App">
-      <Header login={params?.['*']} />
+      <Header login={params?.login} />
       {children}
       <Footer />
     </div>

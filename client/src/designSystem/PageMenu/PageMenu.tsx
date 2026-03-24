@@ -22,7 +22,10 @@ export default function AppMenu(props: AppMenuProps) {
       <ul>
         {Object.entries(menuItems).map(([key, value]) => (
           <li key={key} className={cls([activeTab === key, 'active'])}>
-            <Anchor className="menuItem" decoration="button" href={value.href}>{value.label}</Anchor>
+            <Anchor className="menuItem" decoration="button" href={value.href}>
+              {value.icon}
+              {value.label}
+            </Anchor>
           </li>
         ))}
       </ul>
