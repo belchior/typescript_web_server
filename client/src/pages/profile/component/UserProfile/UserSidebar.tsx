@@ -7,8 +7,9 @@ import Image from '../../../../designSystem/Image/Image'
 import LinkIcon from '../../../../designSystem/Icon/Link'
 import LocationIcon from '../../../../designSystem/Icon/Location'
 import OrganizationIcon from '../../../../designSystem/Icon/Organization'
-import ProfileOwnerList, { type ProfileOwner } from '../ProfileOwnerList/ProfileOwnerList'
+import AvatarList from '../AvatarList/AvatarList'
 import Title from '../../../../designSystem/Title/Title'
+import type { ProfileOwner } from '../ProfileOwnerList/ProfileOwnerList'
 import type { UserSidebar$key } from './__generated__/UserSidebar.graphql'
 import './UserSidebar.css'
 
@@ -62,7 +63,7 @@ export default function UserSidebar(props: UserSidebarProps) {
         </p>
       }
       {organizations.length > 0 &&
-        <ProfileOwnerList title="Organizations" owners={organizations as ProfileOwner[]} />
+        <AvatarList title="Organizations" items={organizations as ProfileOwner[]} />
       }
     </div>
   )

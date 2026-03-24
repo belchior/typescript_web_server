@@ -38,19 +38,19 @@ export async function findOrganizationsByLogins(logins: readonly string[]) {
 
 export async function findOrganizationPeopleByLogin(login: string, pagination: TPaginationQueryArgs) {
   const startFrom = pagination.reference && isISOString(pagination.reference)
-    ? `AND uo.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
+    ? `AND om.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
     : ''
 
   const query = `
     SELECT *
     FROM (
-      SELECT u.*, uo.created_at AS joined_at
-      FROM users_organizations uo
-      JOIN users u ON u.login = uo.user_login
+      SELECT u.*, om.created_at AS joined_at
+      FROM organizations_members om
+      JOIN users u ON u.login = om.user_login
       WHERE
-        uo.organization_login = $1
+        om.organization_login = $1
         ${startFrom}
-      ORDER BY uo.created_at ${pagination.order}
+      ORDER BY om.created_at ${pagination.order}
       LIMIT $2
     ) AS users
     ORDER BY joined_at ASC
@@ -72,12 +72,12 @@ export async function findOrganizationPeoplePageInfo(
 ) {
   const pageInfoFnQuery = (queryArgs: TPageInfoFnQueryArgs) => `
     SELECT u.login, '${queryArgs.row}' AS row
-    FROM users_organizations uo
-    JOIN users u ON u.login = uo.user_login
+    FROM organizations_members om
+    JOIN users u ON u.login = om.user_login
     WHERE
-      uo.organization_login = '${login}'
-      and uo.created_at ${queryArgs.operator} TIMESTAMP WITH TIME ZONE '${queryArgs.reference}'
-    ORDER BY uo.created_at ${queryArgs.order}
+      om.organization_login = '${login}'
+      and om.created_at ${queryArgs.operator} TIMESTAMP WITH TIME ZONE '${queryArgs.reference}'
+    ORDER BY om.created_at ${queryArgs.order}
     LIMIT 1
   `
 

@@ -8,11 +8,6 @@ import { TUser } from './user'
 import { TPageInfoItem } from '../../util/cursor_connection/cursor_connection'
 import { pageInfoQueries, TPageInfoFnQueryArgs, TPaginationQueryArgs } from '../util/pagination'
 
-export type TOwnerIdentifier = {
-  owner_login: string
-  owner_ref: 'users' | 'organizations'
-}
-
 export type TRepository = {
   __typename: 'Repository'
   created_at: Date
@@ -21,8 +16,8 @@ export type TRepository = {
   star_count: number
   repository_id: string
   name: string
-  owner_login: TOwnerIdentifier['owner_login']
-  owner_ref: TOwnerIdentifier['owner_ref']
+  owner_login: string
+  owner_ref: 'users' | 'organizations'
   primary_language: string
   url: string
 
@@ -37,11 +32,17 @@ export type TRepository = {
 
 export type TStarredRepository = TRepository & { starred_at: Date }
 
-type TKey = TOwnerIdentifier['owner_ref']
-type TValue = TOwnerIdentifier['owner_login']
-type TRepositoryOwnerLogins = Record<TKey, TValue[]>
+type TOwnerLogin = TRepository['owner_login']
+type TownerRef = TRepository['owner_ref']
 
-function groupByRef(owners: TOwnerIdentifier[]) {
+export type TProfileOwnerIdentifier = {
+  owner_login: TOwnerLogin
+  owner_ref: TownerRef
+}
+
+type TRepositoryOwnerLogins = Record<TownerRef, TOwnerLogin[]>
+
+function groupByRef(owners: TProfileOwnerIdentifier[]) {
   const logins: TRepositoryOwnerLogins = {
     users: [],
     organizations: [],
@@ -63,7 +64,7 @@ export async function findRepositoryOwners(serializedOwners: readonly string[]) 
     const usersQuery = 'SELECT *, \'User\' __typename FROM users WHERE login = ANY($1)'
     const organizationsQuery = 'SELECT *, \'Organization\' __typename FROM organizations WHERE login = ANY($1)'
 
-    const owners = serializedOwners.map<TOwnerIdentifier>(deserialize)
+    const owners = serializedOwners.map<TProfileOwnerIdentifier>(deserialize)
     const logins = groupByRef(owners)
 
     const usersPromise = logins.users.length > 0
@@ -79,7 +80,7 @@ export async function findRepositoryOwners(serializedOwners: readonly string[]) 
     const items = result.flatMap(item => item.rows)
 
     return serializedOwners.map(item => {
-      const owner = deserialize<TOwnerIdentifier>(item)
+      const owner = deserialize<TProfileOwnerIdentifier>(item)
       return (
         items.find(item => item.login === owner.owner_login) ||
         new Error(`Repository Owner not found with login: ${owner.owner_login}`)
@@ -95,6 +96,7 @@ export async function findRepositoryByOwnerLogin(login: string, pagination: TPag
     ? `AND r.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
     : ''
 
+  // TODO concat all licenses into one list
   const query = `
     SELECT *
     FROM (

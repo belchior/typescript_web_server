@@ -80,7 +80,7 @@ export async function insertOrganization(suffix: string, organization: Partial<T
   }
 
   const query = toSQLInsert('organizations', escapeData(data))
-  const { rows } = await getConnection().query<TOrganization & { organization_id: string }>(query)
+  const { rows } = await getConnection().query<TOrganization>(query)
   const result = rows.at(0)!
   return result
 }
@@ -121,7 +121,7 @@ export async function insertRepository(suffix: string, repository: Partial<TRepo
   ])
 
   const query = toSQLInsert('repositories', escapeData(data))
-  const { rows } = await getConnection().query<TRepository & { repository_id: string }>(query)
+  const { rows } = await getConnection().query<TRepository>(query)
   const repo = rows.at(0)!
 
   await insertRepositoriesLicenses({
@@ -200,18 +200,18 @@ export async function insertUsersFollowing(list: TUsersFollowing[]) {
   return results
 }
 
-type TUsersOrganizations = {
-  user_login: TUser['login'],
+type TOrganizationsMembers = {
   organization_login: TOrganization['login'],
+  user_login: TUser['login'],
 }
-export async function insertUsersOrganizations(list: TUsersOrganizations[]) {
+export async function insertUsersOrganizations(list: TOrganizationsMembers[]) {
   const results = []
 
   for (const data of list) {
     // needed to bind user to an org in a consistent order
     await delay(randomInteger(1, 10))
-    const query = toSQLInsert('users_organizations', escapeData(data))
-    const { rows } = await getConnection().query<TUsersOrganizations>(query)
+    const query = toSQLInsert('organizations_members', escapeData(data))
+    const { rows } = await getConnection().query<TOrganizationsMembers>(query)
     results.push(rows.at(0)!)
   }
 

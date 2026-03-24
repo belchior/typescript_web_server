@@ -12,9 +12,8 @@ export const fragment = {
       @connection(key: "UserFollowing_following") {
         edges {
           node {
+            __typename
             avatarUrl
-            bio
-            company
             id
             location
             login

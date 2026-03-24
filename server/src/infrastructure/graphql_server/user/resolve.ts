@@ -19,6 +19,7 @@ import {
 } from '../../util/cursor_connection/cursor_connection'
 import { paginationArgsToQueryArgs } from '../../database/util/pagination'
 import { TArgs, TGraphQLContext } from '../graphql/types'
+import { TProfileOwner } from '../../database/util/types'
 
 type UserQueryArgs = {
   login: string
@@ -44,7 +45,7 @@ export const UserResolve = {
     }
   },
 
-  following: async (parent: TUser, args: TPaginationArgs) => {
+  following: async (parent: TProfileOwner, args: TPaginationArgs) => {
     try {
       const referenceFrom = (item: TFollowing) => item.following_at.toISOString()
       const pagination = paginationArgsToQueryArgs(args)

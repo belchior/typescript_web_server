@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: server
     depends_on:
-      - database_seed
+      - database_schema
     env_file:
       - ./.env
     ports:

@@ -5,7 +5,7 @@ import {
   findRepositoryPageInfo,
   findStarredRepositoryByOwnerLogin,
   findStarredRepositoryPageInfo,
-  TOwnerIdentifier,
+  TProfileOwnerIdentifier,
   TRepository,
   TStarredRepository,
 } from '../../database/model/repository'
@@ -44,7 +44,7 @@ export const RepositoryResolve = {
   },
 
   owner: async (parent: TRepository, args: TArgs, context: TGraphQLContext) => {
-    const serializedOwner = serialize<TOwnerIdentifier>({
+    const serializedOwner = serialize<TProfileOwnerIdentifier>({
       owner_login: parent.owner_login,
       owner_ref: parent.owner_ref,
     })

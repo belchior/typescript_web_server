@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS repositories_licenses (
 );
 
 CREATE TABLE IF NOT EXISTS repositories_stars (
-  owner_login       VARCHAR,
+  owner_login       VARCHAR NOT NULL,
   repository_id     BIGINT REFERENCES repositories(repository_id),
   created_at        TIMESTAMP(3) WITH TIME ZONE NOT NULL DEFAULT now(),
   PRIMARY KEY(owner_login, repository_id)
@@ -72,14 +72,14 @@ CREATE TABLE IF NOT EXISTS repositories_stars (
 
 CREATE TABLE IF NOT EXISTS users_following (
   user_login        VARCHAR REFERENCES users(login),
-  following_login   VARCHAR REFERENCES users(login),
+  following_login   VARCHAR NOT NULL,
   created_at        TIMESTAMP(3) WITH TIME ZONE NOT NULL DEFAULT now(),
   PRIMARY KEY(user_login, following_login)
 );
 
-CREATE TABLE IF NOT EXISTS users_organizations (
-  user_login         VARCHAR REFERENCES users(login),
+CREATE TABLE IF NOT EXISTS organizations_members (
   organization_login VARCHAR REFERENCES organizations(login),
+  user_login         VARCHAR REFERENCES users(login),
   created_at         TIMESTAMP(3) WITH TIME ZONE NOT NULL DEFAULT now(),
   PRIMARY KEY(organization_login, user_login)
 );

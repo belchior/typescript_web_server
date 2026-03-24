@@ -4,25 +4,28 @@ INSERT INTO users (login, name, email, url, avatar_url, bio, website_url, locati
   ('bar', 'Bar', 'bar@email.com', 'https://github.com/bar', 'https://bar.com/avatar.jpg', 'Bio of Bar', null, 'Brasil', 'Bar Company'),
   ('dee', 'Dee', 'dee@email.com', 'https://github.com/dee', 'https://dee.com/avatar.jpg', 'Bio of Dee', null, 'Brasil', 'Dee Company');
 
-INSERT INTO users_following (user_login, following_login) VALUES
-  ('belchior', 'foo'),
-  ('belchior', 'bar'),
-  ('belchior', 'dee'),
-  ('foo', 'dee'),
-  ('bar', 'dee'),
-  ('bar', 'belchior'),
-  ('dee', 'bar'),
-  ('dee', 'belchior');
-
 INSERT INTO organizations (organization_id, login, url, name, description, avatar_url, location) 
 OVERRIDING SYSTEM VALUE
 VALUES
   (1000, 'belchior-org', 'https://github.com/belchior-org', 'My Org', 'Test Org', 'https://avatars3.githubusercontent.com/u/2656585?u=de302ff93b129cf3841471deb188a5f5e51a2417&v=4', 'Brasil'),
   (1001, 'rust-lang', 'https://github.com/rust-lang', 'The Rust Programming Language', 'Empowering everyone to build reliable and efficient software.', 'https://avatars.githubusercontent.com/u/5430905?s=200&v=4', null);
 
-INSERT INTO users_organizations (user_login, organization_login) VALUES
+INSERT INTO organizations_members (user_login, organization_login) VALUES
   ('belchior', 'belchior-org'),
   ('foo', 'rust-lang');
+
+INSERT INTO users_following (user_login, following_login) VALUES
+  ('belchior', 'foo'),
+  ('belchior', 'bar'),
+  ('belchior', 'dee'),
+  ('belchior', 'rust-lang'),
+  ('foo', 'dee'),
+  ('foo', 'rust-lang'),
+  ('bar', 'dee'),
+  ('bar', 'belchior'),
+  ('dee', 'bar'),
+  ('dee', 'belchior'),
+  ('dee', 'rust-lang');
 
 INSERT INTO languages (language_name, language_color) VALUES
   ('JavaScript','#f1e05a'),

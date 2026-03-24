@@ -8,7 +8,7 @@ import {
 import { connectionType, connectionTypeArgs } from '../../util/cursor_connection/graphql_types'
 import { OrganizationConnectionType } from '../organization/type'
 import { idType, NodeInterface } from '../graphql/types'
-import { ProfileOwnerInterface } from '../profile/type'
+import { ProfileOwnerConnectionType, ProfileOwnerInterface } from '../profile/type'
 import { RepositoryConnectionType, RepositoryOwnerInterface } from '../repository/type'
 import { UserResolve } from './resolve'
 import { TUser } from '../../database/model/user'
@@ -30,7 +30,7 @@ export const UserType: GraphQLObjectType<TUser> = new GraphQLObjectType({
       resolve: UserResolve.followers,
     },
     following: {
-      type: UserConnectionType,
+      type: ProfileOwnerConnectionType,
       args: connectionTypeArgs(),
       resolve: UserResolve.following,
     },

@@ -8,6 +8,7 @@ import {
 } from 'graphql'
 import type {
   GraphQLFieldConfigArgumentMap,
+  GraphQLInterfaceType,
 } from 'graphql'
 
 export const PageInfoType = new GraphQLObjectType({
@@ -20,7 +21,7 @@ export const PageInfoType = new GraphQLObjectType({
   }),
 })
 
-export const connectionType = (Type: GraphQLObjectType) => {
+export const connectionType = (Type: GraphQLObjectType | GraphQLInterfaceType) => {
   const EdgeType = new GraphQLObjectType({
     name: `${Type.name}Edge`,
     fields: () => ({
