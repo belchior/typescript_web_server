@@ -249,14 +249,14 @@ describe('User', () => {
     const suffix = randomId()
     const userLogin = `user_${suffix}`
 
-    const [, repository] = await Promise.all([
+    const [, repo] = await Promise.all([
       mockHelper.insertUser(suffix, { login: userLogin }),
       mockHelper.insertRepository(suffix, { owner_login: userLogin, owner_ref: 'users' }),
     ])
-    await mockHelper.insertUsersStarredRepositories({
-      repository_id: repository.repository_id,
+    await mockHelper.insertUsersStarredRepositories([{
+      repository_id: repo.repository_id,
       owner_login: userLogin,
-    })
+    }])
 
     const query = `
       {
@@ -281,8 +281,8 @@ describe('User', () => {
             edges: [
               {
                 node: {
-                  id: `repositories_${repository.repository_id}`,
-                  name: repository.name,
+                  id: `repositories_${repo.repository_id}`,
+                  name: repo.name,
                 },
               },
             ],
@@ -690,7 +690,7 @@ describe('Repository Pagination', () => {
     await db.dbDisconnect()
   })
 
-  it('should limits the number of repositories of the pages that will be retrieved from the organization', async () => {
+  it('should limits the number of repositories of the pages that will be retrieved from the user', async () => {
     const suffix = randomId()
     const login = `user_${suffix}`
     const [, repos] = await Promise.all([
@@ -863,5 +863,204 @@ describe('Repository Pagination', () => {
     const response = await graphqlRequest(app, query)
 
     expect(response.body.data.user.repositories.edges).toHaveLength(0)
+  })
+})
+
+describe('Starred Repository Pagination', () => {
+  const app = createApp()
+
+  beforeAll(async () => {
+    await db.dbConnect()
+  })
+
+  afterAll(async () => {
+    await db.dbDisconnect()
+  })
+
+  it('should limits the number of starred repositories of the pages that will be retrieved from the user', async () => {
+    const suffix = randomId()
+    const login = `user_${suffix}`
+    const [, repos] = await Promise.all([
+      mockHelper.insertUser(suffix, { login }),
+      mockHelper.insertRepositories(suffix, [
+        { name: `repo0_${suffix}`, owner_login: 'other_user', owner_ref: 'users' },
+        { name: `repo1_${suffix}`, owner_login: 'other_user', owner_ref: 'users' },
+        { name: `repo2_${suffix}`, owner_login: 'other_user', owner_ref: 'users' },
+      ]),
+    ])
+    await mockHelper.insertUsersStarredRepositories(repos.map(repo => ({
+      repository_id: repo.repository_id,
+      owner_login: login,
+    })))
+
+    const pageLimit = 2
+
+    const query = `
+      { user(login: "${login}") { starredRepositories(first: ${pageLimit}) { edges { node { name } } } } }
+    `
+    const response = await graphqlRequest(app, query)
+
+    expect(response.body.data.user.starredRepositories.edges).toHaveLength(pageLimit)
+    expect(response.body).toEqual(expect.objectContaining({
+      data: {
+        user: {
+          starredRepositories: {
+            edges: [
+              { node: { name: repos.at(0)?.name } },
+              { node: { name: repos.at(1)?.name } },
+            ],
+          },
+        },
+      },
+    }))
+  })
+
+  it('should advance to the next page respecting the limit and order of the repos', async () => {
+    const suffix = randomId()
+    const login = `user_${suffix}`
+    const [, repos] = await Promise.all([
+      mockHelper.insertUser(suffix, { login }),
+      mockHelper.insertRepositories(suffix, [
+        { name: `repo0_${suffix}`, owner_login: 'other_user', owner_ref: 'users' },
+        { name: `repo1_${suffix}`, owner_login: 'other_user', owner_ref: 'users' },
+        { name: `repo2_${suffix}`, owner_login: 'other_user', owner_ref: 'users' },
+      ]),
+    ])
+    await mockHelper.insertUsersStarredRepositories(repos.map(repo => ({
+      repository_id: repo.repository_id,
+      owner_login: login,
+    })))
+
+    const pageLimit = 2
+
+    let query = `
+      { user(login: "${login}") { starredRepositories(first: ${pageLimit}) { 
+        pageInfo { endCursor }
+        edges { node { name } } 
+      } } }
+    `
+    let response = await graphqlRequest(app, query)
+
+    expect(response.body.data.user.starredRepositories.edges).toHaveLength(pageLimit)
+    expect(response.body).toEqual(expect.objectContaining({
+      data: {
+        user: {
+          starredRepositories: expect.objectContaining({
+            edges: [
+              { node: { name: repos.at(0)?.name } },
+              { node: { name: repos.at(1)?.name } },
+            ],
+          }),
+        },
+      },
+    }))
+
+    const { endCursor } = response.body.data.user.starredRepositories.pageInfo
+    query = `
+      { user(login: "${login}") { starredRepositories(first: ${pageLimit}, after: "${endCursor}") { 
+        pageInfo { hasNextPage }
+        edges { node { name } }
+      } } }
+    `
+
+    response = await graphqlRequest(app, query)
+
+    expect(response.body.data.user.starredRepositories.edges).toHaveLength(1)
+    expect(response.body).toEqual(expect.objectContaining({
+      data: {
+        user: {
+          starredRepositories: {
+            pageInfo: {
+              hasNextPage: false,
+            },
+            edges: [
+              { node: { name: repos.at(2)?.name } },
+            ],
+          },
+        },
+      },
+    }))
+  })
+
+  it('should advance to the next page in inverse order where the last repository should be in the first page', async () => {
+    const suffix = randomId()
+    const login = `user_${suffix}`
+    const [, repos] = await Promise.all([
+      mockHelper.insertUser(suffix, { login }),
+      mockHelper.insertRepositories(suffix, [
+        { name: `repo0_${suffix}`, owner_login: 'other_user', owner_ref: 'users' },
+        { name: `repo1_${suffix}`, owner_login: 'other_user', owner_ref: 'users' },
+        { name: `repo2_${suffix}`, owner_login: 'other_user', owner_ref: 'users' },
+      ]),
+    ])
+    await mockHelper.insertUsersStarredRepositories(repos.map(repo => ({
+      repository_id: repo.repository_id,
+      owner_login: login,
+    })))
+
+    const pageLimit = 2
+
+    let query = `
+      { user(login: "${login}") { starredRepositories(last: ${pageLimit}) { 
+        pageInfo { startCursor }
+        edges { node { name } } 
+      } } }
+    `
+    let response = await graphqlRequest(app, query)
+
+    expect(response.body.data.user.starredRepositories.edges).toHaveLength(pageLimit)
+    expect(response.body).toEqual(expect.objectContaining({
+      data: {
+        user: {
+          starredRepositories: expect.objectContaining({
+            edges: [
+              { node: { name: repos.at(1)?.name } },
+              { node: { name: repos.at(2)?.name } },
+            ],
+          }),
+        },
+      },
+    }))
+
+    const { startCursor } = response.body.data.user.starredRepositories.pageInfo
+    query = `
+      { user(login: "${login}") { starredRepositories(last: ${pageLimit}, before: "${startCursor}") { 
+        pageInfo { hasPreviousPage }
+        edges { node { name } }
+      } } }
+    `
+
+    response = await graphqlRequest(app, query)
+
+    expect(response.body.data.user.starredRepositories.edges).toHaveLength(1)
+    expect(response.body).toEqual(expect.objectContaining({
+      data: {
+        user: {
+          starredRepositories: {
+            pageInfo: {
+              hasPreviousPage: false,
+            },
+            edges: [
+              { node: { name: repos.at(0)?.name } },
+            ],
+          },
+        },
+      },
+    }))
+  })
+
+  it('should retrieve an empty list when the user does not have starred repositories', async () => {
+    const suffix = randomId()
+    const login = `user_${suffix}`
+    await Promise.all([
+      mockHelper.insertUser(suffix, { login }),
+    ])
+
+    const query = `
+      { user(login: "${login}") { starredRepositories(first: 2) { edges { node { name } } } } }
+    `
+    const response = await graphqlRequest(app, query)
+
+    expect(response.body.data.user.starredRepositories.edges).toHaveLength(0)
   })
 })

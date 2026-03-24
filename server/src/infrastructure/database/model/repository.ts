@@ -129,10 +129,10 @@ export async function findStarredRepositoryByOwnerLogin(login: string, paginatio
     SELECT *
     FROM (
       SELECT r.*, rs.created_at AS starred_at
-      FROM repositories_stars rs
-      JOIN repositories r using(repository_id)
+      FROM repositories r
+      INNER JOIN repositories_stars rs using(repository_id)
       WHERE
-        r.owner_login = $1
+        rs.owner_login = $1
         ${startFrom}
       ORDER BY rs.created_at ${pagination.order}
       LIMIT $2

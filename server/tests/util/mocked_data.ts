@@ -222,9 +222,16 @@ type TRepositoriesStars = {
   owner_login: TUser['login'] | TOrganization['login'],
   repository_id: TRepository['repository_id'],
 }
-export async function insertUsersStarredRepositories(data: TRepositoriesStars) {
-  const query = toSQLInsert('repositories_stars', escapeData(data))
-  const { rows } = await getConnection().query<TRepositoriesStars>(query)
-  const result = rows.at(0)!
-  return result
+export async function insertUsersStarredRepositories(list: TRepositoriesStars[]) {
+  const results = []
+
+  for (const data of list) {
+    // needed to bind star a repositories in a consistent order
+    await delay(randomInteger(1, 10))
+    const query = toSQLInsert('repositories_stars', escapeData(data))
+    const { rows } = await getConnection().query<TRepositoriesStars>(query)
+    results.push(rows.at(0)!)
+  }
+
+  return results
 }
