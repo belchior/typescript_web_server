@@ -48,7 +48,7 @@ describe('User', () => {
           bio: user.bio,
           company: user.company,
           email: user.email,
-          id: user.id,
+          id: `users_${user.user_id}`,
           location: user.location,
           login: user.login,
           name: user.name,
@@ -234,7 +234,7 @@ describe('User', () => {
             edges: [
               {
                 node: {
-                  id: repository.id,
+                  id: `repositories_${repository.repository_id}`,
                   name: repository.name,
                 },
               },
@@ -254,8 +254,8 @@ describe('User', () => {
       mockHelper.insertRepository(suffix, { owner_login: userLogin, owner_ref: 'users' }),
     ])
     await mockHelper.insertUsersStarredRepositories({
-      repository_id: repository.id,
-      user_login: userLogin,
+      repository_id: repository.repository_id,
+      owner_login: userLogin,
     })
 
     const query = `
@@ -281,7 +281,7 @@ describe('User', () => {
             edges: [
               {
                 node: {
-                  id: repository.id,
+                  id: `repositories_${repository.repository_id}`,
                   name: repository.name,
                 },
               },

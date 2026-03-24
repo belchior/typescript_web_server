@@ -16,6 +16,7 @@ export const fragment = {
             name
             description
             forkCount
+            starCount
             licenseInfo {
               name
             }
@@ -44,6 +45,7 @@ export const fragment = {
             name
             description
             forkCount
+            starCount
             licenseInfo {
               name
             }

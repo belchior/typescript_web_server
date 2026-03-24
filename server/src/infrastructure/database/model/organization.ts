@@ -38,22 +38,22 @@ export async function findOrganizationsByLogins(logins: readonly string[]) {
 
 export async function findOrganizationPeopleByLogin(login: string, pagination: TPaginationQueryArgs) {
   const startFrom = pagination.reference && isISOString(pagination.reference)
-    ? `AND users_organizations.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
+    ? `AND uo.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
     : ''
 
   const query = `
     SELECT *
     FROM (
-      SELECT users.*, users_organizations.created_at AS joined_at
-      FROM users_organizations
-      JOIN users ON user_login = users.login
+      SELECT u.*, uo.created_at AS joined_at
+      FROM users_organizations uo
+      JOIN users u ON u.login = uo.user_login
       WHERE
-        organization_login = $1
+        uo.organization_login = $1
         ${startFrom}
-      ORDER BY users_organizations.created_at ${pagination.order}
+      ORDER BY uo.created_at ${pagination.order}
       LIMIT $2
     ) AS users
-    ORDER BY users.joined_at ASC
+    ORDER BY joined_at ASC
   `
 
   const args = [
@@ -71,13 +71,13 @@ export async function findOrganizationPeoplePageInfo(
   referenceFrom: (item: TOrganizationMember) => string
 ) {
   const pageInfoFnQuery = (queryArgs: TPageInfoFnQueryArgs) => `
-    SELECT users.login, '${queryArgs.row}' AS row
-    FROM users_organizations
-    JOIN users ON user_login = users.login
+    SELECT u.login, '${queryArgs.row}' AS row
+    FROM users_organizations uo
+    JOIN users u ON u.login = uo.user_login
     WHERE
-      organization_login = '${login}'
-      and users_organizations.created_at ${queryArgs.operator} TIMESTAMP WITH TIME ZONE '${queryArgs.reference}'
-    ORDER BY users_organizations.created_at ${queryArgs.order}
+      uo.organization_login = '${login}'
+      and uo.created_at ${queryArgs.operator} TIMESTAMP WITH TIME ZONE '${queryArgs.reference}'
+    ORDER BY uo.created_at ${queryArgs.order}
     LIMIT 1
   `
 

@@ -52,6 +52,7 @@ type RepositoryEdge {
 type Repository implements Node {
   description: String
   forkCount: Int
+  starCount: Int
   id: ID!
   licenseInfo: License
   name: String!

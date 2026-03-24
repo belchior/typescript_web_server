@@ -47,19 +47,19 @@ export async function findUsersByLogins(logins: readonly string[]) {
 
 export async function findFollowersByUserLogin(login: string, pagination: TPaginationQueryArgs) {
   const startFrom = pagination.reference && isISOString(pagination.reference)
-    ? `AND users_following.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
+    ? `AND uf.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
     : ''
 
   const query = `
     SELECT *
     FROM (
-      SELECT users.*, users_following.created_at AS followed_at
-      FROM users
-      INNER JOIN users_following ON users.login = users_following.user_login
+      SELECT u.*, uf.created_at AS followed_at
+      FROM users u
+      INNER JOIN users_following uf ON uf.user_login = u.login
       WHERE
-        following_login = $1
+        uf.following_login = $1
         ${startFrom}
-      ORDER BY users_following.created_at ${pagination.order}
+      ORDER BY uf.created_at ${pagination.order}
       LIMIT $2
     ) AS users
     ORDER BY followed_at ASC
@@ -75,19 +75,19 @@ export async function findFollowersByUserLogin(login: string, pagination: TPagin
 
 export async function findFollowingByUserLogin(login: string, pagination: TPaginationQueryArgs) {
   const startFrom = pagination.reference && isISOString(pagination.reference)
-    ? `AND users_following.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
+    ? `AND uf.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
     : ''
 
   const query = `
     SELECT *
     FROM (
-      SELECT users.*, users_following.created_at AS following_at
-      FROM users
-      INNER JOIN users_following ON users.login = users_following.following_login
+      SELECT u.*, uf.created_at AS following_at
+      FROM users u
+      INNER JOIN users_following uf ON uf.following_login = u.login
       WHERE
-        user_login = $1
+        uf.user_login = $1
         ${startFrom}
-      ORDER BY users_following.created_at ${pagination.order}
+      ORDER BY uf.created_at ${pagination.order}
       LIMIT $2
     ) AS users
     ORDER BY following_at ASC
@@ -102,19 +102,19 @@ export async function findFollowingByUserLogin(login: string, pagination: TPagin
 
 export async function findOrganizationsByUserLogin(login: string, pagination: TPaginationQueryArgs) {
   const startFrom = pagination.reference && isISOString(pagination.reference)
-    ? `AND users_organizations.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
+    ? `AND uo.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
     : ''
 
   const query = `
     SELECT *
     FROM (
-      SELECT organizations.*, users_organizations.created_at AS joined_at
-      FROM users_organizations
-      JOIN organizations ON organizations.login = organization_login
+      SELECT o.*, uo.created_at AS joined_at
+      FROM users_organizations uo
+      JOIN organizations o ON o.login = uo.organization_login
       WHERE
-        user_login = $1
+        uo.user_login = $1
         ${startFrom}
-      ORDER BY users_organizations.created_at ${pagination.order}
+      ORDER BY uo.created_at ${pagination.order}
       LIMIT $2
     ) AS organizations
     ORDER BY joined_at ASC
@@ -134,13 +134,13 @@ export async function findFollowersPageInfo(
   referenceFrom: (item: TFollower) => string
 ) {
   const pageInfoFnQuery = (queryArgs: TPageInfoFnQueryArgs) => `
-    SELECT users.login, '${queryArgs.row}' AS row
-    FROM users
-    INNER JOIN users_following ON users_following.following_login = users.login
+    SELECT u.login, '${queryArgs.row}' AS row
+    FROM users u
+    INNER JOIN users_following uf ON uf.following_login = u.login
     WHERE
-      user_login = '${login}'
-      AND users_following.created_at ${queryArgs.operator} TIMESTAMP WITH TIME ZONE '${queryArgs.reference}'
-    ORDER BY users_following.created_at ${queryArgs.order}
+      uf.user_login = '${login}'
+      AND uf.created_at ${queryArgs.operator} TIMESTAMP WITH TIME ZONE '${queryArgs.reference}'
+    ORDER BY uf.created_at ${queryArgs.order}
     LIMIT 1
   `
 
@@ -161,13 +161,13 @@ export async function findFollowingPageInfo(
   referenceFrom: (item: TFollowing) => string
 ) {
   const pageInfoFnQuery = (queryArgs: TPageInfoFnQueryArgs) => `
-    SELECT users.login, '${queryArgs.row}' AS row
-    FROM users
-    INNER JOIN users_following ON users_following.following_login = users.login
+    SELECT u.login, '${queryArgs.row}' AS row
+    FROM users u
+    INNER JOIN users_following uf ON uf.following_login = u.login
     WHERE
-      user_login = '${login}'
-      AND users_following.created_at ${queryArgs.operator} TIMESTAMP WITH TIME ZONE '${queryArgs.reference}'
-    ORDER BY users_following.created_at ${queryArgs.order}
+      uf.user_login = '${login}'
+      AND uf.created_at ${queryArgs.operator} TIMESTAMP WITH TIME ZONE '${queryArgs.reference}'
+    ORDER BY uf.created_at ${queryArgs.order}
     LIMIT 1
   `
 
@@ -188,13 +188,13 @@ export async function findOrganizationsPageInfo(
   referenceFrom: (item: TUserOrganization) => string
 ) {
   const pageInfoFnQuery = (queryArgs: TPageInfoFnQueryArgs) => `
-    SELECT organizations.login, '${queryArgs.row}' AS row
-    FROM users_organizations
-    JOIN organizations ON organizations.login = organization_login
+    SELECT o.login, '${queryArgs.row}' AS row
+    FROM users_organizations uo
+    JOIN organizations o ON o.login = uo.organization_login
     WHERE
-      user_login = '${login}'
-      AND users_organizations.created_at ${queryArgs.operator} TIMESTAMP WITH TIME ZONE '${queryArgs.reference}'
-    ORDER BY users_organizations.created_at ${queryArgs.order}
+      uo.user_login = '${login}'
+      AND uo.created_at ${queryArgs.operator} TIMESTAMP WITH TIME ZONE '${queryArgs.reference}'
+    ORDER BY uo.created_at ${queryArgs.order}
     LIMIT 1
   `
 

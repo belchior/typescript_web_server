@@ -18,6 +18,7 @@ export type TRepository = {
   created_at: Date
   description?: string
   fork_count: number
+  star_count: number
   repository_id: string
   name: string
   owner_login: TOwnerIdentifier['owner_login']
@@ -97,15 +98,15 @@ export async function findRepositoryByOwnerLogin(login: string, pagination: TPag
   const query = `
     SELECT *
     FROM (
-      SELECT r.*, repository_id id, la.*, li.license_name
+      SELECT r.*, la.*, li.license_name
       FROM repositories r
       LEFT JOIN languages la on r.primary_language = la.language_name
       LEFT JOIN repositories_licenses rl using(repository_id)
       LEFT JOIN licenses li using(license_key)
       WHERE
-        owner_login = $1
+        r.owner_login = $1
         ${startFrom}
-      ORDER BY created_at ${pagination.order}
+      ORDER BY r.created_at ${pagination.order}
       LIMIT $2
     ) AS repositories
     ORDER BY created_at ASC
@@ -121,19 +122,19 @@ export async function findRepositoryByOwnerLogin(login: string, pagination: TPag
 
 export async function findStarredRepositoryByOwnerLogin(login: string, pagination: TPaginationQueryArgs) {
   const startFrom = pagination.reference && isISOString(pagination.reference)
-    ? `AND usr.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
+    ? `AND rs.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
     : ''
 
   const query = `
     SELECT *
     FROM (
-      SELECT r.*, repository_id id, usr.created_at AS starred_at
-      FROM users_starred_repositories usr
+      SELECT r.*, rs.created_at AS starred_at
+      FROM repositories_stars rs
       JOIN repositories r using(repository_id)
       WHERE
-        user_login = $1
+        r.owner_login = $1
         ${startFrom}
-      ORDER BY usr.created_at ${pagination.order}
+      ORDER BY rs.created_at ${pagination.order}
       LIMIT $2
     ) AS repositories
     ORDER BY starred_at ASC
@@ -153,12 +154,12 @@ export async function findRepositoryPageInfo(
   referenceFrom: (item: TRepository) => string
 ) {
   const pageInfoFnQuery = (queryArgs: TPageInfoFnQueryArgs) => `
-    SELECT name, '${queryArgs.row}' AS row
-    FROM repositories
+    SELECT r.name, '${queryArgs.row}' AS row
+    FROM repositories r
     WHERE
-      owner_login = '${login}'
-      AND created_at ${queryArgs.operator} TIMESTAMP WITH TIME ZONE '${queryArgs.reference}'
-    ORDER BY created_at ${queryArgs.order}
+      r.owner_login = '${login}'
+      AND r.created_at ${queryArgs.operator} TIMESTAMP WITH TIME ZONE '${queryArgs.reference}'
+    ORDER BY r.created_at ${queryArgs.order}
     LIMIT 1
   `
 
@@ -180,12 +181,12 @@ export async function findStarredRepositoryPageInfo(
 ) {
   const pageInfoFnQuery = (queryArgs: TPageInfoFnQueryArgs) => `
     SELECT r.name, '${queryArgs.row}' AS row
-    FROM users_starred_repositories usr
+    FROM repositories_stars rs
     JOIN repositories r using(repository_id)
     WHERE
-      usr.user_login = '${login}'
-      AND usr.created_at ${queryArgs.operator} TIMESTAMP WITH TIME ZONE '${queryArgs.reference}'
-    ORDER BY usr.created_at ${queryArgs.order}
+      rs.owner_login = '${login}'
+      AND rs.created_at ${queryArgs.operator} TIMESTAMP WITH TIME ZONE '${queryArgs.reference}'
+    ORDER BY rs.created_at ${queryArgs.order}
     LIMIT 1
   `
 

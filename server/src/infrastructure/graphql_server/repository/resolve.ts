@@ -19,8 +19,16 @@ import { TRepositoryOwner } from '../../database/util/types'
 import { paginationArgsToQueryArgs } from '../../database/util/pagination'
 
 export const RepositoryResolve = {
+  id: (parent: TRepository) => {
+    return `repositories_${parent.repository_id}`
+  },
+
   forkCount: (parent: TRepository) => {
     return parent.fork_count
+  },
+
+  starCount: (parent: TRepository) => {
+    return parent.star_count
   },
 
   licenseInfo: (parent: TRepository) => {

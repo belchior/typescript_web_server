@@ -49,7 +49,7 @@ docker compose up client
 To recompile relay after modifications
 
 ```shell
-docker compose run client npm run relay
+docker compose run --rm client npm run relay
 ```
 
 ### Integration between server and client
@@ -57,7 +57,7 @@ docker compose run client npm run relay
 After change some definition inside `server/src/infrastructure/graphql_server` the client must run the script below to update the graphql schema located at `client/schema.graphql`.
 
 ```shell
-docker compose run client npm run get-schema
+npm run get-schema
 ```
 
 ## References

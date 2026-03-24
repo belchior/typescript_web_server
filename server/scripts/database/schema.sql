@@ -47,7 +47,8 @@ CREATE TABLE IF NOT EXISTS repositories (
   owner_login       VARCHAR NOT NULL,
   owner_ref         VARCHAR NOT NULL,
   description       VARCHAR,
-  fork_count        INTEGER NOT NULL CHECK(fork_count >= 0),
+  fork_count        INTEGER NOT NULL DEFAULT 0 CHECK(fork_count >= 0),
+  star_count        INTEGER NOT NULL DEFAULT 0 CHECK(star_count >= 0),
   primary_language  VARCHAR REFERENCES languages(language_name),
   url               VARCHAR NOT NULL CHECK(LENGTH(url) >= 5),
   created_at        TIMESTAMP(3) WITH TIME ZONE NOT NULL DEFAULT NOW(),
@@ -62,6 +63,13 @@ CREATE TABLE IF NOT EXISTS repositories_licenses (
   PRIMARY KEY(repository_id, license_key)
 );
 
+CREATE TABLE IF NOT EXISTS repositories_stars (
+  owner_login       VARCHAR,
+  repository_id     BIGINT REFERENCES repositories(repository_id),
+  created_at        TIMESTAMP(3) WITH TIME ZONE NOT NULL DEFAULT now(),
+  PRIMARY KEY(owner_login, repository_id)
+);
+
 CREATE TABLE IF NOT EXISTS users_following (
   user_login        VARCHAR REFERENCES users(login),
   following_login   VARCHAR REFERENCES users(login),
@@ -74,11 +82,4 @@ CREATE TABLE IF NOT EXISTS users_organizations (
   organization_login VARCHAR REFERENCES organizations(login),
   created_at         TIMESTAMP(3) WITH TIME ZONE NOT NULL DEFAULT now(),
   PRIMARY KEY(organization_login, user_login)
-);
-
-CREATE TABLE IF NOT EXISTS users_starred_repositories (
-  user_login        VARCHAR REFERENCES users(login),
-  repository_id     BIGINT REFERENCES repositories(repository_id),
-  created_at        TIMESTAMP(3) WITH TIME ZONE NOT NULL DEFAULT now(),
-  PRIMARY KEY(user_login, repository_id)
 );

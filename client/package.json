@@ -7,7 +7,7 @@
     "build": "tsc -b && vite build",
     "lint": "tsc --noEmit && eslint .",
     "preview": "vite preview",
-    "get-schema": "cd ../server && npm run write-schema && cd ../client_new",
+    "get-schema": "cd ../server && npm run write-schema && cd ../client",
     "relay": "relay-compiler"
   },
   "dependencies": {

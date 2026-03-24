@@ -82,7 +82,6 @@ export async function insertOrganization(suffix: string, organization: Partial<T
   const query = toSQLInsert('organizations', escapeData(data))
   const { rows } = await getConnection().query<TOrganization & { organization_id: string }>(query)
   const result = rows.at(0)!
-  result.id = result.organization_id
   return result
 }
 
@@ -130,7 +129,6 @@ export async function insertRepository(suffix: string, repository: Partial<TRepo
     license_key: licenseKey,
   })
 
-  repo.id = repo.repository_id
   repo.language_color = languageColor
   repo.language_name = languageName
   repo.license_key = licenseKey
@@ -153,7 +151,7 @@ export async function insertRepositories(suffix: string, repositories: Partial<T
 }
 
 type TRepositoriesLicenses = {
-  repository_id: TRepository['id']
+  repository_id: TRepository['repository_id']
   license_key: string
 }
 export async function insertRepositoriesLicenses(data: TRepositoriesLicenses) {
@@ -181,22 +179,8 @@ export async function insertUser(suffix: string, user: Partial<TUser> = {}): Pro
   const query = toSQLInsert('users', escapeData(data))
   const { rows } = await getConnection().query<TUser & { user_id: string }>(query)
   const result = rows.at(0)!
-  result.id = result.user_id
   return result
 }
-
-// export async function insertUsers(suffix: string, users: Partial<TUser>[]) {
-//   const results = []
-
-//   for (const data of users) {
-//     // needed to create users in a consistent order
-//     await delay(randomInteger(1, 10))
-//     const user = await insertUser(suffix, data)
-//     results.push(user)
-//   }
-
-//   return results
-// }
 
 type TUsersFollowing = {
   user_login: TUser['login'],
@@ -234,13 +218,13 @@ export async function insertUsersOrganizations(list: TUsersOrganizations[]) {
   return results
 }
 
-type TUsersStarredRepositories = {
-  user_login: TUser['login'],
-  repository_id: TRepository['id'],
+type TRepositoriesStars = {
+  owner_login: TUser['login'] | TOrganization['login'],
+  repository_id: TRepository['repository_id'],
 }
-export async function insertUsersStarredRepositories(data: TUsersStarredRepositories) {
-  const query = toSQLInsert('users_starred_repositories', escapeData(data))
-  const { rows } = await getConnection().query<TUsersStarredRepositories>(query)
+export async function insertUsersStarredRepositories(data: TRepositoriesStars) {
+  const query = toSQLInsert('repositories_stars', escapeData(data))
+  const { rows } = await getConnection().query<TRepositoriesStars>(query)
   const result = rows.at(0)!
   return result
 }

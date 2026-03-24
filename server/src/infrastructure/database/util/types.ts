@@ -11,7 +11,7 @@ export type TTableNames =
   | 'users'
   | 'users_following'
   | 'users_organizations'
-  | 'users_starred_repositories'
+  | 'repositories_stars'
   | 'organizations'
   | 'repositories'
   | 'repositories_licenses'

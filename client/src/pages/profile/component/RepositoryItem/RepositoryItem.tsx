@@ -1,6 +1,7 @@
 import Anchor from '../../../../designSystem/Anchor/Anchor'
 import IconFork from '../../../../designSystem/Icon/Fork'
 import IconLicense from '../../../../designSystem/Icon/License'
+import IconStar from '../../../../designSystem/Icon/Star'
 import Language from '../Language/Language'
 import Title from '../../../../designSystem/Title/Title'
 import type { NonNullable } from '../../../../util/types'
@@ -33,6 +34,12 @@ export default function RepositoryItem(props: RepositoryItemProps) {
           <p>
             <IconFork />
             {repository.forkCount}
+          </p>
+        }
+        {(repository.starCount ?? 0) > 0 &&
+          <p>
+            <IconStar />
+            {repository.starCount}
           </p>
         }
         {repository.licenseInfo &&

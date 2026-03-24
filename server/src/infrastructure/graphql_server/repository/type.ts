@@ -69,7 +69,14 @@ export const RepositoryType = new GraphQLObjectType({
       type: GraphQLInt,
       resolve: RepositoryResolve.forkCount,
     },
-    id: idType(),
+    starCount: {
+      type: GraphQLInt,
+      resolve: RepositoryResolve.starCount,
+    },
+    id: {
+      type: new GraphQLNonNull(GraphQLID),
+      resolve: RepositoryResolve.id,
+    },
     licenseInfo: {
       type: LicenseType,
       resolve: RepositoryResolve.licenseInfo,

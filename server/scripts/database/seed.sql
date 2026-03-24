@@ -38,17 +38,16 @@ INSERT INTO licenses (license_key, license_name) VALUES
   ('gpl-2.0', 'GPL-2.0'),
   ('gpl-3.0', 'GPL-3.0');
 
-INSERT INTO repositories (name, repository_id, fork_count, owner_login, owner_ref, primary_language, url, description)
+INSERT INTO repositories (name, repository_id, fork_count, star_count, owner_login, owner_ref, primary_language, url, description)
 OVERRIDING SYSTEM VALUE
 VALUES
-  ('rust', 1, 8612, 'rust-lang', 'organizations', 'Rust', 'https://github.com/rust-lang/rust', 'Empowering everyone to build reliable and efficient software.'),
-  ('cargo', 2, 1583, 'rust-lang', 'organizations', 'Rust', 'https://github.com/rust-lang/cargo', 'The Rust package manager'),
-  ('rust_web_server', 3, 0, 'belchior', 'users', 'Rust', 'https://github.com/belchior/rust_web_server', 'Project description'),
-  ('typescript_web_server', 4, 0, 'belchior', 'users', 'TypeScript', 'https://github.com/belchior/rust_web_server', 'The purpose of this repository is to practice GraphQL acquired knowledge as well as the ecosystem'),
-  ('sql_query_builder', 5, 8, 'belchior', 'users', 'Rust', 'https://github.com/belchior/rust_web_server', 'Write SQL queries in a simple and composable way'),
-  ('repo_foo', 6, 123, 'belchior-org', 'organizations', 'Rust', 'https://github.com/belchior-org/repo_foo', 'The Foo repository'),
-  ('repo_bar', 7, 745, 'belchior-org', 'organizations', 'TypeScript', 'https://github.com/belchior-org/repo_bar', 'The Bar repository')
-;
+  ('rust', 1, 14668, 111452, 'rust-lang', 'organizations', 'Rust', 'https://github.com/rust-lang/rust', 'Empowering everyone to build reliable and efficient software.'),
+  ('cargo', 2, 2994, 14541, 'rust-lang', 'organizations', 'Rust', 'https://github.com/rust-lang/cargo', 'The Rust package manager'),
+  ('rust_web_server', 3, 0, 1, 'belchior', 'users', 'Rust', 'https://github.com/belchior/rust_web_server', 'Project description'),
+  ('typescript_web_server', 4, 0, 0, 'belchior', 'users', 'TypeScript', 'https://github.com/belchior/rust_web_server', 'The purpose of this repository is to practice GraphQL acquired knowledge as well as the ecosystem'),
+  ('sql_query_builder', 5, 8, 73, 'belchior', 'users', 'Rust', 'https://github.com/belchior/rust_web_server', 'Write SQL queries in a simple and composable way'),
+  ('repo_foo', 6, 3, 1, 'belchior-org', 'organizations', 'Rust', 'https://github.com/belchior-org/repo_foo', 'The Foo repository'),
+  ('repo_bar', 7, 7, 2, 'belchior-org', 'organizations', 'TypeScript', 'https://github.com/belchior-org/repo_bar', 'The Bar repository');
 
 INSERT INTO repositories_licenses (repository_id, license_key) VALUES
   (1, 'mit'),
@@ -57,9 +56,13 @@ INSERT INTO repositories_licenses (repository_id, license_key) VALUES
   (1, 'gpl-3.0'),
   (2, 'mit'),
   (2, 'gpl-2.0'),
-  (3, 'mit');
+  (3, 'mit'),
+  (4, 'mit'),
+  (5, 'mit'),
+  (6, 'mit'),
+  (7, 'mit');
 
-INSERT INTO users_starred_repositories (user_login, repository_id) VALUES
+INSERT INTO repositories_stars (owner_login, repository_id) VALUES
   ('belchior', 1),
   ('belchior', 2),
   ('bar', 2);
