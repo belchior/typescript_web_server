@@ -2,14 +2,14 @@ import { useLazyLoadQuery } from 'react-relay'
 import { useParams } from 'react-router'
 
 import { query } from './Profile.relay'
-import { useCurrentTab } from '../../designSystem/PageMenu/PageMenu.hooks'
+import { useCurrentTab } from './component/PageMenu/PageMenu.hooks'
 import Container from '../../designSystem/Container/Container'
 import ErrorBoundary from '../../designSystem/ErrorBoundary/ErrorBoundary'
 import NotFound from '../notfound/NotFound'
 import OrganizationProfile from './component/OrganizationProfile/OrganizationProfile'
-import PageMenu from '../../designSystem/PageMenu/PageMenu'
-import type { ProfileQuery, ProfileQuery$data } from './__generated__/ProfileQuery.graphql'
+import PageMenu from './component/PageMenu/PageMenu'
 import type { ProfileOwnerType } from '../../util/types'
+import type { ProfileQuery, ProfileQuery$data } from './__generated__/ProfileQuery.graphql'
 import UserProfile from './component/UserProfile/UserProfile'
 
 type ProfilePageProps = {

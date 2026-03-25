@@ -11,7 +11,6 @@ export const query = graphql`
     $stars: Boolean!
   ) {
     profile(login: $login) {
-      id
       __typename
 
       ... on User {
@@ -26,6 +25,7 @@ export const query = graphql`
         ...OrganizationHeader
         ...OrganizationRepositories @arguments(cursor: $cursor) @include(if: $repositories)
         ...OrganizationPeople @arguments(cursor: $cursor) @include(if: $people)
+        ...OrganizationFollowers @arguments(cursor: $cursor) @include(if: $followers)
       }
     }
   }

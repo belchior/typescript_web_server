@@ -10,8 +10,9 @@ import { idType, NodeInterface } from '../graphql/types'
 import { OrganizationResolve } from './resolve'
 import { ProfileOwnerInterface } from '../profile/type'
 import { RepositoryConnectionType, RepositoryOwnerInterface } from '../repository/type'
-import { UserConnectionType } from '../user/type'
 import { TOrganization } from '../../database/model/organization'
+import { UserConnectionType } from '../user/type'
+import { UserResolve } from '../user/resolve'
 
 export const OrganizationType: GraphQLObjectType<TOrganization> = new GraphQLObjectType({
   interfaces: [NodeInterface, ProfileOwnerInterface, RepositoryOwnerInterface],
@@ -23,6 +24,11 @@ export const OrganizationType: GraphQLObjectType<TOrganization> = new GraphQLObj
     },
     description: { type: GraphQLString },
     email: { type: GraphQLString },
+    followers: {
+      type: UserConnectionType,
+      args: connectionTypeArgs(),
+      resolve: UserResolve.followers,
+    },
     id: {
       type: new GraphQLNonNull(GraphQLID),
       resolve: (parent) => `organizations_${parent.organization_id}`,

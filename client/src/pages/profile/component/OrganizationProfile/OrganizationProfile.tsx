@@ -1,8 +1,10 @@
+import { OrganizationFollowers } from './OrganizationFollowers'
 import { OrganizationPeople } from './OrganizationPeople'
 import { OrganizationRepositories } from './OrganizationRepositories'
-import { useCurrentTab, type TOrganizationTabs } from '../../../../designSystem/PageMenu/PageMenu.hooks'
+import { useCurrentTab, type TOrganizationTabs } from '../PageMenu/PageMenu.hooks'
 import OrganizationHeader from './OrganizationHeader'
 import Title from '../../../../designSystem/Title/Title'
+import type { OrganizationFollowers$key } from './__generated__/OrganizationFollowers.graphql'
 import type { OrganizationHeader$key } from './__generated__/OrganizationHeader.graphql'
 import type { OrganizationPeople$key } from './__generated__/OrganizationPeople.graphql'
 import type { OrganizationRepositories$key } from './__generated__/OrganizationRepositories.graphql'
@@ -25,6 +27,7 @@ type OrganizationProfileProps = {
   profile: OrganizationHeader$key
   & OrganizationRepositories$key
   & OrganizationPeople$key
+  & OrganizationFollowers$key
 }
 
 export default function OrganizationProfile(props: OrganizationProfileProps) {
@@ -37,6 +40,7 @@ export default function OrganizationProfile(props: OrganizationProfileProps) {
       {tabName === 'overview' && <Overview />}
       {tabName === 'repositories' && <OrganizationRepositories profile={profile} />}
       {tabName === 'people' && <OrganizationPeople profile={profile} />}
+      {tabName === 'followers' && <OrganizationFollowers profile={profile} />}
     </main>
   )
 }

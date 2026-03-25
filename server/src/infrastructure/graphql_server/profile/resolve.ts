@@ -1,9 +1,9 @@
+import { cursorConnection, emptyCursorConnection, TPaginationArgs } from '../../util/cursor_connection/cursor_connection'
+import { findFollowingByLogin, findFollowingPageInfo, ProfileOwnerType, TFollowing, TProfileOwner } from '../../database/model/profileOwner'
 import { handleError } from '../util/error_handler'
 import { OrganizationResolve } from '../organization/resolve'
+import { paginationArgsToQueryArgs } from '../../database/util/pagination'
 import { TArgs, TGraphQLContext } from '../graphql/types'
-import { TOrganization } from '../../database/model/organization'
-import { ProfileOwnerType, TProfileOwner } from '../../database/util/types'
-import { TUser } from '../../database/model/user'
 import { UserResolve } from '../user/resolve'
 
 type ProfileQueryArgs = {
@@ -11,11 +11,18 @@ type ProfileQueryArgs = {
 }
 
 export const ProfileResolve = {
-  id: (parent: TProfileOwner) => {
-    switch (parent.__typename) {
-      case 'User': { return `users_${(parent as TUser).user_id}` }
-      case 'Organization': { return `organizations_${(parent as TOrganization).organization_id}` }
-      default: { throw new Error(`Invalid typename: ${parent.__typename}`) }
+  following: async (parent: TProfileOwner, args: TPaginationArgs) => {
+    try {
+      const referenceFrom = (item: TFollowing) => item.following_at.toISOString()
+      const pagination = paginationArgsToQueryArgs(args)
+      const items = await findFollowingByLogin(parent.login, pagination)
+
+      if (items.length === 0) return emptyCursorConnection<TFollowing>()
+
+      const pageInfoItems = await findFollowingPageInfo(parent.login, items, referenceFrom)
+      return cursorConnection<TFollowing>({ items, pageInfoItems, referenceFrom })
+    } catch (error) {
+      return handleError(error as Error)
     }
   },
 
@@ -23,9 +30,7 @@ export const ProfileResolve = {
     try {
       const userPromise = UserResolve.user(parent, args, context)
       const organizationPromise = OrganizationResolve.organization(parent, args, context)
-
       const result = await Promise.allSettled([userPromise, organizationPromise])
-
       const item = result.find(item => item.status === 'fulfilled')
 
       if (item?.value == null) {

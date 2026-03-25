@@ -1,21 +1,21 @@
-import { cls } from '../../util/classNames'
+import { cls } from '../../../../util/classNames'
 import { useMenuItems, useCurrentTab } from './PageMenu.hooks'
-import Anchor from '../Anchor/Anchor'
-import Container from '../Container/Container'
-import type { ProfileOwnerType } from '../../util/types'
+import Anchor from '../../../../designSystem/Anchor/Anchor'
+import Container from '../../../../designSystem/Container/Container'
+import type { ProfileOwnerType } from '../../../../util/types'
 import './PageMenu.css'
 
-type AppMenuProps = {
+type PageMenuProps = {
   className?: string
   profileOwnerType?: ProfileOwnerType
 }
 
-export default function AppMenu(props: AppMenuProps) {
+export default function PageMenu(props: PageMenuProps) {
   const { className, profileOwnerType } = props
 
   const activeTab = useCurrentTab()
   const menuItems = useMenuItems(profileOwnerType)
-  const classes = cls('AppMenu', className)
+  const classes = cls('PageMenu', className)
 
   return (
     <Container className={classes}>

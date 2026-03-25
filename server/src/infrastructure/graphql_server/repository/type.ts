@@ -11,8 +11,7 @@ import { connectionType, connectionTypeArgs } from '../../util/cursor_connection
 import { idType, NodeInterface } from '../graphql/types'
 import { RepositoryResolve } from './resolve'
 import { TRepositoryOwner } from '../../database/util/types'
-import { TUser } from '../../database/model/user'
-import { TOrganization } from '../../database/model/organization'
+import { ProfileOwnerInterface } from '../profile/type'
 
 const LanguageType = new GraphQLObjectType({
   name: 'Language',
@@ -30,22 +29,13 @@ const LicenseType = new GraphQLObjectType({
 })
 
 export const RepositoryOwnerInterface = new GraphQLInterfaceType({
-  interfaces: [NodeInterface],
+  interfaces: [ProfileOwnerInterface],
   name: 'RepositoryOwner',
   fields: () => ({
     avatarUrl: { type: new GraphQLNonNull(GraphQLString) },
-    id: {
-      type: new GraphQLNonNull(GraphQLID),
-      resolve: (parent: TRepositoryOwner) => {
-        switch (parent.__typename) {
-          case 'User': { return `users_${(parent as TUser).user_id}` }
-          case 'Organization': { return `organizations_${(parent as TOrganization).organization_id}` }
-          default: { throw new Error(`unknown typename: ${parent.__typename}`) }
-        }
-      },
-    },
     login: idType(),
     name: { type: GraphQLString },
+    location: { type: GraphQLString },
     repositories: {
       type: RepositoryConnectionType,
       args: connectionTypeArgs(),

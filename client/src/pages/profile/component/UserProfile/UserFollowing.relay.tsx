@@ -14,7 +14,6 @@ export const fragment = {
           node {
             __typename
             avatarUrl
-            id
             location
             login
             name

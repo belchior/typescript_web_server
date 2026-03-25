@@ -8,6 +8,7 @@ type Organization implements Node & ProfileOwner & RepositoryOwner {
   avatarUrl: String!
   description: String
   email: String
+  followers(after: String, before: String, first: Int, last: Int): UserConnection!
   id: ID!
   location: String
   login: ID!
@@ -22,19 +23,19 @@ interface Node {
   id: ID!
 }
 
-interface ProfileOwner implements Node {
+interface ProfileOwner {
   avatarUrl: String!
-  id: ID!
   login: ID!
   name: String
+  location: String
   url: String!
 }
 
-interface RepositoryOwner implements Node {
+interface RepositoryOwner implements ProfileOwner {
   avatarUrl: String!
-  id: ID!
   login: ID!
   name: String
+  location: String
   repositories(after: String, before: String, first: Int, last: Int): RepositoryConnection!
   url: String!
 }
@@ -93,7 +94,7 @@ type User implements Node & ProfileOwner & RepositoryOwner {
   company: String
   email: String!
   followers(after: String, before: String, first: Int, last: Int): UserConnection!
-  following(after: String, before: String, first: Int, last: Int): UserConnection!
+  following(after: String, before: String, first: Int, last: Int): FollowingConnection!
   id: ID!
   location: String
   login: ID!
@@ -103,6 +104,25 @@ type User implements Node & ProfileOwner & RepositoryOwner {
   starredRepositories(after: String, before: String, first: Int, last: Int): RepositoryConnection!
   url: String!
   websiteUrl: String
+}
+
+type FollowingConnection {
+  edges: [FollowingEdge]!
+  pageInfo: PageInfo!
+}
+
+type FollowingEdge {
+  cursor: String!
+  node: Following
+}
+
+type Following implements ProfileOwner {
+  avatarUrl: String!
+  followingAt: String
+  login: ID!
+  name: String
+  location: String
+  url: String!
 }
 
 type OrganizationConnection {

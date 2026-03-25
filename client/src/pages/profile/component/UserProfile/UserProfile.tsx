@@ -1,6 +1,6 @@
+import { useCurrentTab, type TUserTabs } from '../PageMenu/PageMenu.hooks'
 import { UserFollowers, UserFollowing } from './UserFollowing'
 import { UserRepositories, UserStarredRepositories } from './UserRepositories'
-import { useCurrentTab, type TUserTabs } from '../../../../designSystem/PageMenu/PageMenu.hooks'
 import Title from '../../../../designSystem/Title/Title'
 import type { UserFollowing_followers$key } from './__generated__/UserFollowing_followers.graphql'
 import type { UserFollowing_following$key } from './__generated__/UserFollowing_following.graphql'

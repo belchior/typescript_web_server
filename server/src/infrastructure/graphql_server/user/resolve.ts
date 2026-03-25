@@ -1,25 +1,10 @@
+import { emptyCursorConnection, cursorConnection, TPaginationArgs } from '../../util/cursor_connection/cursor_connection'
+import { findFollowersByUserLogin, findFollowersPageInfo, findOrganizationsByUserLogin, findOrganizationsPageInfo, TFollower, TUser, TUserOrganization } from '../../database/model/user'
+import { TProfileOwner } from '../../database/model/profileOwner'
 import { handleError } from '../util/error_handler'
-import {
-  findFollowersByUserLogin,
-  findFollowersPageInfo,
-  findFollowingByUserLogin,
-  findFollowingPageInfo,
-  findOrganizationsByUserLogin,
-  findOrganizationsPageInfo,
-  TFollower,
-  TFollowing,
-  TUser,
-  TUserOrganization,
-} from '../../database/model/user'
-import { RepositoryResolve } from '../repository/resolve'
-import {
-  emptyCursorConnection,
-  cursorConnection,
-  TPaginationArgs,
-} from '../../util/cursor_connection/cursor_connection'
 import { paginationArgsToQueryArgs } from '../../database/util/pagination'
+import { RepositoryResolve } from '../repository/resolve'
 import { TArgs, TGraphQLContext } from '../graphql/types'
-import { TProfileOwner } from '../../database/util/types'
 
 type UserQueryArgs = {
   login: string
@@ -30,7 +15,7 @@ export const UserResolve = {
     return context.loader.findUserByLogin.load(args.login)
   },
 
-  followers: async (parent: TUser, args: TPaginationArgs) => {
+  followers: async (parent: TProfileOwner, args: TPaginationArgs) => {
     try {
       const referenceFrom = (item: TFollower) => item.followed_at.toISOString()
       const pagination = paginationArgsToQueryArgs(args)
@@ -40,21 +25,6 @@ export const UserResolve = {
 
       const pageInfoItems = await findFollowersPageInfo(parent.login, items, referenceFrom)
       return cursorConnection<TFollower>({ items, pageInfoItems, referenceFrom })
-    } catch (error) {
-      return handleError(error as Error)
-    }
-  },
-
-  following: async (parent: TProfileOwner, args: TPaginationArgs) => {
-    try {
-      const referenceFrom = (item: TFollowing) => item.following_at.toISOString()
-      const pagination = paginationArgsToQueryArgs(args)
-      const items = await findFollowingByUserLogin(parent.login, pagination)
-
-      if (items.length === 0) return emptyCursorConnection<TFollowing>()
-
-      const pageInfoItems = await findFollowingPageInfo(parent.login, items, referenceFrom)
-      return cursorConnection<TFollowing>({ items, pageInfoItems, referenceFrom })
     } catch (error) {
       return handleError(error as Error)
     }

@@ -1,13 +1,14 @@
 import { useParams } from 'react-router'
-import { useQueryString } from '../../util/hooks'
-import IconBook from '../Icon/Book'
-import type { ProfileOwnerType } from '../../util/types'
 import type { ReactNode } from 'react'
-import IconRepository from '../Icon/Repository'
-import IconStar from '../Icon/Star'
-import IconPeople from '../Icon/People'
 
-export const organizationTabs = ['overview', 'repositories', 'people'] as const
+import { useQueryString } from '../../../../util/hooks'
+import IconBook from '../../../../designSystem/Icon/Book'
+import IconPeople from '../../../../designSystem/Icon/People'
+import IconRepository from '../../../../designSystem/Icon/Repository'
+import IconStar from '../../../../designSystem/Icon/Star'
+import type { ProfileOwnerType } from '../../../../util/types'
+
+export const organizationTabs = ['overview', 'repositories', 'people', 'followers'] as const
 export const userTabs = ['overview', 'repositories', 'stars', 'followers', 'following'] as const
 export const tabs = [...userTabs, ...organizationTabs] as const
 
@@ -82,6 +83,11 @@ export function useMenuItems(typeName?: ProfileOwnerType) {
     'people': {
       href: `/${login}?tab=people`,
       label: 'People',
+      icon: <IconPeople />,
+    },
+    'followers': {
+      href: `/${login}?tab=followers`,
+      label: 'Followers',
       icon: <IconPeople />,
     },
   }

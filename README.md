@@ -36,11 +36,9 @@ To run test in development mode
 docker compose run --rm server npm run test:dev
 ```
 
-To run tests
-
 ### Client
 
-To run client in development mode execute the command below
+To run the client in development mode execute the command below
 
 ```shell
 docker compose up client
@@ -54,9 +52,10 @@ docker compose run --rm client npm run relay
 
 ### Integration between server and client
 
-After change some definition inside `server/src/infrastructure/graphql_server` the client must run the script below to update the graphql schema located at `client/schema.graphql`.
+After change some type definition inside `server/src/infrastructure/graphql_server` the client must run the script below to update the graphql schema located at `client/schema.graphql`.
 
 ```shell
+# in the client folder
 npm run get-schema
 ```
 
