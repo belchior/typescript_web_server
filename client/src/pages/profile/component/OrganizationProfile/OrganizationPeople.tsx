@@ -13,14 +13,7 @@ export function OrganizationPeople(props: OrganizationPeopleProps) {
 
   return <div>
     <Title variant="h2">People</Title>
-    <PeopleList
-      users={user.people}
-      paginationCtrl={{
-        hasMore: false,
-        isLoading: false,
-        loadMore: () => { },
-      }}
-    />
+    <PeopleList items={user.people} />
   </div>
 }
 

@@ -14,14 +14,7 @@ export function UserRepositories(props: UserRepositoriesProps) {
 
   return <div>
     <Title variant="h2">Repositories</Title>
-    <RepositoriesList
-      repositories={user.repositories}
-      paginationCtrl={{
-        hasMore: false,
-        isLoading: false,
-        loadMore: () => { },
-      }}
-    />
+    <RepositoriesList items={user.repositories} />
   </div>
 }
 
@@ -33,13 +26,6 @@ export function UserStarredRepositories(props: UserStarredRepositoriesProps) {
 
   return <div>
     <Title variant="h2">Stars</Title>
-    <RepositoriesList
-      repositories={user.starredRepositories}
-      paginationCtrl={{
-        hasMore: false,
-        isLoading: false,
-        loadMore: () => { },
-      }}
-    />
+    <RepositoriesList items={user.starredRepositories} />
   </div>
 }

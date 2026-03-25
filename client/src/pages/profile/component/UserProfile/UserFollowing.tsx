@@ -16,14 +16,7 @@ export function UserFollowing(props: UserFollowingProps) {
 
   return <div>
     <Title variant="h2">Following</Title>
-    <ProfileOwnerList
-      items={owners}
-      paginationCtrl={{
-        hasMore: false,
-        isLoading: false,
-        loadMore: () => { },
-      }}
-    />
+    <ProfileOwnerList items={owners} />
   </div>
 }
 
@@ -35,13 +28,6 @@ export function UserFollowers(props: UserFollowersProps) {
 
   return <div>
     <Title variant="h2">Followers</Title>
-    <PeopleList
-      users={user.followers}
-      paginationCtrl={{
-        hasMore: false,
-        isLoading: false,
-        loadMore: () => { },
-      }}
-    />
+    <PeopleList items={user.followers} />
   </div>
 }

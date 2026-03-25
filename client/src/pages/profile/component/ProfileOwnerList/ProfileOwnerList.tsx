@@ -1,4 +1,4 @@
-import List, { type PaginationControl } from '../../../../designSystem/List/List'
+import List from '../../../../designSystem/List/List'
 import type { ProfileOwnerType } from '../../../../util/types'
 import ProfileOwnerItem from './ProfileOwnerItem'
 
@@ -14,12 +14,11 @@ export type ProfileOwner = {
 
 type ProfileOwnerListProps = {
   items: ProfileOwner[]
-  paginationCtrl: PaginationControl
 }
 
 export default function ProfileOwnerList(props: ProfileOwnerListProps) {
   return (
-    <List paginationCtrl={props.paginationCtrl}>
+    <List>
       {props.items.map(owner => <ProfileOwnerItem key={owner.id} owner={owner} />)}
     </List>
   )

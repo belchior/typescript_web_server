@@ -13,13 +13,6 @@ export function OrganizationRepositories(props: OrganizationRepositoriesProps) {
 
   return <div className="OrganizationRepositories">
     <Title variant="h2">Repositories</Title>
-    <RepositoriesList
-      repositories={organization.repositories}
-      paginationCtrl={{
-        hasMore: false,
-        isLoading: false,
-        loadMore: () => { },
-      }}
-    />
+    <RepositoriesList items={organization.repositories} />
   </div>
 }

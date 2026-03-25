@@ -1,25 +1,11 @@
-import React from 'react'
+import { type PropsWithChildren } from 'react'
 
-import Button from '../Button/Button'
 import './List.css'
 
-export type PaginationControl = {
-  hasMore: boolean,
-  isLoading: boolean,
-  loadMore: (_count: number) => void,
-}
-type ListProps = {
-  paginationCtrl: PaginationControl
-  children: React.ReactNode
-}
+type ListProps = PropsWithChildren
 
 export default function List(props: ListProps) {
-  const { paginationCtrl, children } = props
-
-  const handleLoadMore = () => {
-    if (paginationCtrl.hasMore === false || paginationCtrl.isLoading === true) return
-    paginationCtrl.loadMore(10)
-  }
+  const { children } = props
 
   if (Array.isArray(children) && children.length === 0) {
     return (
@@ -34,11 +20,6 @@ export default function List(props: ListProps) {
       <ul>
         {children}
       </ul>
-      <div className="action-container">
-        <Button onClick={handleLoadMore} disabled={paginationCtrl.hasMore === false}>
-          {paginationCtrl.hasMore ? 'load more' : 'no more items to show'}
-        </Button>
-      </div>
     </div>
   )
 }
