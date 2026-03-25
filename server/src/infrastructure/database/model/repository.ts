@@ -96,21 +96,26 @@ export async function findRepositoryByOwnerLogin(login: string, pagination: TPag
     ? `AND r.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
     : ''
 
-  // TODO concat all licenses into one list
   const query = `
     SELECT *
     FROM (
-      SELECT r.*, la.*, li.license_name
+      SELECT r.*, la.*, li.*
       FROM repositories r
-      LEFT JOIN languages la on r.primary_language = la.language_name
-      LEFT JOIN repositories_licenses rl using(repository_id)
-      LEFT JOIN licenses li using(license_key)
+      LEFT JOIN languages la ON r.primary_language = la.language_name
+      LEFT JOIN LATERAL (
+        SELECT li.*
+        FROM licenses li
+        INNER JOIN repositories_licenses rl USING(license_key)
+        WHERE rl.repository_id = r.repository_id
+        ORDER BY rl.created_at ASC
+        LIMIT 1
+      ) li on true
       WHERE
         r.owner_login = $1
         ${startFrom}
       ORDER BY r.created_at ${pagination.order}
       LIMIT $2
-    ) AS repositories
+    )
     ORDER BY created_at ASC
   `
   const args = [
@@ -138,7 +143,7 @@ export async function findStarredRepositoryByOwnerLogin(login: string, paginatio
         ${startFrom}
       ORDER BY rs.created_at ${pagination.order}
       LIMIT $2
-    ) AS repositories
+    )
     ORDER BY starred_at ASC
   `
   const args = [
