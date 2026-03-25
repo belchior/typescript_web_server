@@ -19,7 +19,7 @@ type ProfileOwnerListProps = {
 export default function ProfileOwnerList(props: ProfileOwnerListProps) {
   return (
     <List>
-      {props.items.map(owner => <ProfileOwnerItem key={owner.id} owner={owner} />)}
+      {props.items.map(owner => <ProfileOwnerItem key={owner.login} owner={owner} />)}
     </List>
   )
 }
