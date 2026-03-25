@@ -9,9 +9,9 @@ import {
 
 import { connectionType, connectionTypeArgs } from '../../util/cursor_connection/graphql_types'
 import { idType, NodeInterface } from '../graphql/types'
-import { RepositoryResolve } from './resolve'
-import { TRepositoryOwner } from '../../database/util/types'
-import { ProfileOwnerInterface } from '../profile/type'
+import { ProfileOwnerInterface } from '../profile/profile_type'
+import { RepositoryResolve } from './repository_resolve'
+import { type TRepositoryOwner } from '../../database'
 
 const LanguageType = new GraphQLObjectType({
   name: 'Language',

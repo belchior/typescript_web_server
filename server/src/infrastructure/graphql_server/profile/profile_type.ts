@@ -7,8 +7,8 @@ import {
 
 import { connectionType } from '../../util/cursor_connection/graphql_types'
 import { idType } from '../graphql/types'
-import { ProfileResolve } from './resolve'
-import { TFollowing } from '../../database/model/profileOwner'
+import { ProfileResolve } from './profile_resolve'
+import { type TFollowing } from '../../database'
 
 export const ProfileOwnerInterface = new GraphQLInterfaceType({
   name: 'ProfileOwner',

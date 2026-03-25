@@ -1,10 +1,8 @@
 import { emptyCursorConnection, cursorConnection, TPaginationArgs } from '../../util/cursor_connection/cursor_connection'
-import { findFollowersByUserLogin, findFollowersPageInfo, findOrganizationsByUserLogin, findOrganizationsPageInfo, TFollower, TUser, TUserOrganization } from '../../database/model/user'
-import { TProfileOwner } from '../../database/model/profileOwner'
 import { handleError } from '../util/error_handler'
-import { paginationArgsToQueryArgs } from '../../database/util/pagination'
-import { RepositoryResolve } from '../repository/resolve'
+import { RepositoryResolve } from '../repository/repository_resolve'
 import { TArgs, TGraphQLContext } from '../graphql/types'
+import database, { type TFollower, TProfileOwner, TUser, TUserOrganization } from '../../database'
 
 type UserQueryArgs = {
   login: string
@@ -18,12 +16,12 @@ export const UserResolve = {
   followers: async (parent: TProfileOwner, args: TPaginationArgs) => {
     try {
       const referenceFrom = (item: TFollower) => item.followed_at.toISOString()
-      const pagination = paginationArgsToQueryArgs(args)
-      const items = await findFollowersByUserLogin(parent.login, pagination)
+      const pagination = database.util.paginationArgsToQueryArgs(args)
+      const items = await database.user.findFollowersByUserLogin(parent.login, pagination)
 
       if (items.length === 0) return emptyCursorConnection<TFollower>()
 
-      const pageInfoItems = await findFollowersPageInfo(parent.login, items, referenceFrom)
+      const pageInfoItems = await database.user.findFollowersPageInfo(parent.login, items, referenceFrom)
       return cursorConnection<TFollower>({ items, pageInfoItems, referenceFrom })
     } catch (error) {
       return handleError(error as Error)
@@ -33,12 +31,12 @@ export const UserResolve = {
   organizations: async (parent: TUser, args: TPaginationArgs) => {
     try {
       const referenceFrom = (item: TUserOrganization) => item.joined_at.toISOString()
-      const pagination = paginationArgsToQueryArgs(args)
-      const items = await findOrganizationsByUserLogin(parent.login, pagination)
+      const pagination = database.util.paginationArgsToQueryArgs(args)
+      const items = await database.user.findOrganizationsByUserLogin(parent.login, pagination)
 
       if (items.length === 0) return emptyCursorConnection<TUserOrganization>()
 
-      const pageInfoItems = await findOrganizationsPageInfo(parent.login, items, referenceFrom)
+      const pageInfoItems = await database.user.findOrganizationsPageInfo(parent.login, items, referenceFrom)
       return cursorConnection<TUserOrganization>({ items, pageInfoItems, referenceFrom })
     } catch (error) {
       return handleError(error as Error)

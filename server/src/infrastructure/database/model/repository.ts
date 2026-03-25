@@ -2,11 +2,11 @@ import { find } from '../db_connection'
 import { handleError } from '../../graphql_server/util/error_handler'
 import { deserialize } from '../../util/converter'
 import { isISOString } from '../../util/date'
-import { TRepositoryOwner } from '../util/types'
 import { TOrganization } from './organization'
 import { TUser } from './user'
 import { TPageInfoItem } from '../../util/cursor_connection/cursor_connection'
 import { pageInfoQueries, TPageInfoFnQueryArgs, TPaginationQueryArgs } from '../util/pagination'
+import { TProfileOwner } from './profileOwner'
 
 export type TRepository = {
   __typename: 'Repository'
@@ -39,6 +39,8 @@ export type TProfileOwnerIdentifier = {
   owner_login: TOwnerLogin
   owner_ref: TownerRef
 }
+
+export type TRepositoryOwner = TProfileOwner
 
 type TRepositoryOwnerLogins = Record<TownerRef, TOwnerLogin[]>
 

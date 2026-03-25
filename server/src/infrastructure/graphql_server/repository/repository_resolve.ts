@@ -1,22 +1,8 @@
+import { emptyCursorConnection, cursorConnection, TPaginationArgs } from '../../util/cursor_connection/cursor_connection'
 import { handleError } from '../util/error_handler'
 import { serialize } from '../../util/converter'
-import {
-  findRepositoryByOwnerLogin,
-  findRepositoryPageInfo,
-  findStarredRepositoryByOwnerLogin,
-  findStarredRepositoryPageInfo,
-  TProfileOwnerIdentifier,
-  TRepository,
-  TStarredRepository,
-} from '../../database/model/repository'
-import {
-  emptyCursorConnection,
-  cursorConnection,
-  TPaginationArgs,
-} from '../../util/cursor_connection/cursor_connection'
 import { TArgs, TGraphQLContext } from '../graphql/types'
-import { TRepositoryOwner } from '../../database/util/types'
-import { paginationArgsToQueryArgs } from '../../database/util/pagination'
+import database, { type TProfileOwnerIdentifier, TRepository, TRepositoryOwner, TStarredRepository } from '../../database'
 
 export const RepositoryResolve = {
   id: (parent: TRepository) => {
@@ -55,12 +41,12 @@ export const RepositoryResolve = {
   repositories: async (parent: TRepositoryOwner, args: TPaginationArgs) => {
     try {
       const referenceFrom = (item: TRepository) => item.created_at.toISOString()
-      const pagination = paginationArgsToQueryArgs(args)
-      const items = await findRepositoryByOwnerLogin(parent.login, pagination)
+      const pagination = database.util.paginationArgsToQueryArgs(args)
+      const items = await database.repository.findRepositoryByOwnerLogin(parent.login, pagination)
 
       if (items.length === 0) return emptyCursorConnection<TRepository>()
 
-      const pageInfoItems = await findRepositoryPageInfo(parent.login, items, referenceFrom)
+      const pageInfoItems = await database.repository.findRepositoryPageInfo(parent.login, items, referenceFrom)
       return cursorConnection<TRepository>({ items, pageInfoItems, referenceFrom })
     } catch (error) {
       return handleError(error as Error)
@@ -70,12 +56,12 @@ export const RepositoryResolve = {
   starredRepositories: async (parent: TRepositoryOwner, args: TPaginationArgs) => {
     try {
       const referenceFrom = (item: TStarredRepository) => item.starred_at.toISOString()
-      const pagination = paginationArgsToQueryArgs(args)
-      const items = await findStarredRepositoryByOwnerLogin(parent.login, pagination)
+      const pagination = database.util.paginationArgsToQueryArgs(args)
+      const items = await database.repository.findStarredRepositoryByOwnerLogin(parent.login, pagination)
 
       if (items.length === 0) return emptyCursorConnection<TStarredRepository>()
 
-      const pageInfoItems = await findStarredRepositoryPageInfo(parent.login, items, referenceFrom)
+      const pageInfoItems = await database.repository.findStarredRepositoryPageInfo(parent.login, items, referenceFrom)
       return cursorConnection<TStarredRepository>({ items, pageInfoItems, referenceFrom })
     } catch (error) {
       return handleError(error as Error)

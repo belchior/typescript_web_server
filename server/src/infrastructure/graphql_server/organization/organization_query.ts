@@ -1,5 +1,5 @@
-import { OrganizationType } from './type'
-import { OrganizationResolve } from './resolve'
+import { OrganizationType } from './organization_type'
+import { OrganizationResolve } from './organization_resolve'
 import { idType } from '../graphql/types'
 
 export const OrganizationQuery = {

@@ -1,5 +1,5 @@
-import { ProfileOwnerInterface } from './type'
-import { ProfileResolve } from './resolve'
+import { ProfileOwnerInterface } from './profile_type'
+import { ProfileResolve } from './profile_resolve'
 import { idType } from '../graphql/types'
 
 export const ProfileQuery = {

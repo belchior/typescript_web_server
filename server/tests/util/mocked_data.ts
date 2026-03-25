@@ -1,11 +1,9 @@
 
-import { getConnection } from '../../src/infrastructure/database/db_connection'
-import { TUser } from '../../src/infrastructure/database/model/user'
-import { TTableNames } from '../../src/infrastructure/database/util/types'
-import { TOrganization } from '../../src/infrastructure/database/model/organization'
-import { TRepository } from '../../src/infrastructure/database/model/repository'
-import { randomInteger } from './random'
 import { delay } from './delay'
+import { randomInteger } from './random'
+import database, {
+  type TUser, TOrganization, TRepository, TTableNames,
+} from '../../src/infrastructure/database'
 
 function escapeData(data: Record<string, unknown>) {
   const keys = Object.keys(data)
@@ -46,7 +44,7 @@ async function insertLanguages() {
     ON CONFLICT DO NOTHING
   `
 
-  await getConnection().query(query)
+  await database.getConnection().query(query)
 }
 
 async function insertLicenses() {
@@ -61,7 +59,7 @@ async function insertLicenses() {
     ON CONFLICT DO NOTHING
   `
 
-  await getConnection().query(query)
+  await database.getConnection().query(query)
 }
 
 export async function insertOrganization(suffix: string, organization: Partial<TOrganization> = {})
@@ -80,7 +78,7 @@ export async function insertOrganization(suffix: string, organization: Partial<T
   }
 
   const query = toSQLInsert('organizations', escapeData(data))
-  const { rows } = await getConnection().query<TOrganization>(query)
+  const { rows } = await database.getConnection().query<TOrganization>(query)
   const result = rows.at(0)!
   return result
 }
@@ -121,7 +119,7 @@ export async function insertRepository(suffix: string, repository: Partial<TRepo
   ])
 
   const query = toSQLInsert('repositories', escapeData(data))
-  const { rows } = await getConnection().query<TRepository>(query)
+  const { rows } = await database.getConnection().query<TRepository>(query)
   const repo = rows.at(0)!
 
   await insertRepositoriesLicenses({
@@ -156,7 +154,7 @@ type TRepositoriesLicenses = {
 }
 export async function insertRepositoriesLicenses(data: TRepositoriesLicenses) {
   const query = toSQLInsert('repositories_licenses', escapeData(data))
-  const { rows } = await getConnection().query<TRepositoriesLicenses>(query)
+  const { rows } = await database.getConnection().query<TRepositoriesLicenses>(query)
   const result = rows.at(0)!
   return result
 }
@@ -177,7 +175,7 @@ export async function insertUser(suffix: string, user: Partial<TUser> = {}): Pro
   }
 
   const query = toSQLInsert('users', escapeData(data))
-  const { rows } = await getConnection().query<TUser & { user_id: string }>(query)
+  const { rows } = await database.getConnection().query<TUser & { user_id: string }>(query)
   const result = rows.at(0)!
   return result
 }
@@ -193,7 +191,7 @@ export async function insertUsersFollowing(list: TUsersFollowing[]) {
     // needed to bind following user in a consistent order
     await delay(randomInteger(1, 10))
     const query = toSQLInsert('users_following', escapeData(data))
-    const { rows } = await getConnection().query<TUsersFollowing>(query)
+    const { rows } = await database.getConnection().query<TUsersFollowing>(query)
     results.push(rows.at(0)!)
   }
 
@@ -211,7 +209,7 @@ export async function insertUsersOrganizations(list: TOrganizationsMembers[]) {
     // needed to bind user to an org in a consistent order
     await delay(randomInteger(1, 10))
     const query = toSQLInsert('organizations_members', escapeData(data))
-    const { rows } = await getConnection().query<TOrganizationsMembers>(query)
+    const { rows } = await database.getConnection().query<TOrganizationsMembers>(query)
     results.push(rows.at(0)!)
   }
 
@@ -229,7 +227,7 @@ export async function insertUsersStarredRepositories(list: TRepositoriesStars[])
     // needed to bind star a repositories in a consistent order
     await delay(randomInteger(1, 10))
     const query = toSQLInsert('repositories_stars', escapeData(data))
-    const { rows } = await getConnection().query<TRepositoriesStars>(query)
+    const { rows } = await database.getConnection().query<TRepositoriesStars>(query)
     results.push(rows.at(0)!)
   }
 

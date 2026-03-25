@@ -1,18 +1,18 @@
 import { createApp } from '../../../src/infrastructure/graphql_server/server'
 import { graphqlRequest } from '../../util/graphql_client'
 import { randomId } from '../../util/random'
-import * as db from '../../../src/infrastructure/database/db_connection'
 import * as mockHelper from '../../util/mocked_data'
+import database from '../../../src/infrastructure/database'
 
 describe('Organization', () => {
   const app = createApp()
 
   beforeAll(async () => {
-    await db.dbConnect()
+    await database.dbConnect()
   })
 
   afterAll(async () => {
-    await db.dbDisconnect()
+    await database.dbDisconnect()
   })
 
   it('should fetch the organization by login', async () => {
@@ -176,11 +176,11 @@ describe('People Pagination', () => {
   const app = createApp()
 
   beforeAll(async () => {
-    await db.dbConnect()
+    await database.dbConnect()
   })
 
   afterAll(async () => {
-    await db.dbDisconnect()
+    await database.dbDisconnect()
   })
 
   it('should limits the number of users of the pages that will be retrieved from the organization', async () => {
@@ -369,11 +369,11 @@ describe('Repository Pagination', () => {
   const app = createApp()
 
   beforeAll(async () => {
-    await db.dbConnect()
+    await database.dbConnect()
   })
 
   afterAll(async () => {
-    await db.dbDisconnect()
+    await database.dbDisconnect()
   })
 
   it('should limits the number of repositories of the pages that will be retrieved from the organization', async () => {

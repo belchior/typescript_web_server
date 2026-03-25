@@ -7,12 +7,12 @@ import {
 
 import { connectionType, connectionTypeArgs } from '../../util/cursor_connection/graphql_types'
 import { idType, NodeInterface } from '../graphql/types'
-import { OrganizationResolve } from './resolve'
-import { ProfileOwnerInterface } from '../profile/type'
-import { RepositoryConnectionType, RepositoryOwnerInterface } from '../repository/type'
-import { TOrganization } from '../../database/model/organization'
-import { UserConnectionType } from '../user/type'
-import { UserResolve } from '../user/resolve'
+import { OrganizationResolve } from './organization_resolve'
+import { ProfileOwnerInterface } from '../profile/profile_type'
+import { RepositoryConnectionType, RepositoryOwnerInterface } from '../repository/repository_type'
+import { UserConnectionType } from '../user/user_type'
+import { UserResolve } from '../user/user_resolve'
+import { type TOrganization } from '../../database'
 
 export const OrganizationType: GraphQLObjectType<TOrganization> = new GraphQLObjectType({
   interfaces: [NodeInterface, ProfileOwnerInterface, RepositoryOwnerInterface],

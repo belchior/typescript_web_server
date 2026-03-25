@@ -1,10 +1,9 @@
 import { cursorConnection, emptyCursorConnection, TPaginationArgs } from '../../util/cursor_connection/cursor_connection'
-import { findFollowingByLogin, findFollowingPageInfo, ProfileOwnerType, TFollowing, TProfileOwner } from '../../database/model/profileOwner'
 import { handleError } from '../util/error_handler'
-import { OrganizationResolve } from '../organization/resolve'
-import { paginationArgsToQueryArgs } from '../../database/util/pagination'
+import { OrganizationResolve } from '../organization/organization_resolve'
 import { TArgs, TGraphQLContext } from '../graphql/types'
-import { UserResolve } from '../user/resolve'
+import { UserResolve } from '../user/user_resolve'
+import database, { type ProfileOwnerType, TFollowing, TProfileOwner } from '../../database'
 
 type ProfileQueryArgs = {
   login: string
@@ -14,12 +13,12 @@ export const ProfileResolve = {
   following: async (parent: TProfileOwner, args: TPaginationArgs) => {
     try {
       const referenceFrom = (item: TFollowing) => item.following_at.toISOString()
-      const pagination = paginationArgsToQueryArgs(args)
-      const items = await findFollowingByLogin(parent.login, pagination)
+      const pagination = database.util.paginationArgsToQueryArgs(args)
+      const items = await database.profileOwner.findFollowingByLogin(parent.login, pagination)
 
       if (items.length === 0) return emptyCursorConnection<TFollowing>()
 
-      const pageInfoItems = await findFollowingPageInfo(parent.login, items, referenceFrom)
+      const pageInfoItems = await database.profileOwner.findFollowingPageInfo(parent.login, items, referenceFrom)
       return cursorConnection<TFollowing>({ items, pageInfoItems, referenceFrom })
     } catch (error) {
       return handleError(error as Error)

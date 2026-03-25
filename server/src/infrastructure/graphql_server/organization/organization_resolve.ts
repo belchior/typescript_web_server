@@ -1,10 +1,8 @@
 import { emptyCursorConnection, cursorConnection, TPaginationArgs } from '../../util/cursor_connection/cursor_connection'
-import { findOrganizationPeopleByLogin, findOrganizationPeoplePageInfo, TOrganization, TOrganizationMember } from '../../database/model/organization'
 import { handleError } from '../util/error_handler'
-import { RepositoryResolve } from '../repository/resolve'
+import { RepositoryResolve } from '../repository/repository_resolve'
 import { TArgs, TGraphQLContext } from '../graphql/types'
-import { TUserOrganization } from '../../database/model/user'
-import { paginationArgsToQueryArgs } from '../../database/util/pagination'
+import database, { TOrganization, TOrganizationMember, TUserOrganization } from '../../database'
 
 type OrganizationQueryArgs = {
   login: string
@@ -18,12 +16,16 @@ export const OrganizationResolve = {
   people: async (parent: TOrganization, args: TPaginationArgs) => {
     try {
       const referenceFrom = (item: TOrganizationMember) => item.joined_at.toISOString()
-      const pagination = paginationArgsToQueryArgs(args)
-      const items = await findOrganizationPeopleByLogin(parent.login, pagination)
+      const pagination = database.util.paginationArgsToQueryArgs(args)
+      const items = await database.organization.findOrganizationPeopleByLogin(parent.login, pagination)
 
       if (items.length === 0) return emptyCursorConnection<TUserOrganization>()
 
-      const pageInfoItems = await findOrganizationPeoplePageInfo(parent.login, items, referenceFrom)
+      const pageInfoItems = await database.organization.findOrganizationPeoplePageInfo(
+        parent.login,
+        items,
+        referenceFrom
+      )
       return cursorConnection<TOrganizationMember>({ items, pageInfoItems, referenceFrom })
     } catch (error) {
       return handleError(error as Error)

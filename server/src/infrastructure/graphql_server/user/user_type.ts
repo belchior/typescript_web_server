@@ -6,13 +6,13 @@ import {
 } from 'graphql'
 
 import { connectionType, connectionTypeArgs } from '../../util/cursor_connection/graphql_types'
+import { FollowingConnectionType, ProfileOwnerInterface } from '../profile/profile_type'
 import { idType, NodeInterface } from '../graphql/types'
-import { OrganizationConnectionType } from '../organization/type'
-import { FollowingConnectionType, ProfileOwnerInterface } from '../profile/type'
-import { ProfileResolve } from '../profile/resolve'
-import { RepositoryConnectionType, RepositoryOwnerInterface } from '../repository/type'
-import { TUser } from '../../database/model/user'
-import { UserResolve } from './resolve'
+import { OrganizationConnectionType } from '../organization/organization_type'
+import { ProfileResolve } from '../profile/profile_resolve'
+import { RepositoryConnectionType, RepositoryOwnerInterface } from '../repository/repository_type'
+import { UserResolve } from './user_resolve'
+import { type TUser } from '../../database'
 
 export const UserType: GraphQLObjectType<TUser> = new GraphQLObjectType({
   interfaces: [NodeInterface, ProfileOwnerInterface, RepositoryOwnerInterface],

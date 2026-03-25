@@ -1,7 +1,8 @@
 import { GraphQLObjectType, GraphQLSchema } from 'graphql'
-import { OrganizationQuery } from '../organization/query'
-import { ProfileQuery } from '../profile/query'
-import { UserQuery } from '../user/query'
+
+import { OrganizationQuery } from '../organization/organization_query'
+import { ProfileQuery } from '../profile/profile_query'
+import { UserQuery } from '../user/user_query'
 
 export const query = new GraphQLObjectType({
   name: 'Query',

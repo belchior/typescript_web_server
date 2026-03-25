@@ -4,7 +4,7 @@ import express from 'express'
 import pinoHttp from 'pino-http'
 
 import { createGraphqlHandler } from './graphql/handler'
-import * as db from '../database/db_connection'
+import database from '../database'
 import envs from '../util/environment'
 import logger, { logConfig } from '../util/logger'
 
@@ -19,7 +19,7 @@ export function createApp() {
 }
 
 async function startServer() {
-  await db.dbConnect()
+  await database.dbConnect()
 
   const app = createApp()
   const server = app.listen(envs.SERVER_PORT, () => {
@@ -40,7 +40,7 @@ function addGracefulShutdown(server: Server) {
       message: `Server received a ${signal} signal and will shutdown`,
     })
     server.close(async () => {
-      await db.dbDisconnect()
+      await database.dbDisconnect()
 
       logger.info({
         message: 'Server shutdown completed',

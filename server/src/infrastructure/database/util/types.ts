@@ -12,8 +12,6 @@ export type TTableNames =
   | 'users_following'
   | 'users'
 
-export type TRepositoryOwner = TProfileOwner
-
 export type TModel =
   | TUser
   | TOrganization
