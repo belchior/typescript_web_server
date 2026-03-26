@@ -6,7 +6,7 @@ import IconBook from '../../../../designSystem/Icon/Book'
 import IconPeople from '../../../../designSystem/Icon/People'
 import IconRepository from '../../../../designSystem/Icon/Repository'
 import IconStar from '../../../../designSystem/Icon/Star'
-import type { ProfileOwnerType } from '../../../../util/types'
+import type { ProfileOwnerType } from '../ProfileOwnerList/ProfileOwnerList'
 
 export const organizationTabs = ['overview', 'repositories', 'people', 'followers'] as const
 export const userTabs = ['overview', 'repositories', 'stars', 'followers', 'following'] as const

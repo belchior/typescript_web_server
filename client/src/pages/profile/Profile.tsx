@@ -8,7 +8,7 @@ import ErrorBoundary from '../../designSystem/ErrorBoundary/ErrorBoundary'
 import NotFound from '../notfound/NotFound'
 import OrganizationProfile from './component/OrganizationProfile/OrganizationProfile'
 import PageMenu from './component/PageMenu/PageMenu'
-import type { ProfileOwnerType } from '../../util/types'
+import type { ProfileOwnerType } from './component/ProfileOwnerList/ProfileOwnerList'
 import type { ProfileQuery, ProfileQuery$data } from './__generated__/ProfileQuery.graphql'
 import UserProfile from './component/UserProfile/UserProfile'
 

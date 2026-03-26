@@ -2,7 +2,7 @@ import { cls } from '../../../../util/classNames'
 import { useMenuItems, useCurrentTab } from './PageMenu.hooks'
 import Anchor from '../../../../designSystem/Anchor/Anchor'
 import Container from '../../../../designSystem/Container/Container'
-import type { ProfileOwnerType } from '../../../../util/types'
+import type { ProfileOwnerType } from '../ProfileOwnerList/ProfileOwnerList'
 import './PageMenu.css'
 
 type PageMenuProps = {

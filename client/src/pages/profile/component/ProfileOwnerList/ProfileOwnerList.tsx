@@ -1,11 +1,10 @@
 import List from '../../../../designSystem/List/List'
-import type { ProfileOwnerType } from '../../../../util/types'
 import ProfileOwnerItem from './ProfileOwnerItem'
 
+export type ProfileOwnerType = 'User' | 'Organization' | 'Following'
 export type ProfileOwner = {
   __typename: ProfileOwnerType
   avatarUrl: string
-  id: string
   location?: string
   login: string
   name?: string

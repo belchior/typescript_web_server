@@ -19,7 +19,9 @@ type UserSidebarProps = {
 
 export default function UserSidebar(props: UserSidebarProps) {
   const user = useFragment(fragment.profile, props.profile)
-  const organizations = user.organizations.edges.map(item => item?.node)
+  const organizations = user.organizations.edges
+    .map(item => item?.node)
+    .filter(node => node != null) as ProfileOwner[]
 
   return (
     <div className="UserSidebar">
@@ -63,7 +65,7 @@ export default function UserSidebar(props: UserSidebarProps) {
         </p>
       }
       {organizations.length > 0 &&
-        <AvatarList title="Organizations" items={organizations as ProfileOwner[]} />
+        <AvatarList title="Organizations" items={organizations} />
       }
     </div>
   )

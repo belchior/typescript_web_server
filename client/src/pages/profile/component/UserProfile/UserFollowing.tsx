@@ -12,11 +12,13 @@ type UserFollowingProps = {
 }
 export function UserFollowing(props: UserFollowingProps) {
   const user = useFragment(fragment.following, props.profile)
-  const owners = user.following.edges.map(edge => edge?.node).filter(node => node != null) as ProfileOwner[]
+  const items = user.following.edges
+    .map(edge => edge?.node)
+    .filter(node => node != null) as ProfileOwner[]
 
   return <div>
     <Title variant="h2">Following</Title>
-    <ProfileOwnerList items={owners} />
+    <ProfileOwnerList items={items} />
   </div>
 }
 

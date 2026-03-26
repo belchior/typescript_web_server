@@ -19,6 +19,7 @@ export const fragment = {
         @connection(key: "UserSidebar_organizations") {
         edges {
           node {
+            __typename
             avatarUrl
             id
             login
