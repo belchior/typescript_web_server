@@ -55,6 +55,54 @@ describe('Organization', () => {
     }))
   })
 
+  it('should fetch the organization followers', async () => {
+    const suffix = randomId()
+    const organizationLogin = `org_${suffix}`
+    const userLogin = `user_${suffix}`
+
+    const [, user] = await Promise.all([
+      mockHelper.insertOrganization(suffix, { login: organizationLogin }),
+      mockHelper.insertUser(suffix, { login: userLogin }),
+    ])
+    await mockHelper.insertUsersFollowing([{
+      user_login: userLogin,
+      following_login: organizationLogin,
+    }])
+
+    const query = `
+      {
+        organization(login: "${organizationLogin}") {
+          followers(first: 1) {
+            edges {
+              node {
+                name
+                login
+              }
+            }
+          }
+        }
+      }
+    `
+    const response = await graphqlRequest(app, query)
+
+    expect(response.body).toEqual(expect.objectContaining({
+      data: {
+        organization: {
+          followers: {
+            edges: [
+              {
+                node: {
+                  name: user.name,
+                  login: user.login,
+                },
+              },
+            ],
+          },
+        },
+      },
+    }))
+  })
+
   it('should fetch the organization people', async () => {
     const suffix = randomId()
     const organizationLogin = `org_${suffix}`
@@ -169,6 +217,199 @@ describe('Organization', () => {
         },
       },
     }))
+  })
+})
+
+describe('Followers Pagination', () => {
+  const app = createApp()
+
+  beforeAll(async () => {
+    await database.dbConnect()
+  })
+
+  afterAll(async () => {
+    await database.dbDisconnect()
+  })
+
+  it('should limits the number of followers on the pages that will be retrieved from the organization followers list', async () => {
+    const suffix = randomId()
+    const login = `org_${suffix}`
+    const [, ...followers] = await Promise.all([
+      mockHelper.insertOrganization(suffix, { login }),
+      mockHelper.insertUser(suffix, { login: `follower0_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `follower1_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `follower2_${suffix}` }),
+    ])
+    await mockHelper.insertUsersFollowing(followers.map(user => ({
+      user_login: user.login,
+      following_login: login,
+    })))
+
+    const pageLimit = 2
+
+    const query = `
+      { organization(login: "${login}") { followers(first: ${pageLimit}) { edges { node { login } } } } }
+    `
+    const response = await graphqlRequest(app, query)
+
+    expect(response.body.data.organization.followers.edges).toHaveLength(pageLimit)
+    expect(response.body).toEqual(expect.objectContaining({
+      data: {
+        organization: {
+          followers: {
+            edges: [
+              { node: { login: followers.at(0)?.login } },
+              { node: { login: followers.at(1)?.login } },
+            ],
+          },
+        },
+      },
+    }))
+  })
+
+  it('should advance to the next page respecting the limit and order of the followers list', async () => {
+    const suffix = randomId()
+    const login = `org_${suffix}`
+    const [, ...followers] = await Promise.all([
+      mockHelper.insertOrganization(suffix, { login }),
+      mockHelper.insertUser(suffix, { login: `follower0_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `follower1_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `follower2_${suffix}` }),
+    ])
+    await mockHelper.insertUsersFollowing(followers.map(user => ({
+      user_login: user.login,
+      following_login: login,
+    })))
+
+    const pageLimit = 2
+
+    let query = `
+      { organization(login: "${login}") { followers(first: ${pageLimit}) { 
+        pageInfo { endCursor }
+        edges { node { login } } 
+      } } }
+    `
+    let response = await graphqlRequest(app, query)
+
+    expect(response.body.data.organization.followers.edges).toHaveLength(pageLimit)
+    expect(response.body).toEqual(expect.objectContaining({
+      data: {
+        organization: {
+          followers: expect.objectContaining({
+            edges: [
+              { node: { login: followers.at(0)?.login } },
+              { node: { login: followers.at(1)?.login } },
+            ],
+          }),
+        },
+      },
+    }))
+
+    const { endCursor } = response.body.data.organization.followers.pageInfo
+    query = `
+      { organization(login: "${login}") { followers(first: ${pageLimit}, after: "${endCursor}") { 
+        pageInfo { hasNextPage }
+        edges { node { login } }
+      } } }
+    `
+
+    response = await graphqlRequest(app, query)
+
+    expect(response.body.data.organization.followers.edges).toHaveLength(1)
+    expect(response.body).toEqual(expect.objectContaining({
+      data: {
+        organization: {
+          followers: {
+            pageInfo: {
+              hasNextPage: false,
+            },
+            edges: [
+              { node: { login: followers.at(2)?.login } },
+            ],
+          },
+        },
+      },
+    }))
+  })
+
+  it('should advance to the next page in inverse order where the last followers should be in the first page', async () => {
+    const suffix = randomId()
+    const login = `org_${suffix}`
+    const [, ...followers] = await Promise.all([
+      mockHelper.insertOrganization(suffix, { login }),
+      mockHelper.insertUser(suffix, { login: `follower0_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `follower1_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `follower2_${suffix}` }),
+    ])
+    await mockHelper.insertUsersFollowing(followers.map(user => ({
+      user_login: user.login,
+      following_login: login,
+    })))
+
+    const pageLimit = 2
+
+    let query = `
+      { organization(login: "${login}") { followers(last: ${pageLimit}) { 
+        pageInfo { startCursor }
+        edges { node { login } } 
+      } } }
+    `
+    let response = await graphqlRequest(app, query)
+
+    expect(response.body.data.organization.followers.edges).toHaveLength(pageLimit)
+    expect(response.body).toEqual(expect.objectContaining({
+      data: {
+        organization: {
+          followers: expect.objectContaining({
+            edges: [
+              { node: { login: followers.at(1)?.login } },
+              { node: { login: followers.at(2)?.login } },
+            ],
+          }),
+        },
+      },
+    }))
+
+    const { startCursor } = response.body.data.organization.followers.pageInfo
+    query = `
+      { organization(login: "${login}") { followers(last: ${pageLimit}, before: "${startCursor}") { 
+        pageInfo { hasPreviousPage }
+        edges { node { login } }
+      } } }
+    `
+
+    response = await graphqlRequest(app, query)
+
+    expect(response.body.data.organization.followers.edges).toHaveLength(1)
+    expect(response.body).toEqual(expect.objectContaining({
+      data: {
+        organization: {
+          followers: {
+            pageInfo: {
+              hasPreviousPage: false,
+            },
+            edges: [
+              { node: { login: followers.at(0)?.login } },
+            ],
+          },
+        },
+      },
+    }))
+  })
+
+  it('should retrieve an empty list when the organization does not have followers', async () => {
+    const suffix = randomId()
+    const login = `org_${suffix}`
+    await Promise.all([
+      mockHelper.insertOrganization(suffix, { login }),
+    ])
+
+    const query = `
+      { organization(login: "${login}") { followers(first: 2) { edges { node { name } } } } }
+    `
+    const response = await graphqlRequest(app, query)
+
+    expect(response.body.data.organization.followers.edges).toHaveLength(0)
   })
 })
 

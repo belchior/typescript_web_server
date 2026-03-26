@@ -679,6 +679,199 @@ describe('Following Pagination', () => {
   })
 })
 
+describe('Organization Pagination', () => {
+  const app = createApp()
+
+  beforeAll(async () => {
+    await database.dbConnect()
+  })
+
+  afterAll(async () => {
+    await database.dbDisconnect()
+  })
+
+  it('should limits the number of organizations on the pages that will be retrieved from the user organizations list', async () => {
+    const suffix = randomId()
+    const login = `user_${suffix}`
+    const [, ...orgs] = await Promise.all([
+      mockHelper.insertUser(suffix, { login }),
+      mockHelper.insertOrganization(suffix, { login: `org0_${suffix}` }),
+      mockHelper.insertOrganization(suffix, { login: `org1_${suffix}` }),
+      mockHelper.insertOrganization(suffix, { login: `org2_${suffix}` }),
+    ])
+    await mockHelper.insertOrganizationsMembers(orgs.map(org => ({
+      user_login: login,
+      organization_login: org.login,
+    })))
+
+    const pageLimit = 2
+
+    const query = `
+      { user(login: "${login}") { organizations(first: ${pageLimit}) { edges { node { login } } } } }
+    `
+    const response = await graphqlRequest(app, query)
+
+    expect(response.body.data.user.organizations.edges).toHaveLength(pageLimit)
+    expect(response.body).toEqual(expect.objectContaining({
+      data: {
+        user: {
+          organizations: {
+            edges: [
+              { node: { login: orgs.at(0)?.login } },
+              { node: { login: orgs.at(1)?.login } },
+            ],
+          },
+        },
+      },
+    }))
+  })
+
+  it('should advance to the next page respecting the limit and order of the organizations', async () => {
+    const suffix = randomId()
+    const login = `user_${suffix}`
+    const [, ...orgs] = await Promise.all([
+      mockHelper.insertUser(suffix, { login }),
+      mockHelper.insertOrganization(suffix, { login: `org0_${suffix}` }),
+      mockHelper.insertOrganization(suffix, { login: `org1_${suffix}` }),
+      mockHelper.insertOrganization(suffix, { login: `org2_${suffix}` }),
+    ])
+    await mockHelper.insertOrganizationsMembers(orgs.map(org => ({
+      user_login: login,
+      organization_login: org.login,
+    })))
+
+    const pageLimit = 2
+
+    let query = `
+      { user(login: "${login}") { organizations(first: ${pageLimit}) { 
+        pageInfo { endCursor }
+        edges { node { login } } 
+      } } }
+    `
+    let response = await graphqlRequest(app, query)
+
+    expect(response.body.data.user.organizations.edges).toHaveLength(pageLimit)
+    expect(response.body).toEqual(expect.objectContaining({
+      data: {
+        user: {
+          organizations: expect.objectContaining({
+            edges: [
+              { node: { login: orgs.at(0)?.login } },
+              { node: { login: orgs.at(1)?.login } },
+            ],
+          }),
+        },
+      },
+    }))
+
+    const { endCursor } = response.body.data.user.organizations.pageInfo
+    query = `
+      { user(login: "${login}") { organizations(first: ${pageLimit}, after: "${endCursor}") { 
+        pageInfo { hasNextPage }
+        edges { node { login } }
+      } } }
+    `
+
+    response = await graphqlRequest(app, query)
+
+    expect(response.body.data.user.organizations.edges).toHaveLength(1)
+    expect(response.body).toEqual(expect.objectContaining({
+      data: {
+        user: {
+          organizations: {
+            pageInfo: {
+              hasNextPage: false,
+            },
+            edges: [
+              { node: { login: orgs.at(2)?.login } },
+            ],
+          },
+        },
+      },
+    }))
+  })
+
+  it('should advance to the next page in inverse order where the last organizations should be in the first page', async () => {
+    const suffix = randomId()
+    const login = `user_${suffix}`
+    const [, ...orgs] = await Promise.all([
+      mockHelper.insertUser(suffix, { login }),
+      mockHelper.insertOrganization(suffix, { login: `org0_${suffix}` }),
+      mockHelper.insertOrganization(suffix, { login: `org1_${suffix}` }),
+      mockHelper.insertOrganization(suffix, { login: `org2_${suffix}` }),
+    ])
+    await mockHelper.insertOrganizationsMembers(orgs.map(org => ({
+      user_login: login,
+      organization_login: org.login,
+    })))
+
+    const pageLimit = 2
+
+    let query = `
+      { user(login: "${login}") { organizations(last: ${pageLimit}) { 
+        pageInfo { startCursor }
+        edges { node { login } } 
+      } } }
+    `
+    let response = await graphqlRequest(app, query)
+
+    expect(response.body.data.user.organizations.edges).toHaveLength(pageLimit)
+    expect(response.body).toEqual(expect.objectContaining({
+      data: {
+        user: {
+          organizations: expect.objectContaining({
+            edges: [
+              { node: { login: orgs.at(1)?.login } },
+              { node: { login: orgs.at(2)?.login } },
+            ],
+          }),
+        },
+      },
+    }))
+
+    const { startCursor } = response.body.data.user.organizations.pageInfo
+    query = `
+      { user(login: "${login}") { organizations(last: ${pageLimit}, before: "${startCursor}") { 
+        pageInfo { hasPreviousPage }
+        edges { node { login } }
+      } } }
+    `
+
+    response = await graphqlRequest(app, query)
+
+    expect(response.body.data.user.organizations.edges).toHaveLength(1)
+    expect(response.body).toEqual(expect.objectContaining({
+      data: {
+        user: {
+          organizations: {
+            pageInfo: {
+              hasPreviousPage: false,
+            },
+            edges: [
+              { node: { login: orgs.at(0)?.login } },
+            ],
+          },
+        },
+      },
+    }))
+  })
+
+  it('should retrieve an empty list when the user is not member of an organization', async () => {
+    const suffix = randomId()
+    const login = `user_${suffix}`
+    await Promise.all([
+      mockHelper.insertUser(suffix, { login }),
+    ])
+
+    const query = `
+      { user(login: "${login}") { organizations(first: 2) { edges { node { name } } } } }
+    `
+    const response = await graphqlRequest(app, query)
+
+    expect(response.body.data.user.organizations.edges).toHaveLength(0)
+  })
+})
+
 describe('Repository Pagination', () => {
   const app = createApp()
 
