@@ -8,7 +8,7 @@ import {
 import { connectionType } from '../../util/cursor_connection/graphql_types'
 import { idType } from '../graphql/types'
 import { ProfileResolve } from './profile_resolve'
-import { type TFollowing } from '../../database'
+import { type Following } from '../../database'
 
 export const ProfileOwnerInterface = new GraphQLInterfaceType({
   name: 'ProfileOwner',
@@ -22,7 +22,7 @@ export const ProfileOwnerInterface = new GraphQLInterfaceType({
   resolveType: ProfileResolve.profileOwner,
 })
 
-export const FollowingType: GraphQLObjectType<TFollowing> = new GraphQLObjectType({
+export const FollowingType: GraphQLObjectType<Following> = new GraphQLObjectType({
   interfaces: [ProfileOwnerInterface],
   name: 'Following',
   fields: () => ({

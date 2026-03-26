@@ -1,32 +1,32 @@
 import {
   cursorToReference,
-  TBackwardPaginationArgs,
-  TForwardPaginationArgs,
-  TPageInfoItem,
-  TPaginationArgs,
-  TReferenceFrom,
+  BackwardPagination,
+  ForwardPagination,
+  PageInfoItem,
+  PaginationArguments,
   validateArgs,
+  ReferenceFrom,
 } from '../../util/cursor_connection/cursor_connection'
-import { TModel } from './types'
+import { Model } from './types'
 
-type TOperator = '<' | '>'
-type TOrder = 'ASC' | 'DESC'
+type Operator = '<' | '>'
+type Order = 'ASC' | 'DESC'
 
-export type TPageInfoFnQueryArgs = {
-  operator: TOperator
-  order: TOrder
+export type PageInfoFnQueryArgs = {
+  operator: Operator
+  order: Order
   reference: string
-  row: TPageInfoItem['row']
+  row: PageInfoItem['row']
 }
 
-export type TPaginationQueryArgs = {
+export type PaginationQueryArgs = {
   limit: number | undefined
-  operator: TOperator
-  order: TOrder
+  operator: Operator
+  order: Order
   reference: string | undefined
 }
 
-function backwardPagination(args: TBackwardPaginationArgs): TPaginationQueryArgs {
+function backwardPagination(args: BackwardPagination): PaginationQueryArgs {
   return {
     limit: args.last,
     reference: args.before ? cursorToReference(args.before) : undefined,
@@ -35,7 +35,7 @@ function backwardPagination(args: TBackwardPaginationArgs): TPaginationQueryArgs
   }
 }
 
-function forwardPagination(args: TForwardPaginationArgs): TPaginationQueryArgs {
+function forwardPagination(args: ForwardPagination): PaginationQueryArgs {
   return {
     limit: args.first,
     reference: args.after ? cursorToReference(args.after) : undefined,
@@ -44,20 +44,20 @@ function forwardPagination(args: TForwardPaginationArgs): TPaginationQueryArgs {
   }
 }
 
-export function paginationArgsToQueryArgs(args: TPaginationArgs) {
+export function paginationArgsToQueryArgs(args: PaginationArguments) {
   validateArgs(args)
   return args.first
     ? forwardPagination(args)
     : backwardPagination(args)
 }
 
-type TPageInfoFnQuery = (args: TPageInfoFnQueryArgs) => string
-type TFindPageInfoArgs<T> = {
+type PageInfoFnQuery = (args: PageInfoFnQueryArgs) => string
+type FindPageInfoArgs<T> = {
   items: T[]
-  pageInfoFnQuery: TPageInfoFnQuery
-  referenceFrom: TReferenceFrom<T>
+  pageInfoFnQuery: PageInfoFnQuery
+  referenceFrom: ReferenceFrom<T>
 }
-export function pageInfoQueries<T extends TModel>(args: TFindPageInfoArgs<T>) {
+export function pageInfoQueries<T extends Model>(args: FindPageInfoArgs<T>) {
   const { items, pageInfoFnQuery, referenceFrom } = args
 
   const firstItem = items.at(0)

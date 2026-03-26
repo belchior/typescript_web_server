@@ -1,12 +1,10 @@
 import * as db from '../db_connection'
-import { handleError } from '../../graphql_server/util/error_handler'
 import { isISOString } from '../../util/date'
-import { pageInfoQueries, TPageInfoFnQueryArgs, TPaginationQueryArgs } from '../util/pagination'
-import { TOrganization } from './organization'
-import { TPageInfoItem } from '../../util/cursor_connection/cursor_connection'
+import { pageInfoQueries, PageInfoFnQueryArgs, PaginationQueryArgs } from '../util/pagination'
+import { Organization } from './organization'
+import { PageInfoItem } from '../../util/cursor_connection/cursor_connection'
 
-export type TUser = {
-  __typename: 'User'
+export type User = {
   avatar_url: string
   bio?: string
   company?: string
@@ -20,31 +18,27 @@ export type TUser = {
   website_url?: string
 }
 
-export type TFollower = TUser & { followed_at: Date };
-export type TUserOrganization = TOrganization & { joined_at: Date };
+export type Follower = User & { followed_at: Date };
+export type UserOrganization = Organization & { joined_at: Date };
 
 export async function findUsersByLogins(logins: readonly string[]) {
-  try {
-    const query = `
-      SELECT *, 'User' __typename
+  const query = `
+      SELECT *
       FROM users 
       WHERE login = ANY($1)
     `
-    const args = [logins]
-    const { rows: items } = await db.find<Readonly<TUser>>(query, args)
+  const args = [logins]
+  const { rows: items } = await db.find<Readonly<User>>(query, args)
 
-    const users = logins.map(login => (
-      items.find(user => user.login === login)
-      || new Error(`User not found with login: ${login}`)
-    ))
+  const users = logins.map(login => (
+    items.find(user => user.login === login)
+    || new Error(`User not found with login: ${login}`)
+  ))
 
-    return users
-  } catch (error) {
-    return handleError(error as Error)
-  }
+  return users
 }
 
-export async function findFollowersByUserLogin(login: string, pagination: TPaginationQueryArgs) {
+export async function findFollowersByUserLogin(login: string, pagination: PaginationQueryArgs) {
   const startFrom = pagination.reference && isISOString(pagination.reference)
     ? `AND uf.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
     : ''
@@ -67,12 +61,12 @@ export async function findFollowersByUserLogin(login: string, pagination: TPagin
     login,
     pagination.limit,
   ]
-  const { rows: items } = await db.find<Readonly<TFollower>>(query, args)
+  const { rows: items } = await db.find<Readonly<Follower>>(query, args)
 
   return items
 }
 
-export async function findOrganizationsByUserLogin(login: string, pagination: TPaginationQueryArgs) {
+export async function findOrganizationsByUserLogin(login: string, pagination: PaginationQueryArgs) {
   const startFrom = pagination.reference && isISOString(pagination.reference)
     ? `AND om.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
     : ''
@@ -95,17 +89,17 @@ export async function findOrganizationsByUserLogin(login: string, pagination: TP
     login,
     pagination.limit,
   ]
-  const { rows: items } = await db.find<Readonly<TUserOrganization>>(query, args)
+  const { rows: items } = await db.find<Readonly<UserOrganization>>(query, args)
 
   return items
 }
 
 export async function findFollowersPageInfo(
   login: string,
-  items: TFollower[],
-  referenceFrom: (item: TFollower) => string
+  items: Follower[],
+  referenceFrom: (item: Follower) => string
 ) {
-  const pageInfoFnQuery = (queryArgs: TPageInfoFnQueryArgs) => `
+  const pageInfoFnQuery = (queryArgs: PageInfoFnQueryArgs) => `
     SELECT u.login, '${queryArgs.row}' AS row
     FROM users u
     INNER JOIN users_following uf ON uf.following_login = u.login
@@ -122,17 +116,17 @@ export async function findFollowersPageInfo(
     UNION
     SELECT * FROM (${nextQuery}) as next
   `
-  const { rows: pageInfoItems } = await db.find<Readonly<TPageInfoItem>>(query)
+  const { rows: pageInfoItems } = await db.find<Readonly<PageInfoItem>>(query)
 
   return pageInfoItems
 }
 
 export async function findOrganizationsPageInfo(
   login: string,
-  items: TUserOrganization[],
-  referenceFrom: (item: TUserOrganization) => string
+  items: UserOrganization[],
+  referenceFrom: (item: UserOrganization) => string
 ) {
-  const pageInfoFnQuery = (queryArgs: TPageInfoFnQueryArgs) => `
+  const pageInfoFnQuery = (queryArgs: PageInfoFnQueryArgs) => `
     SELECT o.login, '${queryArgs.row}' AS row
     FROM organizations_members om
     JOIN organizations o ON o.login = om.organization_login
@@ -149,7 +143,7 @@ export async function findOrganizationsPageInfo(
     UNION
     SELECT * FROM (${nextQuery}) as next
   `
-  const { rows: pageInfoItems } = await db.find<Readonly<TPageInfoItem>>(query)
+  const { rows: pageInfoItems } = await db.find<Readonly<PageInfoItem>>(query)
 
   return pageInfoItems
 }

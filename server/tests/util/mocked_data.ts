@@ -2,7 +2,7 @@
 import { delay } from './delay'
 import { randomInteger } from './random'
 import database, {
-  type TUser, TOrganization, TRepository, TTableNames,
+  type User, Organization, Repository, TableNames,
 } from '../../src/infrastructure/database'
 
 function escapeData(data: Record<string, unknown>) {
@@ -21,7 +21,7 @@ function escapeData(data: Record<string, unknown>) {
   return data
 }
 
-function toSQLInsert(tableName: TTableNames, data: Record<string, unknown>) {
+function toSQLInsert(tableName: TableNames, data: Record<string, unknown>) {
   const columns = Object.keys(data).join(',')
   const values = Object.values(data).join(',')
   const query = `
@@ -62,10 +62,9 @@ async function insertLicenses() {
   await database.getConnection().query(query)
 }
 
-export async function insertOrganization(suffix: string, organization: Partial<TOrganization> = {})
-  : Promise<TOrganization> {
-  const data: Partial<TOrganization> = {
-    __typename: 'Organization',
+export async function insertOrganization(suffix: string, organization: Partial<Organization> = {})
+  : Promise<Organization> {
+  const data: Partial<Organization> = {
     avatar_url: `https://test.com/avatar_${suffix}.jpg`,
     description: `description_${suffix}`,
     email: `email_${suffix}@email.com`,
@@ -78,14 +77,13 @@ export async function insertOrganization(suffix: string, organization: Partial<T
   }
 
   const query = toSQLInsert('organizations', escapeData(data))
-  const { rows } = await database.getConnection().query<TOrganization>(query)
+  const { rows } = await database.getConnection().query<Organization>(query)
   const result = rows.at(0)!
   return result
 }
 
-export async function insertRepository(suffix: string, repository: Partial<TRepository> = {}): Promise<TRepository> {
-  const data: Partial<TRepository> = {
-    __typename: 'Repository',
+export async function insertRepository(suffix: string, repository: Partial<Repository> = {}): Promise<Repository> {
+  const data: Partial<Repository> = {
     fork_count: randomInteger(10, 999),
     description: `description_${suffix}`,
     name: `name_${suffix}`,
@@ -119,7 +117,7 @@ export async function insertRepository(suffix: string, repository: Partial<TRepo
   ])
 
   const query = toSQLInsert('repositories', escapeData(data))
-  const { rows } = await database.getConnection().query<TRepository>(query)
+  const { rows } = await database.getConnection().query<Repository>(query)
   const repo = rows.at(0)!
 
   await insertRepositoriesLicenses({
@@ -135,7 +133,7 @@ export async function insertRepository(suffix: string, repository: Partial<TRepo
   return repo
 }
 
-export async function insertRepositories(suffix: string, repositories: Partial<TRepository>[]) {
+export async function insertRepositories(suffix: string, repositories: Partial<Repository>[]) {
   const results = []
 
   for (const data of repositories) {
@@ -148,20 +146,19 @@ export async function insertRepositories(suffix: string, repositories: Partial<T
   return results
 }
 
-type TRepositoriesLicenses = {
-  repository_id: TRepository['repository_id']
+type RepositoriesLicenses = {
+  repository_id: Repository['repository_id']
   license_key: string
 }
-export async function insertRepositoriesLicenses(data: TRepositoriesLicenses) {
+export async function insertRepositoriesLicenses(data: RepositoriesLicenses) {
   const query = toSQLInsert('repositories_licenses', escapeData(data))
-  const { rows } = await database.getConnection().query<TRepositoriesLicenses>(query)
+  const { rows } = await database.getConnection().query<RepositoriesLicenses>(query)
   const result = rows.at(0)!
   return result
 }
 
-export async function insertUser(suffix: string, user: Partial<TUser> = {}): Promise<TUser> {
-  const data: Partial<TUser> = {
-    __typename: 'User',
+export async function insertUser(suffix: string, user: Partial<User> = {}): Promise<User> {
+  const data: Partial<User> = {
     avatar_url: `https://test.com/avatar_${suffix}.jpg`,
     bio: `bio_${suffix}`,
     company: `company_${suffix}`,
@@ -175,41 +172,41 @@ export async function insertUser(suffix: string, user: Partial<TUser> = {}): Pro
   }
 
   const query = toSQLInsert('users', escapeData(data))
-  const { rows } = await database.getConnection().query<TUser & { user_id: string }>(query)
+  const { rows } = await database.getConnection().query<User & { user_id: string }>(query)
   const result = rows.at(0)!
   return result
 }
 
-type TUsersFollowing = {
-  user_login: TUser['login'],
-  following_login: TUser['login'],
+type UsersFollowing = {
+  user_login: User['login'],
+  following_login: User['login'],
 }
-export async function insertUsersFollowing(list: TUsersFollowing[]) {
+export async function insertUsersFollowing(list: UsersFollowing[]) {
   const results = []
 
   for (const data of list) {
     // needed to bind following user in a consistent order
     await delay(randomInteger(1, 10))
     const query = toSQLInsert('users_following', escapeData(data))
-    const { rows } = await database.getConnection().query<TUsersFollowing>(query)
+    const { rows } = await database.getConnection().query<UsersFollowing>(query)
     results.push(rows.at(0)!)
   }
 
   return results
 }
 
-type TOrganizationsMembers = {
-  organization_login: TOrganization['login'],
-  user_login: TUser['login'],
+type OrganizationsMembers = {
+  organization_login: Organization['login'],
+  user_login: User['login'],
 }
-export async function insertUsersOrganizations(list: TOrganizationsMembers[]) {
+export async function insertOrganizationsMembers(list: OrganizationsMembers[]) {
   const results = []
 
   for (const data of list) {
     // needed to bind user to an org in a consistent order
     await delay(randomInteger(1, 10))
     const query = toSQLInsert('organizations_members', escapeData(data))
-    const { rows } = await database.getConnection().query<TOrganizationsMembers>(query)
+    const { rows } = await database.getConnection().query<OrganizationsMembers>(query)
     results.push(rows.at(0)!)
   }
 
@@ -217,8 +214,8 @@ export async function insertUsersOrganizations(list: TOrganizationsMembers[]) {
 }
 
 type TRepositoriesStars = {
-  owner_login: TUser['login'] | TOrganization['login'],
-  repository_id: TRepository['repository_id'],
+  owner_login: User['login'] | Organization['login'],
+  repository_id: Repository['repository_id'],
 }
 export async function insertUsersStarredRepositories(list: TRepositoriesStars[]) {
   const results = []

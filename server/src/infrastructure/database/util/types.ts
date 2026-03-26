@@ -1,9 +1,9 @@
-import { TOrganization } from '../model/organization'
-import { TProfileOwner } from '../model/profileOwner'
-import { TRepository } from '../model/repository'
-import { TUser } from '../model/user'
+import type { Organization } from '../model/organization'
+import type { ProfileOwner } from '../model/profileOwner'
+import type { Repository } from '../model/repository'
+import type { User } from '../model/user'
 
-export type TTableNames =
+export type TableNames =
   | 'organizations_members'
   | 'organizations'
   | 'repositories_licenses'
@@ -12,8 +12,8 @@ export type TTableNames =
   | 'users_following'
   | 'users'
 
-export type TModel =
-  | TUser
-  | TOrganization
-  | TRepository
-  | TProfileOwner
+export type Model =
+  | User
+  | Organization
+  | Repository
+  | ProfileOwner

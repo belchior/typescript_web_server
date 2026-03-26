@@ -1,15 +1,13 @@
 import { find } from '../db_connection'
-import { handleError } from '../../graphql_server/util/error_handler'
 import { deserialize } from '../../util/converter'
 import { isISOString } from '../../util/date'
-import { TOrganization } from './organization'
-import { TUser } from './user'
-import { TPageInfoItem } from '../../util/cursor_connection/cursor_connection'
-import { pageInfoQueries, TPageInfoFnQueryArgs, TPaginationQueryArgs } from '../util/pagination'
-import { TProfileOwner } from './profileOwner'
+import { Organization } from './organization'
+import { User } from './user'
+import { PageInfoItem } from '../../util/cursor_connection/cursor_connection'
+import { pageInfoQueries, PageInfoFnQueryArgs, PaginationQueryArgs } from '../util/pagination'
+import { ProfileOwner } from './profileOwner'
 
-export type TRepository = {
-  __typename: 'Repository'
+export type Repository = {
   created_at: Date
   description?: string
   fork_count: number
@@ -30,22 +28,22 @@ export type TRepository = {
   license_name: string
 }
 
-export type TStarredRepository = TRepository & { starred_at: Date }
+export type StarredRepository = Repository & { starred_at: Date }
 
-type TOwnerLogin = TRepository['owner_login']
-type TownerRef = TRepository['owner_ref']
+type OwnerLogin = Repository['owner_login']
+type OwnerRef = Repository['owner_ref']
 
-export type TProfileOwnerIdentifier = {
-  owner_login: TOwnerLogin
-  owner_ref: TownerRef
+export type ProfileOwnerIdentifier = {
+  owner_login: OwnerLogin
+  owner_ref: OwnerRef
 }
 
-export type TRepositoryOwner = TProfileOwner
+export type RepositoryOwner = ProfileOwner
 
-type TRepositoryOwnerLogins = Record<TownerRef, TOwnerLogin[]>
+type RepositoryOwnerLogins = Record<OwnerRef, OwnerLogin[]>
 
-function groupByRef(owners: TProfileOwnerIdentifier[]) {
-  const logins: TRepositoryOwnerLogins = {
+function groupByRef(owners: ProfileOwnerIdentifier[]) {
+  const logins: RepositoryOwnerLogins = {
     users: [],
     organizations: [],
   }
@@ -62,38 +60,34 @@ function fulfilledValues<T>(result: PromiseSettledResult<T>[]): T[] {
 }
 
 export async function findRepositoryOwners(serializedOwners: readonly string[]) {
-  try {
-    const usersQuery = 'SELECT *, \'User\' __typename FROM users WHERE login = ANY($1)'
-    const organizationsQuery = 'SELECT *, \'Organization\' __typename FROM organizations WHERE login = ANY($1)'
+  const usersQuery = 'SELECT * FROM users WHERE login = ANY($1)'
+  const organizationsQuery = 'SELECT * FROM organizations WHERE login = ANY($1)'
 
-    const owners = serializedOwners.map<TProfileOwnerIdentifier>(deserialize)
-    const logins = groupByRef(owners)
+  const owners = serializedOwners.map<ProfileOwnerIdentifier>(deserialize)
+  const logins = groupByRef(owners)
 
-    const usersPromise = logins.users.length > 0
-      ? find<Readonly<TUser>>(usersQuery, [logins.users])
-      : Promise.resolve({ rows: [] })
+  const usersPromise = logins.users.length > 0
+    ? find<Readonly<User>>(usersQuery, [logins.users])
+    : Promise.resolve({ rows: [] })
 
-    const organiztionsPromise = logins.organizations.length > 0
-      ? find<Readonly<TOrganization>>(organizationsQuery, [logins.organizations])
-      : Promise.resolve({ rows: [] })
+  const organiztionsPromise = logins.organizations.length > 0
+    ? find<Readonly<Organization>>(organizationsQuery, [logins.organizations])
+    : Promise.resolve({ rows: [] })
 
-    const settledResult = await Promise.allSettled([usersPromise, organiztionsPromise])
-    const result = fulfilledValues<{ rows: TRepositoryOwner[] }>(settledResult)
-    const items = result.flatMap(item => item.rows)
+  const settledResult = await Promise.allSettled([usersPromise, organiztionsPromise])
+  const result = fulfilledValues<{ rows: RepositoryOwner[] }>(settledResult)
+  const items = result.flatMap(item => item.rows)
 
-    return serializedOwners.map(item => {
-      const owner = deserialize<TProfileOwnerIdentifier>(item)
-      return (
-        items.find(item => item.login === owner.owner_login) ||
-        new Error(`Repository Owner not found with login: ${owner.owner_login}`)
-      )
-    })
-  } catch (error) {
-    return handleError(error as Error)
-  }
+  return serializedOwners.map(item => {
+    const owner = deserialize<ProfileOwnerIdentifier>(item)
+    return (
+      items.find(item => item.login === owner.owner_login) ||
+      new Error(`Repository Owner not found with login: ${owner.owner_login}`)
+    )
+  })
 }
 
-export async function findRepositoryByOwnerLogin(login: string, pagination: TPaginationQueryArgs) {
+export async function findRepositoriesByLogin(login: string, pagination: PaginationQueryArgs) {
   const startFrom = pagination.reference && isISOString(pagination.reference)
     ? `AND r.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
     : ''
@@ -124,12 +118,12 @@ export async function findRepositoryByOwnerLogin(login: string, pagination: TPag
     login,
     pagination.limit,
   ]
-  const { rows: items } = await find<Readonly<TRepository>>(query, args)
+  const { rows: items } = await find<Readonly<Repository>>(query, args)
 
   return items
 }
 
-export async function findStarredRepositoryByOwnerLogin(login: string, pagination: TPaginationQueryArgs) {
+export async function findStarredRepositoriesByLogin(login: string, pagination: PaginationQueryArgs) {
   const startFrom = pagination.reference && isISOString(pagination.reference)
     ? `AND rs.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
     : ''
@@ -152,17 +146,17 @@ export async function findStarredRepositoryByOwnerLogin(login: string, paginatio
     login,
     pagination.limit,
   ]
-  const { rows: items } = await find<Readonly<TStarredRepository>>(query, args)
+  const { rows: items } = await find<Readonly<StarredRepository>>(query, args)
 
   return items
 }
 
-export async function findRepositoryPageInfo(
+export async function findRepositoriesPageInfo(
   login: string,
-  items: TRepository[],
-  referenceFrom: (item: TRepository) => string
+  items: Repository[],
+  referenceFrom: (item: Repository) => string
 ) {
-  const pageInfoFnQuery = (queryArgs: TPageInfoFnQueryArgs) => `
+  const pageInfoFnQuery = (queryArgs: PageInfoFnQueryArgs) => `
     SELECT r.name, '${queryArgs.row}' AS row
     FROM repositories r
     WHERE
@@ -178,17 +172,17 @@ export async function findRepositoryPageInfo(
     UNION
     SELECT * FROM (${nextQuery}) as next
   `
-  const { rows: pageInfoItems } = await find<Readonly<TPageInfoItem>>(query)
+  const { rows: pageInfoItems } = await find<Readonly<PageInfoItem>>(query)
 
   return pageInfoItems
 }
 
-export async function findStarredRepositoryPageInfo(
+export async function findStarredRepositoriesPageInfo(
   login: string,
-  items: TStarredRepository[],
-  referenceFrom: (item: TStarredRepository) => string
+  items: StarredRepository[],
+  referenceFrom: (item: StarredRepository) => string
 ) {
-  const pageInfoFnQuery = (queryArgs: TPageInfoFnQueryArgs) => `
+  const pageInfoFnQuery = (queryArgs: PageInfoFnQueryArgs) => `
     SELECT r.name, '${queryArgs.row}' AS row
     FROM repositories_stars rs
     JOIN repositories r using(repository_id)
@@ -205,7 +199,7 @@ export async function findStarredRepositoryPageInfo(
     UNION
     SELECT * FROM (${nextQuery}) as next
   `
-  const { rows: pageInfoItems } = await find<Readonly<TPageInfoItem>>(query)
+  const { rows: pageInfoItems } = await find<Readonly<PageInfoItem>>(query)
 
   return pageInfoItems
 }

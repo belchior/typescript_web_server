@@ -4,12 +4,12 @@ import {
   GraphQLNonNull,
 } from 'graphql'
 
-import { TLoaders } from './loaders'
+import { Loaders } from './loaders'
 
-export type TArgs<T = unknown> = Record<string, unknown> & T
+export type Args<T = unknown> = Record<string, unknown> & T
 
-export type TGraphQLContext = {
-  loader: TLoaders
+export type GraphQLContext = {
+  loader: Loaders
 }
 
 export const idType = () => ({

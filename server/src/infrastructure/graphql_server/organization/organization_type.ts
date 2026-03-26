@@ -12,15 +12,15 @@ import { ProfileOwnerInterface } from '../profile/profile_type'
 import { RepositoryConnectionType, RepositoryOwnerInterface } from '../repository/repository_type'
 import { UserConnectionType } from '../user/user_type'
 import { UserResolve } from '../user/user_resolve'
-import { type TOrganization } from '../../database'
+import { type Organization } from '../../database'
 
-export const OrganizationType: GraphQLObjectType<TOrganization> = new GraphQLObjectType({
+export const OrganizationType: GraphQLObjectType<Organization> = new GraphQLObjectType({
   interfaces: [NodeInterface, ProfileOwnerInterface, RepositoryOwnerInterface],
   name: 'Organization',
   fields: () => ({
     avatarUrl: {
       type: new GraphQLNonNull(GraphQLString),
-      resolve: (parent: TOrganization) => parent.avatar_url,
+      resolve: (parent: Organization) => parent.avatar_url,
     },
     description: { type: GraphQLString },
     email: { type: GraphQLString },
@@ -49,7 +49,7 @@ export const OrganizationType: GraphQLObjectType<TOrganization> = new GraphQLObj
     url: { type: new GraphQLNonNull(GraphQLString) },
     websiteUrl: {
       type: GraphQLString,
-      resolve: (parent: TOrganization) => parent.website_url,
+      resolve: (parent: Organization) => parent.website_url,
     },
   }),
 })

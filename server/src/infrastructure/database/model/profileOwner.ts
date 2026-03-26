@@ -1,23 +1,21 @@
 import { isISOString } from '../../util/date'
-import { pageInfoQueries, TPageInfoFnQueryArgs, TPaginationQueryArgs } from '../util/pagination'
-import { TOrganization } from './organization'
-import { TPageInfoItem } from '../../util/cursor_connection/cursor_connection'
-import { TUser } from './user'
+import { pageInfoQueries, PageInfoFnQueryArgs, PaginationQueryArgs } from '../util/pagination'
+import { Organization } from './organization'
+import { PageInfoItem } from '../../util/cursor_connection/cursor_connection'
+import { User } from './user'
 import * as db from '../db_connection'
 
-export type ProfileOwnerType = 'User' | 'Organization'
-export type TProfileOwner = {
-  __typename: ProfileOwnerType
-  avatar_url: TUser['avatar_url'] | TOrganization['avatar_url']
-  location?: TUser['location'] | TOrganization['location']
-  login: TUser['login'] | TOrganization['login']
-  name?: TUser['name'] | TOrganization['name']
-  url: TUser['url'] | TOrganization['url']
+export type ProfileOwner = {
+  avatar_url: User['avatar_url'] | Organization['avatar_url']
+  location?: User['location'] | Organization['location']
+  login: User['login'] | Organization['login']
+  name?: User['name'] | Organization['name']
+  url: User['url'] | Organization['url']
 }
-export type TFollowing = TProfileOwner & { following_at: Date };
+export type Following = ProfileOwner & { following_at: Date };
 
 function profileOwnerColumns() {
-  const columns: Array<keyof TProfileOwner> = [
+  const columns: Array<keyof ProfileOwner> = [
     'avatar_url', 'location', 'login', 'name', 'url',
   ]
   return columns
@@ -25,7 +23,7 @@ function profileOwnerColumns() {
     .join(',')
 }
 
-export async function findFollowingByLogin(login: string, pagination: TPaginationQueryArgs) {
+export async function findFollowingByLogin(login: string, pagination: PaginationQueryArgs) {
   const startFrom = pagination.reference && isISOString(pagination.reference)
     ? `AND uf.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
     : ''
@@ -36,8 +34,7 @@ export async function findFollowingByLogin(login: string, pagination: TPaginatio
     FROM (
       SELECT 
         uf.created_at AS following_at,
-        ${ownerColumns},
-        case when u.user_id is not null then 'User' else 'Organization' end __typename 
+        ${ownerColumns}
       FROM users_following uf
       LEFT JOIN users u ON u.login = uf.following_login
       LEFT JOIN organizations o ON o.login = uf.following_login
@@ -53,16 +50,16 @@ export async function findFollowingByLogin(login: string, pagination: TPaginatio
     login,
     pagination.limit,
   ]
-  const { rows: items } = await db.find<Readonly<TFollowing>>(query, args)
+  const { rows: items } = await db.find<Readonly<Following>>(query, args)
   return items
 }
 
 export async function findFollowingPageInfo(
   login: string,
-  items: TFollowing[],
-  referenceFrom: (item: TFollowing) => string
+  items: Following[],
+  referenceFrom: (item: Following) => string
 ) {
-  const pageInfoFnQuery = (queryArgs: TPageInfoFnQueryArgs) => `
+  const pageInfoFnQuery = (queryArgs: PageInfoFnQueryArgs) => `
     SELECT coalesce(u.login, o.login) login, '${queryArgs.row}' AS row
     FROM users_following uf
     LEFT JOIN users u ON u.login = uf.following_login
@@ -80,7 +77,7 @@ export async function findFollowingPageInfo(
     UNION
     SELECT * FROM (${nextQuery}) as next
   `
-  const { rows: pageInfoItems } = await db.find<Readonly<TPageInfoItem>>(query)
+  const { rows: pageInfoItems } = await db.find<Readonly<PageInfoItem>>(query)
 
   return pageInfoItems
 }

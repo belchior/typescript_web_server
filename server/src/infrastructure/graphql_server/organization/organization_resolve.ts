@@ -1,32 +1,32 @@
-import { emptyCursorConnection, cursorConnection, TPaginationArgs } from '../../util/cursor_connection/cursor_connection'
+import { emptyCursorConnection, cursorConnection, PaginationArguments } from '../../util/cursor_connection/cursor_connection'
 import { handleError } from '../util/error_handler'
 import { RepositoryResolve } from '../repository/repository_resolve'
-import { TArgs, TGraphQLContext } from '../graphql/types'
-import database, { TOrganization, TOrganizationMember, TUserOrganization } from '../../database'
+import { Args, GraphQLContext } from '../graphql/types'
+import database, { Organization, OrganizationMember, UserOrganization } from '../../database'
 
 type OrganizationQueryArgs = {
   login: string
 }
 
 export const OrganizationResolve = {
-  organization: async (parent: undefined, args: TArgs<OrganizationQueryArgs>, context: TGraphQLContext) => {
+  organization: async (parent: undefined, args: Args<OrganizationQueryArgs>, context: GraphQLContext) => {
     return context.loader.findOrganizationByLogin.load(args.login)
   },
 
-  people: async (parent: TOrganization, args: TPaginationArgs) => {
+  people: async (parent: Organization, args: PaginationArguments) => {
     try {
-      const referenceFrom = (item: TOrganizationMember) => item.joined_at.toISOString()
+      const referenceFrom = (item: OrganizationMember) => item.joined_at.toISOString()
       const pagination = database.util.paginationArgsToQueryArgs(args)
       const items = await database.organization.findOrganizationPeopleByLogin(parent.login, pagination)
 
-      if (items.length === 0) return emptyCursorConnection<TUserOrganization>()
+      if (items.length === 0) return emptyCursorConnection<UserOrganization>()
 
       const pageInfoItems = await database.organization.findOrganizationPeoplePageInfo(
         parent.login,
         items,
         referenceFrom
       )
-      return cursorConnection<TOrganizationMember>({ items, pageInfoItems, referenceFrom })
+      return cursorConnection<OrganizationMember>({ items, pageInfoItems, referenceFrom })
     } catch (error) {
       return handleError(error as Error)
     }

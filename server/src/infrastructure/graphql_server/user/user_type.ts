@@ -12,15 +12,15 @@ import { OrganizationConnectionType } from '../organization/organization_type'
 import { ProfileResolve } from '../profile/profile_resolve'
 import { RepositoryConnectionType, RepositoryOwnerInterface } from '../repository/repository_type'
 import { UserResolve } from './user_resolve'
-import { type TUser } from '../../database'
+import { type User } from '../../database'
 
-export const UserType: GraphQLObjectType<TUser> = new GraphQLObjectType({
+export const UserType: GraphQLObjectType<User> = new GraphQLObjectType({
   interfaces: [NodeInterface, ProfileOwnerInterface, RepositoryOwnerInterface],
   name: 'User',
   fields: () => ({
     avatarUrl: {
       type: new GraphQLNonNull(GraphQLString),
-      resolve: (parent: TUser) => parent.avatar_url,
+      resolve: (parent: User) => parent.avatar_url,
     },
     bio: { type: GraphQLString },
     company: { type: GraphQLString },
@@ -60,7 +60,7 @@ export const UserType: GraphQLObjectType<TUser> = new GraphQLObjectType({
     url: { type: new GraphQLNonNull(GraphQLString) },
     websiteUrl: {
       type: GraphQLString,
-      resolve: (parent: TUser) => parent.website_url,
+      resolve: (parent: User) => parent.website_url,
     },
   }),
 })

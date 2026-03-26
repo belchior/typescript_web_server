@@ -1,4 +1,4 @@
-import { cursorConnection, emptyCursorConnection, TCursorConnectionArgs, TPaginationArgs, validateArgs } from './cursor_connection'
+import { cursorConnection, emptyCursorConnection, CursorConnectionArgs, PaginationArguments, validateArgs } from './cursor_connection'
 
 describe('CursorConnection', () => {
   it('should return empty cursor connection', () => {
@@ -15,7 +15,7 @@ describe('CursorConnection', () => {
     })
 
     type Test = { created_at: Date }
-    const args: TCursorConnectionArgs<Test> = {
+    const args: CursorConnectionArgs<Test> = {
       referenceFrom: (item) => item.created_at.toString(),
       items: [],
       pageInfoItems: [],
@@ -35,7 +35,7 @@ describe('CursorConnection', () => {
 
   it('should return forward cursor connection', () => {
     type Test = { created_at: Date }
-    const args: TCursorConnectionArgs<Test> = {
+    const args: CursorConnectionArgs<Test> = {
       referenceFrom: (item) => item.created_at.toISOString(),
       items: [
         { created_at: new Date('2026-01-01T00:00:00.000Z') },
@@ -68,7 +68,7 @@ describe('CursorConnection', () => {
 
   it('should return backward cursor connection', () => {
     type Test = { created_at: Date }
-    const args: TCursorConnectionArgs<Test> = {
+    const args: CursorConnectionArgs<Test> = {
       referenceFrom: (item) => item.created_at.toISOString(),
       items: [
         { created_at: new Date('2026-01-01T00:00:00.000Z') },
@@ -101,7 +101,7 @@ describe('CursorConnection', () => {
 
 describe('Pagination Arguments', () => {
   it('should accept a valid forward pagination argument', () => {
-    let args: TPaginationArgs = { first: 2 }
+    let args: PaginationArguments = { first: 2 }
 
     expect(() => validateArgs(args)).not.toThrow()
 
@@ -110,7 +110,7 @@ describe('Pagination Arguments', () => {
   })
 
   it('should accept a valid backward pagination argument', () => {
-    let args: TPaginationArgs = { last: 2 }
+    let args: PaginationArguments = { last: 2 }
     expect(() => validateArgs(args)).not.toThrow()
 
     args = { last: 2, before: 'opaqueCursor' }
@@ -123,12 +123,12 @@ describe('Pagination Arguments', () => {
   })
 
   it('should throw an error when is passing both first and last', () => {
-    const args: TPaginationArgs = { first: 2, last: 2 }
+    const args: PaginationArguments = { first: 2, last: 2 }
     expect(() => validateArgs(args)).toThrow('first and last must not be specified at the same time')
   })
 
   it('should throw an error when first or last are not a positive integer', () => {
-    let args: TPaginationArgs = { first: -2 }
+    let args: PaginationArguments = { first: -2 }
     expect(() => validateArgs(args)).toThrow('first and last must be a positive integer')
 
     args = { last: -2 }
@@ -136,22 +136,22 @@ describe('Pagination Arguments', () => {
   })
 
   it('should throw an error when before or after are defined at the same time', () => {
-    const args: TPaginationArgs = { first: 2, before: 'opaqueCursor', after: 'opaqueCursor' }
+    const args: PaginationArguments = { first: 2, before: 'opaqueCursor', after: 'opaqueCursor' }
     expect(() => validateArgs(args)).toThrow('before and after must not be specified at the same time')
   })
 
   it('should throw an error when first is used with before', () => {
-    const args: TPaginationArgs = { first: 2, before: 'opaqueCursor' }
+    const args: PaginationArguments = { first: 2, before: 'opaqueCursor' }
     expect(() => validateArgs(args)).toThrow('first must be used with after but receive before instead')
   })
 
   it('should throw an error when last is used with after', () => {
-    const args: TPaginationArgs = { last: 2, after: 'opaqueCursor' }
+    const args: PaginationArguments = { last: 2, after: 'opaqueCursor' }
     expect(() => validateArgs(args)).toThrow('last must be used with before but receive after instead')
   })
 
   it('should throw an error when before or after are empty string', () => {
-    let args: TPaginationArgs = { last: 2, before: '' }
+    let args: PaginationArguments = { last: 2, before: '' }
     expect(() => validateArgs(args)).toThrow('before and after must be non empty string')
 
     args = { first: 2, after: '' }

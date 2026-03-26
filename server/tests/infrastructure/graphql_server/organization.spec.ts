@@ -64,7 +64,7 @@ describe('Organization', () => {
       mockHelper.insertOrganization(suffix, { login: organizationLogin }),
       mockHelper.insertUser(suffix, { login: userLogin }),
     ])
-    await mockHelper.insertUsersOrganizations([
+    await mockHelper.insertOrganizationsMembers([
       { user_login: userLogin, organization_login: organizationLogin },
     ])
 
@@ -183,7 +183,7 @@ describe('People Pagination', () => {
     await database.dbDisconnect()
   })
 
-  it('should limits the number of users of the pages that will be retrieved from the organization', async () => {
+  it('should limits the number of users on the pages that will be retrieved from the organization', async () => {
     const suffix = randomId()
     const login = `org_${suffix}`
     const [, ...users] = await Promise.all([
@@ -192,7 +192,7 @@ describe('People Pagination', () => {
       mockHelper.insertUser(suffix, { login: `user1_${suffix}` }),
       mockHelper.insertUser(suffix, { login: `user2_${suffix}` }),
     ])
-    await mockHelper.insertUsersOrganizations(users.map(user => ({
+    await mockHelper.insertOrganizationsMembers(users.map(user => ({
       user_login: user.login,
       organization_login: login,
     })))
@@ -228,7 +228,7 @@ describe('People Pagination', () => {
       mockHelper.insertUser(suffix, { login: `user1_${suffix}` }),
       mockHelper.insertUser(suffix, { login: `user2_${suffix}` }),
     ])
-    await mockHelper.insertUsersOrganizations(users.map(user => ({
+    await mockHelper.insertOrganizationsMembers(users.map(user => ({
       user_login: user.login,
       organization_login: login,
     })))
@@ -293,7 +293,7 @@ describe('People Pagination', () => {
       mockHelper.insertUser(suffix, { login: `user1_${suffix}` }),
       mockHelper.insertUser(suffix, { login: `user2_${suffix}` }),
     ])
-    await mockHelper.insertUsersOrganizations(users.map(user => ({
+    await mockHelper.insertOrganizationsMembers(users.map(user => ({
       user_login: user.login,
       organization_login: login,
     })))
@@ -376,7 +376,7 @@ describe('Repository Pagination', () => {
     await database.dbDisconnect()
   })
 
-  it('should limits the number of repositories of the pages that will be retrieved from the organization', async () => {
+  it('should limits the number of repositories on the pages that will be retrieved from the organization', async () => {
     const suffix = randomId()
     const login = `org_${suffix}`
     const [, repos] = await Promise.all([

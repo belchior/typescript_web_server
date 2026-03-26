@@ -1,31 +1,31 @@
-import { cursorConnection, emptyCursorConnection, TPaginationArgs } from '../../util/cursor_connection/cursor_connection'
+import { cursorConnection, emptyCursorConnection, PaginationArguments } from '../../util/cursor_connection/cursor_connection'
 import { handleError } from '../util/error_handler'
 import { OrganizationResolve } from '../organization/organization_resolve'
-import { TArgs, TGraphQLContext } from '../graphql/types'
+import { Args, GraphQLContext } from '../graphql/types'
 import { UserResolve } from '../user/user_resolve'
-import database, { type ProfileOwnerType, TFollowing, TProfileOwner } from '../../database'
+import database, { type Following, Organization, ProfileOwner, User } from '../../database'
 
 type ProfileQueryArgs = {
   login: string
 }
 
 export const ProfileResolve = {
-  following: async (parent: TProfileOwner, args: TPaginationArgs) => {
+  following: async (parent: ProfileOwner, args: PaginationArguments) => {
     try {
-      const referenceFrom = (item: TFollowing) => item.following_at.toISOString()
+      const referenceFrom = (item: Following) => item.following_at.toISOString()
       const pagination = database.util.paginationArgsToQueryArgs(args)
       const items = await database.profileOwner.findFollowingByLogin(parent.login, pagination)
 
-      if (items.length === 0) return emptyCursorConnection<TFollowing>()
+      if (items.length === 0) return emptyCursorConnection<Following>()
 
       const pageInfoItems = await database.profileOwner.findFollowingPageInfo(parent.login, items, referenceFrom)
-      return cursorConnection<TFollowing>({ items, pageInfoItems, referenceFrom })
+      return cursorConnection<Following>({ items, pageInfoItems, referenceFrom })
     } catch (error) {
       return handleError(error as Error)
     }
   },
 
-  profile: async (parent: undefined, args: TArgs<ProfileQueryArgs>, context: TGraphQLContext) => {
+  profile: async (parent: undefined, args: Args<ProfileQueryArgs>, context: GraphQLContext) => {
     try {
       const userPromise = UserResolve.user(parent, args, context)
       const organizationPromise = OrganizationResolve.organization(parent, args, context)
@@ -41,11 +41,10 @@ export const ProfileResolve = {
     }
   },
 
-  profileOwner: async (owner: TProfileOwner) => {
-    const profileTypes: ProfileOwnerType[] = ['User', 'Organization']
-    if (profileTypes.includes(owner.__typename)) {
-      return owner.__typename
-    }
-    throw new Error(`Invalid typename: ${owner.__typename}`)
+  profileOwner: async (owner: ProfileOwner) => {
+    if ((owner as User)?.user_id) return 'User'
+    if ((owner as Organization)?.organization_id) return 'Organization'
+
+    throw new Error('Invalid typename')
   },
 }

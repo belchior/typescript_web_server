@@ -17,6 +17,7 @@ services:
       - ./server/jest.config.ts:/usr/app/jest.config.ts:ro
       - ./server/package.json:/usr/app/package.json:ro
       - ./server/src:/usr/app/src
+      - ./server/coverage:/usr/app/coverage
       - ./server/tests:/usr/app/tests
       - ./server/tsconfig.json:/usr/app/tsconfig.json:ro
     restart: always

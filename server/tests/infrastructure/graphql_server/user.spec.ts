@@ -164,7 +164,7 @@ describe('User', () => {
       mockHelper.insertUser(suffix, { login: userLogin }),
       mockHelper.insertOrganization(suffix, { login: organizationLogin }),
     ])
-    await mockHelper.insertUsersOrganizations([
+    await mockHelper.insertOrganizationsMembers([
       { user_login: userLogin, organization_login: organizationLogin },
     ])
 
@@ -293,7 +293,7 @@ describe('User', () => {
   })
 })
 
-describe('Followed Pagination', () => {
+describe('Followers Pagination', () => {
   const app = createApp()
 
   beforeAll(async () => {
@@ -304,7 +304,7 @@ describe('Followed Pagination', () => {
     await database.dbDisconnect()
   })
 
-  it('should limits the number of users of the pages that will be retrieved from the user followers list', async () => {
+  it('should limits the number of users on the pages that will be retrieved from the user followers list', async () => {
     const suffix = randomId()
     const login = `user_${suffix}`
     const [, ...followers] = await Promise.all([
@@ -497,14 +497,14 @@ describe('Following Pagination', () => {
     await database.dbDisconnect()
   })
 
-  it('should limits the number of users of the pages that will be retrieved from the user following list', async () => {
+  it('should limits the number of users on the pages that will be retrieved from the user following list', async () => {
     const suffix = randomId()
     const login = `user_${suffix}`
     const [, ...following] = await Promise.all([
       mockHelper.insertUser(suffix, { login }),
-      mockHelper.insertUser(suffix, { login: `followed0_${suffix}` }),
-      mockHelper.insertUser(suffix, { login: `followed1_${suffix}` }),
-      mockHelper.insertUser(suffix, { login: `followed2_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user0_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user1_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user2_${suffix}` }),
     ])
     await mockHelper.insertUsersFollowing(following.map(user => ({
       user_login: login,
@@ -538,9 +538,9 @@ describe('Following Pagination', () => {
     const login = `user_${suffix}`
     const [, ...following] = await Promise.all([
       mockHelper.insertUser(suffix, { login }),
-      mockHelper.insertUser(suffix, { login: `followed0_${suffix}` }),
-      mockHelper.insertUser(suffix, { login: `followed1_${suffix}` }),
-      mockHelper.insertUser(suffix, { login: `followed2_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user0_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user1_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user2_${suffix}` }),
     ])
     await mockHelper.insertUsersFollowing(following.map(user => ({
       user_login: login,
@@ -663,7 +663,7 @@ describe('Following Pagination', () => {
     }))
   })
 
-  it('should retrieve an empty list when the user does not following users', async () => {
+  it('should retrieve an empty list when the user is not following other users', async () => {
     const suffix = randomId()
     const login = `user_${suffix}`
     await Promise.all([
@@ -690,7 +690,7 @@ describe('Repository Pagination', () => {
     await database.dbDisconnect()
   })
 
-  it('should limits the number of repositories of the pages that will be retrieved from the user', async () => {
+  it('should limits the number of repositories on the pages that will be retrieved from the user', async () => {
     const suffix = randomId()
     const login = `user_${suffix}`
     const [, repos] = await Promise.all([
@@ -877,7 +877,7 @@ describe('Starred Repository Pagination', () => {
     await database.dbDisconnect()
   })
 
-  it('should limits the number of starred repositories of the pages that will be retrieved from the user', async () => {
+  it('should limits the number of starred repositories on the pages that will be retrieved from the user', async () => {
     const suffix = randomId()
     const login = `user_${suffix}`
     const [, repos] = await Promise.all([

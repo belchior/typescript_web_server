@@ -29,29 +29,29 @@ import { stringToBase64, base64ToString } from '../converter'
 /**
  * CursorConnection
 */
-type TEdge<T> = {
+type Edge<T> = {
   cursor: string
   node: T
 }
-type TPageInfo = {
+type PageInfo = {
   endCursor: string | undefined
   hasPreviousPage: boolean
   hasNextPage: boolean
   startCursor: string | undefined
 }
-export type TCursorConnection<T> = {
-  edges: TEdge<T>[],
-  pageInfo: TPageInfo
+export type CursorConnection<T> = {
+  edges: Edge<T>[],
+  pageInfo: PageInfo
 }
 
-export type TReferenceFrom<T> = (item: T) => string
-export type TPageInfoItem = {
+export type ReferenceFrom<T> = (item: T) => string
+export type PageInfoItem = {
   row: 'prev' | 'next'
 }
-export type TCursorConnectionArgs<T> = {
-  referenceFrom: TReferenceFrom<T>
+export type CursorConnectionArgs<T> = {
+  referenceFrom: ReferenceFrom<T>
   items: T[]
-  pageInfoItems: TPageInfoItem[]
+  pageInfoItems: PageInfoItem[]
 }
 
 const referenceToCursor = stringToBase64
@@ -61,7 +61,7 @@ export function cursorToReference(cursor: string) {
   return reference.replace(/[']/g, "''"); // eslint-disable-line
 }
 
-function itemsToPageInfo<T>(args: TCursorConnectionArgs<T>) {
+function itemsToPageInfo<T>(args: CursorConnectionArgs<T>) {
   const { referenceFrom, items, pageInfoItems } = args
 
   const firstItem = items.at(0)
@@ -74,12 +74,12 @@ function itemsToPageInfo<T>(args: TCursorConnectionArgs<T>) {
     ? referenceToCursor(referenceFrom(firstItem))
     : undefined
 
-  const hasItem = (name: TPageInfoItem['row'], items: TPageInfoItem[]) => items.reduce(
+  const hasItem = (name: PageInfoItem['row'], items: PageInfoItem[]) => items.reduce(
     (acc, item) => (acc === true || item.row === name),
     false
   )
 
-  const pageInfo: TPageInfo = {
+  const pageInfo: PageInfo = {
     endCursor,
     hasNextPage: hasItem('next', pageInfoItems),
     hasPreviousPage: hasItem('prev', pageInfoItems),
@@ -89,8 +89,8 @@ function itemsToPageInfo<T>(args: TCursorConnectionArgs<T>) {
   return pageInfo
 }
 
-function itemsToEdges<T>(items: T[], referenceFrom: TReferenceFrom<T>) {
-  const edges: TEdge<T>[] = items.map(item => ({
+function itemsToEdges<T>(items: T[], referenceFrom: ReferenceFrom<T>) {
+  const edges: Edge<T>[] = items.map(item => ({
     cursor: referenceToCursor(referenceFrom(item)),
     node: item,
   }))
@@ -99,7 +99,7 @@ function itemsToEdges<T>(items: T[], referenceFrom: TReferenceFrom<T>) {
 }
 
 export function emptyCursorConnection<T>() {
-  const emptyConnection: TCursorConnection<T> = {
+  const emptyConnection: CursorConnection<T> = {
     edges: [],
     pageInfo: {
       endCursor: undefined,
@@ -112,10 +112,10 @@ export function emptyCursorConnection<T>() {
   return emptyConnection
 }
 
-export function cursorConnection<T>(args: TCursorConnectionArgs<T>) {
+export function cursorConnection<T>(args: CursorConnectionArgs<T>) {
   const edges = itemsToEdges<T>(args.items, args.referenceFrom)
   const pageInfo = itemsToPageInfo<T>(args)
-  const cursorConnection: Readonly<TCursorConnection<T>> = { edges, pageInfo }
+  const cursorConnection: Readonly<CursorConnection<T>> = { edges, pageInfo }
   return cursorConnection
 }
 
@@ -123,14 +123,14 @@ export function cursorConnection<T>(args: TCursorConnectionArgs<T>) {
  * Pagination Arguments
 */
 
-export type TBackwardPaginationArgs = { last?: number, before?: string }
-export type TForwardPaginationArgs = { first?: number, after?: string }
-export type TPaginationArgs = TForwardPaginationArgs & TBackwardPaginationArgs
+export type BackwardPagination = { last?: number, before?: string }
+export type ForwardPagination = { first?: number, after?: string }
+export type PaginationArguments = ForwardPagination & BackwardPagination
 
-export function validateArgs(args: TPaginationArgs) {
-  type TPaginationArgsMixed = Partial<TForwardPaginationArgs & TBackwardPaginationArgs>
+export function validateArgs(args: PaginationArguments) {
+  type PaginationArgumentsMixed = Partial<ForwardPagination & BackwardPagination>
 
-  function testPaginationBoundaries(args: TPaginationArgsMixed) {
+  function testPaginationBoundaries(args: PaginationArgumentsMixed) {
     if (
       typeof args != 'object' ||
       (args.first == null && args.last == null)
@@ -139,7 +139,7 @@ export function validateArgs(args: TPaginationArgs) {
     }
   }
 
-  function testLimit(args: TPaginationArgsMixed) {
+  function testLimit(args: PaginationArgumentsMixed) {
     if (args.first != null && args.last != null) throw new GraphQLError(
       'first and last must not be specified at the same time'
     )
@@ -149,13 +149,13 @@ export function validateArgs(args: TPaginationArgs) {
     )
   }
 
-  function testReference(args: TPaginationArgsMixed) {
+  function testReference(args: PaginationArgumentsMixed) {
     if (args.before != null && args.after != null) throw new GraphQLError(
       'before and after must not be specified at the same time'
     )
   }
 
-  function testArgumentConsistency(args: TPaginationArgsMixed) {
+  function testArgumentConsistency(args: PaginationArgumentsMixed) {
     if (args.first != null && args.before != null) throw new GraphQLError(
       'first must be used with after but receive before instead'
     )

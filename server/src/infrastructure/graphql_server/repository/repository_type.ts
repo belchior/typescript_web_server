@@ -11,7 +11,7 @@ import { connectionType, connectionTypeArgs } from '../../util/cursor_connection
 import { idType, NodeInterface } from '../graphql/types'
 import { ProfileOwnerInterface } from '../profile/profile_type'
 import { RepositoryResolve } from './repository_resolve'
-import { type TRepositoryOwner } from '../../database'
+import { Organization, User, type RepositoryOwner } from '../../database'
 
 const LanguageType = new GraphQLObjectType({
   name: 'Language',
@@ -42,11 +42,10 @@ export const RepositoryOwnerInterface = new GraphQLInterfaceType({
     },
     url: { type: new GraphQLNonNull(GraphQLString) },
   }),
-  resolveType: async (value: TRepositoryOwner) => {
-    if (['User', 'Organization'].includes(value.__typename)) {
-      return value.__typename
-    }
-    throw new Error(`Invalid typename: ${value.__typename}`)
+  resolveType: async (owner: RepositoryOwner) => {
+    if ((owner as User)?.user_id) return 'User'
+    if ((owner as Organization)?.organization_id) return 'Organization'
+    throw new Error('Invalid typename')
   },
 })
 

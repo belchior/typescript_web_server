@@ -1,11 +1,11 @@
 import Dataloader from 'dataloader'
 
-import database, { TOrganization, TRepositoryOwner, TUser } from '../../database'
+import database, { Organization, RepositoryOwner, User } from '../../database'
 
 export const createLoaders = () => ({
-  findOrganizationByLogin: new Dataloader<string, TOrganization>(database.organization.findOrganizationsByLogins),
-  findRepositoryOwner: new Dataloader<string, TRepositoryOwner>(database.repository.findRepositoryOwners),
-  findUserByLogin: new Dataloader<string, TUser>(database.user.findUsersByLogins),
+  findOrganizationByLogin: new Dataloader<string, Organization>(database.organization.findOrganizationsByLogins),
+  findRepositoryOwner: new Dataloader<string, RepositoryOwner>(database.repository.findRepositoryOwners),
+  findUserByLogin: new Dataloader<string, User>(database.user.findUsersByLogins),
 })
 
-export type TLoaders = ReturnType<typeof createLoaders>
+export type Loaders = ReturnType<typeof createLoaders>
