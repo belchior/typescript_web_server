@@ -59,7 +59,7 @@ describe('User', () => {
     }))
   })
 
-  it('should fetch people that is following the user', async () => {
+  it('should fetch users followers', async () => {
     const suffix = randomId()
     const userLogin = `user_${suffix}`
     const followerLogin = `follower_${suffix}`
@@ -309,9 +309,9 @@ describe('Followers Pagination', () => {
     const login = `user_${suffix}`
     const [, ...followers] = await Promise.all([
       mockHelper.insertUser(suffix, { login }),
-      mockHelper.insertUser(suffix, { login: `following0_${suffix}` }),
-      mockHelper.insertUser(suffix, { login: `following1_${suffix}` }),
-      mockHelper.insertUser(suffix, { login: `following2_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user0_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user1_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user2_${suffix}` }),
     ])
     await mockHelper.insertUsersFollowing(followers.map(user => ({
       user_login: user.login,
@@ -345,9 +345,9 @@ describe('Followers Pagination', () => {
     const login = `user_${suffix}`
     const [, ...followers] = await Promise.all([
       mockHelper.insertUser(suffix, { login }),
-      mockHelper.insertUser(suffix, { login: `following0_${suffix}` }),
-      mockHelper.insertUser(suffix, { login: `following1_${suffix}` }),
-      mockHelper.insertUser(suffix, { login: `following2_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user0_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user1_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user2_${suffix}` }),
     ])
     await mockHelper.insertUsersFollowing(followers.map(user => ({
       user_login: user.login,
@@ -358,8 +358,8 @@ describe('Followers Pagination', () => {
 
     let query = `
       { user(login: "${login}") { followers(first: ${pageLimit}) { 
-        pageInfo { endCursor }
         edges { node { login } } 
+        pageInfo { hasNextPage, endCursor }
       } } }
     `
     let response = await graphqlRequest(app, query)
@@ -373,6 +373,9 @@ describe('Followers Pagination', () => {
               { node: { login: followers.at(0)?.login } },
               { node: { login: followers.at(1)?.login } },
             ],
+            pageInfo: expect.objectContaining({
+              hasNextPage: true,
+            }),
           }),
         },
       },
@@ -381,8 +384,8 @@ describe('Followers Pagination', () => {
     const { endCursor } = response.body.data.user.followers.pageInfo
     query = `
       { user(login: "${login}") { followers(first: ${pageLimit}, after: "${endCursor}") { 
-        pageInfo { hasNextPage }
         edges { node { login } }
+        pageInfo { hasNextPage }
       } } }
     `
 
@@ -393,12 +396,12 @@ describe('Followers Pagination', () => {
       data: {
         user: {
           followers: {
-            pageInfo: {
-              hasNextPage: false,
-            },
             edges: [
               { node: { login: followers.at(2)?.login } },
             ],
+            pageInfo: {
+              hasNextPage: false,
+            },
           },
         },
       },
@@ -410,9 +413,9 @@ describe('Followers Pagination', () => {
     const login = `user_${suffix}`
     const [, ...followers] = await Promise.all([
       mockHelper.insertUser(suffix, { login }),
-      mockHelper.insertUser(suffix, { login: `following0_${suffix}` }),
-      mockHelper.insertUser(suffix, { login: `following1_${suffix}` }),
-      mockHelper.insertUser(suffix, { login: `following2_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user0_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user1_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user2_${suffix}` }),
     ])
     await mockHelper.insertUsersFollowing(followers.map(user => ({
       user_login: user.login,
@@ -423,8 +426,8 @@ describe('Followers Pagination', () => {
 
     let query = `
       { user(login: "${login}") { followers(last: ${pageLimit}) { 
-        pageInfo { startCursor }
         edges { node { login } } 
+        pageInfo { hasPreviousPage, startCursor }
       } } }
     `
     let response = await graphqlRequest(app, query)
@@ -438,6 +441,9 @@ describe('Followers Pagination', () => {
               { node: { login: followers.at(1)?.login } },
               { node: { login: followers.at(2)?.login } },
             ],
+            pageInfo: expect.objectContaining({
+              hasPreviousPage: true,
+            }),
           }),
         },
       },
@@ -446,8 +452,8 @@ describe('Followers Pagination', () => {
     const { startCursor } = response.body.data.user.followers.pageInfo
     query = `
       { user(login: "${login}") { followers(last: ${pageLimit}, before: "${startCursor}") { 
-        pageInfo { hasPreviousPage }
         edges { node { login } }
+        pageInfo { hasPreviousPage }
       } } }
     `
 
@@ -458,12 +464,12 @@ describe('Followers Pagination', () => {
       data: {
         user: {
           followers: {
-            pageInfo: {
-              hasPreviousPage: false,
-            },
             edges: [
               { node: { login: followers.at(0)?.login } },
             ],
+            pageInfo: expect.objectContaining({
+              hasPreviousPage: false,
+            }),
           },
         },
       },
@@ -551,8 +557,8 @@ describe('Following Pagination', () => {
 
     let query = `
       { user(login: "${login}") { following(first: ${pageLimit}) { 
-        pageInfo { endCursor }
         edges { node { login } } 
+        pageInfo { hasNextPage, endCursor }
       } } }
     `
     let response = await graphqlRequest(app, query)
@@ -566,6 +572,9 @@ describe('Following Pagination', () => {
               { node: { login: following.at(0)?.login } },
               { node: { login: following.at(1)?.login } },
             ],
+            pageInfo: expect.objectContaining({
+              hasNextPage: true,
+            }),
           }),
         },
       },
@@ -574,8 +583,8 @@ describe('Following Pagination', () => {
     const { endCursor } = response.body.data.user.following.pageInfo
     query = `
       { user(login: "${login}") { following(first: ${pageLimit}, after: "${endCursor}") { 
-        pageInfo { hasNextPage }
         edges { node { login } }
+        pageInfo { hasNextPage }
       } } }
     `
 
@@ -586,12 +595,12 @@ describe('Following Pagination', () => {
       data: {
         user: {
           following: {
-            pageInfo: {
-              hasNextPage: false,
-            },
             edges: [
               { node: { login: following.at(2)?.login } },
             ],
+            pageInfo: expect.objectContaining({
+              hasNextPage: false,
+            }),
           },
         },
       },
@@ -616,8 +625,8 @@ describe('Following Pagination', () => {
 
     let query = `
       { user(login: "${login}") { following(last: ${pageLimit}) { 
-        pageInfo { startCursor }
         edges { node { login } } 
+        pageInfo { hasPreviousPage, startCursor }
       } } }
     `
     let response = await graphqlRequest(app, query)
@@ -631,6 +640,9 @@ describe('Following Pagination', () => {
               { node: { login: following.at(1)?.login } },
               { node: { login: following.at(2)?.login } },
             ],
+            pageInfo: expect.objectContaining({
+              hasPreviousPage: true,
+            }),
           }),
         },
       },
@@ -639,8 +651,8 @@ describe('Following Pagination', () => {
     const { startCursor } = response.body.data.user.following.pageInfo
     query = `
       { user(login: "${login}") { following(last: ${pageLimit}, before: "${startCursor}") { 
-        pageInfo { hasPreviousPage }
         edges { node { login } }
+        pageInfo { hasPreviousPage }
       } } }
     `
 
@@ -651,12 +663,12 @@ describe('Following Pagination', () => {
       data: {
         user: {
           following: {
-            pageInfo: {
-              hasPreviousPage: false,
-            },
             edges: [
               { node: { login: following.at(0)?.login } },
             ],
+            pageInfo: expect.objectContaining({
+              hasPreviousPage: false,
+            }),
           },
         },
       },
@@ -744,7 +756,7 @@ describe('Organization Pagination', () => {
 
     let query = `
       { user(login: "${login}") { organizations(first: ${pageLimit}) { 
-        pageInfo { endCursor }
+        pageInfo { hasNextPage, endCursor }
         edges { node { login } } 
       } } }
     `
@@ -759,6 +771,9 @@ describe('Organization Pagination', () => {
               { node: { login: orgs.at(0)?.login } },
               { node: { login: orgs.at(1)?.login } },
             ],
+            pageInfo: expect.objectContaining({
+              hasNextPage: true,
+            }),
           }),
         },
       },
@@ -767,8 +782,8 @@ describe('Organization Pagination', () => {
     const { endCursor } = response.body.data.user.organizations.pageInfo
     query = `
       { user(login: "${login}") { organizations(first: ${pageLimit}, after: "${endCursor}") { 
-        pageInfo { hasNextPage }
         edges { node { login } }
+        pageInfo { hasNextPage }
       } } }
     `
 
@@ -779,12 +794,12 @@ describe('Organization Pagination', () => {
       data: {
         user: {
           organizations: {
-            pageInfo: {
-              hasNextPage: false,
-            },
             edges: [
               { node: { login: orgs.at(2)?.login } },
             ],
+            pageInfo: expect.objectContaining({
+              hasNextPage: false,
+            }),
           },
         },
       },
@@ -809,8 +824,8 @@ describe('Organization Pagination', () => {
 
     let query = `
       { user(login: "${login}") { organizations(last: ${pageLimit}) { 
-        pageInfo { startCursor }
         edges { node { login } } 
+        pageInfo { hasPreviousPage, startCursor }
       } } }
     `
     let response = await graphqlRequest(app, query)
@@ -824,6 +839,9 @@ describe('Organization Pagination', () => {
               { node: { login: orgs.at(1)?.login } },
               { node: { login: orgs.at(2)?.login } },
             ],
+            pageInfo: expect.objectContaining({
+              hasPreviousPage: true,
+            }),
           }),
         },
       },
@@ -832,8 +850,8 @@ describe('Organization Pagination', () => {
     const { startCursor } = response.body.data.user.organizations.pageInfo
     query = `
       { user(login: "${login}") { organizations(last: ${pageLimit}, before: "${startCursor}") { 
-        pageInfo { hasPreviousPage }
         edges { node { login } }
+        pageInfo { hasPreviousPage }
       } } }
     `
 
@@ -844,12 +862,12 @@ describe('Organization Pagination', () => {
       data: {
         user: {
           organizations: {
-            pageInfo: {
-              hasPreviousPage: false,
-            },
             edges: [
               { node: { login: orgs.at(0)?.login } },
             ],
+            pageInfo: expect.objectContaining({
+              hasPreviousPage: false,
+            }),
           },
         },
       },
@@ -933,8 +951,8 @@ describe('Repository Pagination', () => {
 
     let query = `
       { user(login: "${login}") { repositories(first: ${pageLimit}) { 
-        pageInfo { endCursor }
         edges { node { name } } 
+        pageInfo { hasNextPage, endCursor }
       } } }
     `
     let response = await graphqlRequest(app, query)
@@ -948,6 +966,9 @@ describe('Repository Pagination', () => {
               { node: { name: repos.at(0)?.name } },
               { node: { name: repos.at(1)?.name } },
             ],
+            pageInfo: expect.objectContaining({
+              hasNextPage: true,
+            }),
           }),
         },
       },
@@ -968,12 +989,12 @@ describe('Repository Pagination', () => {
       data: {
         user: {
           repositories: {
-            pageInfo: {
-              hasNextPage: false,
-            },
             edges: [
               { node: { name: repos.at(2)?.name } },
             ],
+            pageInfo: expect.objectContaining({
+              hasNextPage: false,
+            }),
           },
         },
       },
@@ -996,8 +1017,8 @@ describe('Repository Pagination', () => {
 
     let query = `
       { user(login: "${login}") { repositories(last: ${pageLimit}) { 
-        pageInfo { startCursor }
         edges { node { name } } 
+        pageInfo { hasPreviousPage, startCursor }
       } } }
     `
     let response = await graphqlRequest(app, query)
@@ -1011,6 +1032,9 @@ describe('Repository Pagination', () => {
               { node: { name: repos.at(1)?.name } },
               { node: { name: repos.at(2)?.name } },
             ],
+            pageInfo: expect.objectContaining({
+              hasPreviousPage: true,
+            }),
           }),
         },
       },
@@ -1019,8 +1043,8 @@ describe('Repository Pagination', () => {
     const { startCursor } = response.body.data.user.repositories.pageInfo
     query = `
       { user(login: "${login}") { repositories(last: ${pageLimit}, before: "${startCursor}") { 
-        pageInfo { hasPreviousPage }
         edges { node { name } }
+        pageInfo { hasPreviousPage }
       } } }
     `
 
@@ -1031,12 +1055,12 @@ describe('Repository Pagination', () => {
       data: {
         user: {
           repositories: {
-            pageInfo: {
-              hasPreviousPage: false,
-            },
             edges: [
               { node: { name: repos.at(0)?.name } },
             ],
+            pageInfo: expect.objectContaining({
+              hasPreviousPage: false,
+            }),
           },
         },
       },
@@ -1128,8 +1152,8 @@ describe('Starred Repository Pagination', () => {
 
     let query = `
       { user(login: "${login}") { starredRepositories(first: ${pageLimit}) { 
-        pageInfo { endCursor }
         edges { node { name } } 
+        pageInfo { hasNextPage, endCursor }
       } } }
     `
     let response = await graphqlRequest(app, query)
@@ -1143,6 +1167,9 @@ describe('Starred Repository Pagination', () => {
               { node: { name: repos.at(0)?.name } },
               { node: { name: repos.at(1)?.name } },
             ],
+            pageInfo: expect.objectContaining({
+              hasNextPage: true,
+            }),
           }),
         },
       },
@@ -1151,8 +1178,8 @@ describe('Starred Repository Pagination', () => {
     const { endCursor } = response.body.data.user.starredRepositories.pageInfo
     query = `
       { user(login: "${login}") { starredRepositories(first: ${pageLimit}, after: "${endCursor}") { 
-        pageInfo { hasNextPage }
         edges { node { name } }
+        pageInfo { hasNextPage }
       } } }
     `
 
@@ -1163,12 +1190,12 @@ describe('Starred Repository Pagination', () => {
       data: {
         user: {
           starredRepositories: {
-            pageInfo: {
-              hasNextPage: false,
-            },
             edges: [
               { node: { name: repos.at(2)?.name } },
             ],
+            pageInfo: expect.objectContaining({
+              hasNextPage: false,
+            }),
           },
         },
       },

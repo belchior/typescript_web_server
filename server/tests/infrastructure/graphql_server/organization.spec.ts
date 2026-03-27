@@ -236,9 +236,9 @@ describe('Followers Pagination', () => {
     const login = `org_${suffix}`
     const [, ...followers] = await Promise.all([
       mockHelper.insertOrganization(suffix, { login }),
-      mockHelper.insertUser(suffix, { login: `follower0_${suffix}` }),
-      mockHelper.insertUser(suffix, { login: `follower1_${suffix}` }),
-      mockHelper.insertUser(suffix, { login: `follower2_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user0_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user1_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user2_${suffix}` }),
     ])
     await mockHelper.insertUsersFollowing(followers.map(user => ({
       user_login: user.login,
@@ -272,9 +272,9 @@ describe('Followers Pagination', () => {
     const login = `org_${suffix}`
     const [, ...followers] = await Promise.all([
       mockHelper.insertOrganization(suffix, { login }),
-      mockHelper.insertUser(suffix, { login: `follower0_${suffix}` }),
-      mockHelper.insertUser(suffix, { login: `follower1_${suffix}` }),
-      mockHelper.insertUser(suffix, { login: `follower2_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user0_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user1_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user2_${suffix}` }),
     ])
     await mockHelper.insertUsersFollowing(followers.map(user => ({
       user_login: user.login,
@@ -285,8 +285,8 @@ describe('Followers Pagination', () => {
 
     let query = `
       { organization(login: "${login}") { followers(first: ${pageLimit}) { 
-        pageInfo { endCursor }
         edges { node { login } } 
+        pageInfo { hasNextPage, endCursor }
       } } }
     `
     let response = await graphqlRequest(app, query)
@@ -300,6 +300,9 @@ describe('Followers Pagination', () => {
               { node: { login: followers.at(0)?.login } },
               { node: { login: followers.at(1)?.login } },
             ],
+            pageInfo: expect.objectContaining({
+              hasNextPage: true,
+            }),
           }),
         },
       },
@@ -308,8 +311,8 @@ describe('Followers Pagination', () => {
     const { endCursor } = response.body.data.organization.followers.pageInfo
     query = `
       { organization(login: "${login}") { followers(first: ${pageLimit}, after: "${endCursor}") { 
-        pageInfo { hasNextPage }
         edges { node { login } }
+        pageInfo { hasNextPage }
       } } }
     `
 
@@ -320,12 +323,12 @@ describe('Followers Pagination', () => {
       data: {
         organization: {
           followers: {
-            pageInfo: {
-              hasNextPage: false,
-            },
             edges: [
               { node: { login: followers.at(2)?.login } },
             ],
+            pageInfo: expect.objectContaining({
+              hasNextPage: false,
+            }),
           },
         },
       },
@@ -337,9 +340,9 @@ describe('Followers Pagination', () => {
     const login = `org_${suffix}`
     const [, ...followers] = await Promise.all([
       mockHelper.insertOrganization(suffix, { login }),
-      mockHelper.insertUser(suffix, { login: `follower0_${suffix}` }),
-      mockHelper.insertUser(suffix, { login: `follower1_${suffix}` }),
-      mockHelper.insertUser(suffix, { login: `follower2_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user0_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user1_${suffix}` }),
+      mockHelper.insertUser(suffix, { login: `user2_${suffix}` }),
     ])
     await mockHelper.insertUsersFollowing(followers.map(user => ({
       user_login: user.login,
@@ -350,8 +353,8 @@ describe('Followers Pagination', () => {
 
     let query = `
       { organization(login: "${login}") { followers(last: ${pageLimit}) { 
-        pageInfo { startCursor }
         edges { node { login } } 
+        pageInfo { hasPreviousPage, startCursor }
       } } }
     `
     let response = await graphqlRequest(app, query)
@@ -365,6 +368,9 @@ describe('Followers Pagination', () => {
               { node: { login: followers.at(1)?.login } },
               { node: { login: followers.at(2)?.login } },
             ],
+            pageInfo: expect.objectContaining({
+              hasPreviousPage: true,
+            }),
           }),
         },
       },
@@ -385,12 +391,12 @@ describe('Followers Pagination', () => {
       data: {
         organization: {
           followers: {
-            pageInfo: {
-              hasPreviousPage: false,
-            },
             edges: [
               { node: { login: followers.at(0)?.login } },
             ],
+            pageInfo: expect.objectContaining({
+              hasPreviousPage: false,
+            }),
           },
         },
       },
@@ -478,8 +484,8 @@ describe('People Pagination', () => {
 
     let query = `
       { organization(login: "${login}") { people(first: ${pageLimit}) { 
-        pageInfo { endCursor }
         edges { node { login } } 
+        pageInfo { hasNextPage, endCursor }
       } } }
     `
     let response = await graphqlRequest(app, query)
@@ -493,6 +499,9 @@ describe('People Pagination', () => {
               { node: { login: users.at(0)?.login } },
               { node: { login: users.at(1)?.login } },
             ],
+            pageInfo: expect.objectContaining({
+              hasNextPage: true,
+            }),
           }),
         },
       },
@@ -501,8 +510,8 @@ describe('People Pagination', () => {
     const { endCursor } = response.body.data.organization.people.pageInfo
     query = `
       { organization(login: "${login}") { people(first: ${pageLimit}, after: "${endCursor}") { 
-        pageInfo { hasNextPage }
         edges { node { login } }
+        pageInfo { hasNextPage }
       } } }
     `
 
@@ -513,12 +522,12 @@ describe('People Pagination', () => {
       data: {
         organization: {
           people: {
-            pageInfo: {
-              hasNextPage: false,
-            },
             edges: [
               { node: { login: users.at(2)?.login } },
             ],
+            pageInfo: expect.objectContaining({
+              hasNextPage: false,
+            }),
           },
         },
       },
@@ -543,8 +552,8 @@ describe('People Pagination', () => {
 
     let query = `
       { organization(login: "${login}") { people(last: ${pageLimit}) { 
-        pageInfo { startCursor }
         edges { node { login } } 
+        pageInfo { hasPreviousPage, startCursor }
       } } }
     `
     let response = await graphqlRequest(app, query)
@@ -558,6 +567,9 @@ describe('People Pagination', () => {
               { node: { login: users.at(1)?.login } },
               { node: { login: users.at(2)?.login } },
             ],
+            pageInfo: expect.objectContaining({
+              hasPreviousPage: true,
+            }),
           }),
         },
       },
@@ -566,8 +578,8 @@ describe('People Pagination', () => {
     const { startCursor } = response.body.data.organization.people.pageInfo
     query = `
       { organization(login: "${login}") { people(last: ${pageLimit}, before: "${startCursor}") { 
-        pageInfo { hasPreviousPage }
         edges { node { login } }
+        pageInfo { hasPreviousPage }
       } } }
     `
 
@@ -578,12 +590,12 @@ describe('People Pagination', () => {
       data: {
         organization: {
           people: {
-            pageInfo: {
-              hasPreviousPage: false,
-            },
             edges: [
               { node: { login: users.at(0)?.login } },
             ],
+            pageInfo: expect.objectContaining({
+              hasPreviousPage: false,
+            }),
           },
         },
       },
@@ -667,8 +679,8 @@ describe('Repository Pagination', () => {
 
     let query = `
       { organization(login: "${login}") { repositories(first: ${pageLimit}) { 
-        pageInfo { endCursor }
         edges { node { name } } 
+        pageInfo { hasNextPage, endCursor }
       } } }
     `
     let response = await graphqlRequest(app, query)
@@ -682,6 +694,9 @@ describe('Repository Pagination', () => {
               { node: { name: repos.at(0)?.name } },
               { node: { name: repos.at(1)?.name } },
             ],
+            pageInfo: expect.objectContaining({
+              hasNextPage: true,
+            }),
           }),
         },
       },
@@ -690,8 +705,8 @@ describe('Repository Pagination', () => {
     const { endCursor } = response.body.data.organization.repositories.pageInfo
     query = `
       { organization(login: "${login}") { repositories(first: ${pageLimit}, after: "${endCursor}") { 
-        pageInfo { hasNextPage }
         edges { node { name } }
+        pageInfo { hasNextPage }
       } } }
     `
 
@@ -702,12 +717,12 @@ describe('Repository Pagination', () => {
       data: {
         organization: {
           repositories: {
-            pageInfo: {
-              hasNextPage: false,
-            },
             edges: [
               { node: { name: repos.at(2)?.name } },
             ],
+            pageInfo: expect.objectContaining({
+              hasNextPage: false,
+            }),
           },
         },
       },
@@ -730,8 +745,8 @@ describe('Repository Pagination', () => {
 
     let query = `
       { organization(login: "${login}") { repositories(last: ${pageLimit}) { 
-        pageInfo { startCursor }
         edges { node { name } } 
+        pageInfo { hasPreviousPage, startCursor }
       } } }
     `
     let response = await graphqlRequest(app, query)
@@ -745,6 +760,9 @@ describe('Repository Pagination', () => {
               { node: { name: repos.at(1)?.name } },
               { node: { name: repos.at(2)?.name } },
             ],
+            pageInfo: expect.objectContaining({
+              hasPreviousPage: true,
+            }),
           }),
         },
       },
@@ -753,8 +771,8 @@ describe('Repository Pagination', () => {
     const { startCursor } = response.body.data.organization.repositories.pageInfo
     query = `
       { organization(login: "${login}") { repositories(last: ${pageLimit}, before: "${startCursor}") { 
-        pageInfo { hasPreviousPage }
         edges { node { name } }
+        pageInfo { hasPreviousPage }
       } } }
     `
 
@@ -765,12 +783,12 @@ describe('Repository Pagination', () => {
       data: {
         organization: {
           repositories: {
-            pageInfo: {
-              hasPreviousPage: false,
-            },
             edges: [
               { node: { name: repos.at(0)?.name } },
             ],
+            pageInfo: expect.objectContaining({
+              hasPreviousPage: false,
+            }),
           },
         },
       },

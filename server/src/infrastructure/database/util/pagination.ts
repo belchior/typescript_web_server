@@ -4,9 +4,8 @@ import {
   ForwardPagination,
   PaginationArguments,
   validateArgs,
-  ReferenceFrom,
 } from '../../util/cursor_connection/cursor_connection'
-import { Model, PageInfoItem } from './types'
+import { PageInfoItem } from './types'
 
 type Operator = '<' | '>'
 type Order = 'ASC' | 'DESC'
@@ -50,30 +49,3 @@ export function paginationArgsToQueryArgs(args: PaginationArguments) {
     : backwardPagination(args)
 }
 
-type PageInfoFnQuery = (args: PageInfoFnQueryArgs) => string
-type FindPageInfoArgs<T> = {
-  items: T[]
-  pageInfoFnQuery: PageInfoFnQuery
-  referenceFrom: ReferenceFrom<T>
-}
-export function pageInfoQueries<T extends Model>(args: FindPageInfoArgs<T>) {
-  const { items, pageInfoFnQuery, referenceFrom } = args
-
-  const firstItem = items.at(0)
-  const lastItem = items.at(-1)
-
-  const prevQuery = pageInfoFnQuery({
-    reference: referenceFrom(firstItem!),
-    operator: '<',
-    order: 'DESC',
-    row: 'prev',
-  })
-  const nextQuery = pageInfoFnQuery({
-    reference: referenceFrom(lastItem!),
-    operator: '>',
-    order: 'ASC',
-    row: 'next',
-  })
-
-  return { prevQuery, nextQuery }
-}

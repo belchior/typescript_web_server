@@ -1,10 +1,9 @@
 import { GraphQLError } from 'graphql'
 
-import envs from '../../util/environment'
 import logger from '../../util/logger'
 
 export const handleError = (error: Error) => {
-  if (envs.NODE_ENV !== 'test') logger.error({
+  logger.error({
     error: {
       message: error.message,
     },

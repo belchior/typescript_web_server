@@ -47,14 +47,15 @@ export async function findFollowersByUserLogin(login: string, pagination: Pagina
     SELECT *
     FROM (
       SELECT u.*, uf.created_at AS followed_at
-      FROM users u
-      INNER JOIN users_following uf ON uf.user_login = u.login
+      FROM users_following uf
+      LEFT JOIN users u ON u.login = uf.user_login
+      LEFT JOIN organizations o ON o.login = uf.user_login
       WHERE
         uf.following_login = $1
         ${startFrom}
       ORDER BY uf.created_at ${pagination.order}
       LIMIT $2
-    ) AS users
+    )
     ORDER BY followed_at ASC
   `
   const args = [
@@ -82,7 +83,7 @@ export async function findOrganizationsByUserLogin(login: string, pagination: Pa
         ${startFrom}
       ORDER BY om.created_at ${pagination.order}
       LIMIT $2
-    ) AS organizations
+    )
     ORDER BY joined_at ASC
   `
   const args = [
@@ -104,20 +105,22 @@ export async function findFollowersPageInfo(
 
   const query = `
     (
-      SELECT u.login, 'prev' AS row
-      FROM users u
-      INNER JOIN users_following uf ON uf.following_login = u.login
+      SELECT coalesce(u.login, o.login) login, 'prev' AS row
+      FROM users_following uf
+      LEFT JOIN users u ON u.login = uf.user_login
+      LEFT JOIN organizations o ON o.login = uf.user_login
       WHERE
-        uf.user_login = $1::varchar
+        uf.following_login = $1::varchar
         AND uf.created_at < $2::timestamptz
       ORDER BY uf.created_at DESC
       LIMIT 1
     ) UNION (
-      SELECT u.login, 'next' AS row
-      FROM users u
-      INNER JOIN users_following uf ON uf.following_login = u.login
+      SELECT coalesce(u.login, o.login) login, 'next' AS row
+      FROM users_following uf
+      LEFT JOIN users u ON u.login = uf.user_login
+      LEFT JOIN organizations o ON o.login = uf.user_login
       WHERE
-        uf.user_login = $1::varchar
+        uf.following_login = $1::varchar
         AND uf.created_at > $3::timestamptz
       ORDER BY uf.created_at ASC
       LIMIT 1
