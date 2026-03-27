@@ -1,8 +1,9 @@
-import { emptyCursorConnection, PaginationArguments, cursorConnection } from '../../util/cursor_connection/cursor_connection'
+import { Args, GraphQLContext } from '../graphql/types'
 import { handleError } from '../util/error_handler'
 import { RepositoryResolve } from '../repository/repository_resolve'
-import { Args, GraphQLContext } from '../graphql/types'
-import database, { type Follower, ProfileOwner, User, UserOrganization } from '../../database'
+import { type PaginationArguments } from '../../util/cursor_connection/cursor_connection'
+import { type ProfileOwner, User } from '../../database'
+import application from '../../../application'
 
 type UserQueryArgs = {
   login: string
@@ -15,18 +16,7 @@ export const UserResolve = {
 
   followers: async (parent: ProfileOwner, args: PaginationArguments) => {
     try {
-      const referenceFrom = (item: Follower) => item.followed_at.toISOString()
-      const pagination = database.util.paginationArgsToQueryArgs(args)
-      const items = await database.user.findFollowersByUserLogin(parent.login, pagination)
-
-      if (items.length === 0) return emptyCursorConnection<Follower>()
-
-      const { hasNextPage, hasPreviousPage } = await database.user.findFollowersPageInfo(
-        parent.login,
-        items,
-        referenceFrom
-      )
-      return cursorConnection<Follower>({ items, referenceFrom, hasNextPage, hasPreviousPage })
+      return await application.user.findFollowers(parent.login, args)
     } catch (error) {
       return handleError(error as Error)
     }
@@ -34,23 +24,7 @@ export const UserResolve = {
 
   organizations: async (parent: User, args: PaginationArguments) => {
     try {
-      const referenceFrom = (item: UserOrganization) => item.joined_at.toISOString()
-      const pagination = database.util.paginationArgsToQueryArgs(args)
-      const items = await database.user.findOrganizationsByUserLogin(parent.login, pagination)
-
-      if (items.length === 0) return emptyCursorConnection<UserOrganization>()
-
-      const { hasNextPage, hasPreviousPage } = await database.user.findOrganizationsPageInfo(
-        parent.login,
-        items,
-        referenceFrom
-      )
-      return cursorConnection<UserOrganization>({
-        items,
-        referenceFrom,
-        hasNextPage,
-        hasPreviousPage,
-      })
+      return await application.user.findUserOrganizations(parent.login, args)
     } catch (error) {
       return handleError(error as Error)
     }

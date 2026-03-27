@@ -3,9 +3,10 @@ import { find } from '../db_connection'
 import { isISOString } from '../../util/date'
 import { Organization } from './organization'
 import { PageInfoItem } from '../util/types'
-import { PaginationQueryArgs } from '../util/pagination'
+import { paginationArgsToQueryArgs } from '../util/pagination'
 import { ProfileOwner } from './profileOwner'
 import { User } from './user'
+import { PaginationArguments } from '../../util/cursor_connection/cursor_connection'
 
 export type Repository = {
   created_at: Date
@@ -87,7 +88,9 @@ export async function findRepositoryOwners(serializedOwners: readonly string[]) 
   })
 }
 
-export async function findRepositoriesByLogin(login: string, pagination: PaginationQueryArgs) {
+export async function findRepositoriesByLogin(login: string, args: PaginationArguments) {
+  const pagination = paginationArgsToQueryArgs(args)
+
   const startFrom = pagination.reference && isISOString(pagination.reference)
     ? `AND r.created_at ${pagination.operator} '${pagination.reference}'::timestamptz`
     : ''
@@ -122,8 +125,10 @@ export async function findRepositoriesByLogin(login: string, pagination: Paginat
 
 export async function findStarredRepositoriesByLogin(
   login: string,
-  pagination: PaginationQueryArgs
+  args: PaginationArguments
 ) {
+  const pagination = paginationArgsToQueryArgs(args)
+
   const startFrom = pagination.reference && isISOString(pagination.reference)
     ? `AND rs.created_at ${pagination.operator} '${pagination.reference}'::timestamptz`
     : ''

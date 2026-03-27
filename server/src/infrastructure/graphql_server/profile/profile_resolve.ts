@@ -1,9 +1,10 @@
-import { cursorConnection, emptyCursorConnection, PaginationArguments } from '../../util/cursor_connection/cursor_connection'
+import { PaginationArguments } from '../../util/cursor_connection/cursor_connection'
 import { handleError } from '../util/error_handler'
 import { OrganizationResolve } from '../organization/organization_resolve'
 import { Args, GraphQLContext } from '../graphql/types'
 import { UserResolve } from '../user/user_resolve'
-import database, { type Following, Organization, ProfileOwner, User } from '../../database'
+import { type Organization, ProfileOwner, User } from '../../database'
+import application from '../../../application'
 
 type ProfileQueryArgs = {
   login: string
@@ -12,18 +13,7 @@ type ProfileQueryArgs = {
 export const ProfileResolve = {
   following: async (parent: ProfileOwner, args: PaginationArguments) => {
     try {
-      const referenceFrom = (item: Following) => item.following_at.toISOString()
-      const pagination = database.util.paginationArgsToQueryArgs(args)
-      const items = await database.profileOwner.findFollowingByLogin(parent.login, pagination)
-
-      if (items.length === 0) return emptyCursorConnection<Following>()
-
-      const { hasNextPage, hasPreviousPage } = await database.profileOwner.findFollowingPageInfo(
-        parent.login,
-        items,
-        referenceFrom
-      )
-      return cursorConnection<Following>({ items, referenceFrom, hasNextPage, hasPreviousPage })
+      return await application.profile.findFollowingProfiles(parent.login, args)
     } catch (error) {
       return handleError(error as Error)
     }
@@ -48,7 +38,6 @@ export const ProfileResolve = {
   profileOwner: async (owner: ProfileOwner) => {
     if ((owner as User)?.user_id) return 'User'
     if ((owner as Organization)?.organization_id) return 'Organization'
-
-    throw new Error('Invalid typename')
+    throw new Error('Invalid typename', { cause: owner })
   },
 }

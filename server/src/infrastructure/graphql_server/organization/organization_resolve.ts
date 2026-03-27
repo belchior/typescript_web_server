@@ -1,8 +1,9 @@
-import { emptyCursorConnection, cursorConnection, PaginationArguments } from '../../util/cursor_connection/cursor_connection'
+import { Args, GraphQLContext } from '../graphql/types'
 import { handleError } from '../util/error_handler'
 import { RepositoryResolve } from '../repository/repository_resolve'
-import { Args, GraphQLContext } from '../graphql/types'
-import database, { Organization, OrganizationMember } from '../../database'
+import { type Organization } from '../../database'
+import { type PaginationArguments } from '../../util/cursor_connection/cursor_connection'
+import application from '../../../application'
 
 type OrganizationQueryArgs = {
   login: string
@@ -19,28 +20,7 @@ export const OrganizationResolve = {
 
   people: async (parent: Organization, args: PaginationArguments) => {
     try {
-      const referenceFrom = (item: OrganizationMember) => item.joined_at.toISOString()
-      const pagination = database.util.paginationArgsToQueryArgs(args)
-      const items = await database.organization.findOrganizationPeopleByLogin(
-        parent.login, pagination
-      )
-
-      if (items.length === 0) return emptyCursorConnection<OrganizationMember>()
-
-      const {
-        hasNextPage,
-        hasPreviousPage,
-      } = await database.organization.findOrganizationPeoplePageInfo(
-        parent.login,
-        items,
-        referenceFrom
-      )
-      return cursorConnection<OrganizationMember>({
-        items,
-        referenceFrom,
-        hasNextPage,
-        hasPreviousPage,
-      })
+      return await application.organization.findMembers(parent.login, args)
     } catch (error) {
       return handleError(error as Error)
     }

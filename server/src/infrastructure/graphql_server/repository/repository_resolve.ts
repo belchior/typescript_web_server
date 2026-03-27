@@ -1,8 +1,9 @@
-import { emptyCursorConnection, cursorConnection, PaginationArguments } from '../../util/cursor_connection/cursor_connection'
+import { PaginationArguments } from '../../util/cursor_connection/cursor_connection'
 import { handleError } from '../util/error_handler'
 import { serialize } from '../../util/converter'
 import { Args, GraphQLContext } from '../graphql/types'
-import database, { type ProfileOwnerIdentifier, Repository, RepositoryOwner, StarredRepository } from '../../database'
+import { type ProfileOwnerIdentifier, Repository, RepositoryOwner } from '../../database'
+import application from '../../../application'
 
 export const RepositoryResolve = {
   id: (parent: Repository) => {
@@ -40,18 +41,7 @@ export const RepositoryResolve = {
 
   repositories: async (parent: RepositoryOwner, args: PaginationArguments) => {
     try {
-      const referenceFrom = (item: Repository) => item.created_at.toISOString()
-      const pagination = database.util.paginationArgsToQueryArgs(args)
-      const items = await database.repository.findRepositoriesByLogin(parent.login, pagination)
-
-      if (items.length === 0) return emptyCursorConnection<Repository>()
-
-      const { hasNextPage, hasPreviousPage } = await database.repository.findRepositoriesPageInfo(
-        parent.login,
-        items,
-        referenceFrom
-      )
-      return cursorConnection<Repository>({ items, referenceFrom, hasNextPage, hasPreviousPage })
+      return await application.profile.findRepositories(parent.login, args)
     } catch (error) {
       return handleError(error as Error)
     }
@@ -59,29 +49,7 @@ export const RepositoryResolve = {
 
   starredRepositories: async (parent: RepositoryOwner, args: PaginationArguments) => {
     try {
-      const referenceFrom = (item: StarredRepository) => item.starred_at.toISOString()
-      const pagination = database.util.paginationArgsToQueryArgs(args)
-      const items = await database.repository.findStarredRepositoriesByLogin(
-        parent.login,
-        pagination
-      )
-
-      if (items.length === 0) return emptyCursorConnection<StarredRepository>()
-
-      const {
-        hasNextPage,
-        hasPreviousPage,
-      } = await database.repository.findStarredRepositoriesPageInfo(
-        parent.login,
-        items,
-        referenceFrom
-      )
-      return cursorConnection<StarredRepository>({
-        items,
-        referenceFrom,
-        hasNextPage,
-        hasPreviousPage,
-      })
+      return await application.profile.starredRepositories(parent.login, args)
     } catch (error) {
       return handleError(error as Error)
     }

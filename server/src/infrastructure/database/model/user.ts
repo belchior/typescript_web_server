@@ -1,8 +1,9 @@
 import { isISOString } from '../../util/date'
 import { Organization } from './organization'
 import { PageInfoItem } from '../util/types'
-import { PaginationQueryArgs } from '../util/pagination'
+import { paginationArgsToQueryArgs } from '../util/pagination'
 import * as db from '../db_connection'
+import { PaginationArguments } from '../../util/cursor_connection/cursor_connection'
 
 export type User = {
   avatar_url: string
@@ -38,7 +39,9 @@ export async function findUsersByLogins(logins: readonly string[]) {
   return users
 }
 
-export async function findFollowersByUserLogin(login: string, pagination: PaginationQueryArgs) {
+export async function findFollowersByUserLogin(login: string, args: PaginationArguments) {
+  const pagination = paginationArgsToQueryArgs(args)
+
   const startFrom = pagination.reference && isISOString(pagination.reference)
     ? `AND uf.created_at ${pagination.operator} '${pagination.reference}'::timestamptz`
     : ''
@@ -58,16 +61,15 @@ export async function findFollowersByUserLogin(login: string, pagination: Pagina
     )
     ORDER BY followed_at ASC
   `
-  const args = [
-    login,
-    pagination.limit,
-  ]
-  const { rows: items } = await db.find<Readonly<Follower>>(query, args)
+  const params = [login, pagination.limit]
+  const { rows: items } = await db.find<Readonly<Follower>>(query, params)
 
   return items
 }
 
-export async function findOrganizationsByUserLogin(login: string, pagination: PaginationQueryArgs) {
+export async function findOrganizationsByUserLogin(login: string, args: PaginationArguments) {
+  const pagination = paginationArgsToQueryArgs(args)
+
   const startFrom = pagination.reference && isISOString(pagination.reference)
     ? `AND om.created_at ${pagination.operator} '${pagination.reference}'::timestamptz`
     : ''
@@ -86,11 +88,8 @@ export async function findOrganizationsByUserLogin(login: string, pagination: Pa
     )
     ORDER BY joined_at ASC
   `
-  const args = [
-    login,
-    pagination.limit,
-  ]
-  const { rows: items } = await db.find<Readonly<UserOrganization>>(query, args)
+  const params = [login, pagination.limit]
+  const { rows: items } = await db.find<Readonly<UserOrganization>>(query, params)
 
   return items
 }

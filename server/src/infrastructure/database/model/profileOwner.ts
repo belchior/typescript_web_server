@@ -1,9 +1,10 @@
 import { isISOString } from '../../util/date'
 import { Organization } from './organization'
 import { PageInfoItem } from '../util/types'
-import { PaginationQueryArgs } from '../util/pagination'
+import { paginationArgsToQueryArgs } from '../util/pagination'
 import { User } from './user'
 import * as db from '../db_connection'
+import { PaginationArguments } from '../../util/cursor_connection/cursor_connection'
 
 export type ProfileOwner = {
   avatar_url: User['avatar_url'] | Organization['avatar_url']
@@ -23,7 +24,9 @@ function profileOwnerColumns() {
     .join(',')
 }
 
-export async function findFollowingByLogin(login: string, pagination: PaginationQueryArgs) {
+export async function findFollowingByLogin(login: string, args: PaginationArguments) {
+  const pagination = paginationArgsToQueryArgs(args)
+
   const startFrom = pagination.reference && isISOString(pagination.reference)
     ? `AND uf.created_at ${pagination.operator} '${pagination.reference}'::timestamptz`
     : ''

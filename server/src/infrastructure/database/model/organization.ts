@@ -1,8 +1,9 @@
 import { find } from '../db_connection'
 import { isISOString } from '../../util/date'
 import { PageInfoItem } from '../util/types'
-import { PaginationQueryArgs } from '../util/pagination'
+import { paginationArgsToQueryArgs } from '../util/pagination'
 import { User } from './user'
+import { PaginationArguments } from '../../util/cursor_connection/cursor_connection'
 
 export type Organization = {
   avatar_url: string
@@ -32,8 +33,10 @@ export async function findOrganizationsByLogins(logins: readonly string[]) {
 
 export async function findOrganizationPeopleByLogin(
   login: string,
-  pagination: PaginationQueryArgs
+  args: PaginationArguments
 ) {
+  const pagination = paginationArgsToQueryArgs(args)
+
   const startFrom = pagination.reference && isISOString(pagination.reference)
     ? `AND om.created_at ${pagination.operator} '${pagination.reference}'::timestamptz`
     : ''
