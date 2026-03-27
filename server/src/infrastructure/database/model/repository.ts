@@ -120,7 +120,10 @@ export async function findRepositoriesByLogin(login: string, pagination: Paginat
   return items
 }
 
-export async function findStarredRepositoriesByLogin(login: string, pagination: PaginationQueryArgs) {
+export async function findStarredRepositoriesByLogin(
+  login: string,
+  pagination: PaginationQueryArgs
+) {
   const startFrom = pagination.reference && isISOString(pagination.reference)
     ? `AND rs.created_at ${pagination.operator} '${pagination.reference}'::timestamptz`
     : ''

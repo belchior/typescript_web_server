@@ -61,16 +61,27 @@ export const RepositoryResolve = {
     try {
       const referenceFrom = (item: StarredRepository) => item.starred_at.toISOString()
       const pagination = database.util.paginationArgsToQueryArgs(args)
-      const items = await database.repository.findStarredRepositoriesByLogin(parent.login, pagination)
+      const items = await database.repository.findStarredRepositoriesByLogin(
+        parent.login,
+        pagination
+      )
 
       if (items.length === 0) return emptyCursorConnection<StarredRepository>()
 
-      const { hasNextPage, hasPreviousPage } = await database.repository.findStarredRepositoriesPageInfo(
+      const {
+        hasNextPage,
+        hasPreviousPage,
+      } = await database.repository.findStarredRepositoriesPageInfo(
         parent.login,
         items,
         referenceFrom
       )
-      return cursorConnection<StarredRepository>({ items, referenceFrom, hasNextPage, hasPreviousPage })
+      return cursorConnection<StarredRepository>({
+        items,
+        referenceFrom,
+        hasNextPage,
+        hasPreviousPage,
+      })
     } catch (error) {
       return handleError(error as Error)
     }

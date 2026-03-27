@@ -1,4 +1,4 @@
-import { Pool, QueryResult, QueryResultRow } from 'pg'
+import { Pool, QueryResultRow } from 'pg'
 
 import envs from '../util/environment'
 import logger from '../util/logger'
@@ -63,9 +63,9 @@ export function getConnection(): DBConnection {
   return pool
 }
 
-export async function find<T extends QueryResultRow>(query: string, params?: unknown[]): Promise<QueryResult<T>> {
+export async function find<T extends QueryResultRow>(query: string, params?: unknown[]) {
   if (pool == null || pool.ended === true) {
     throw new Error('connection pool not established')
   }
-  return pool.query(query, params)
+  return pool.query<T>(query, params)
 }

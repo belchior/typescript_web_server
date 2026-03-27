@@ -45,7 +45,12 @@ export const UserResolve = {
         items,
         referenceFrom
       )
-      return cursorConnection<UserOrganization>({ items, referenceFrom, hasNextPage, hasPreviousPage })
+      return cursorConnection<UserOrganization>({
+        items,
+        referenceFrom,
+        hasNextPage,
+        hasPreviousPage,
+      })
     } catch (error) {
       return handleError(error as Error)
     }

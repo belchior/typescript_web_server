@@ -9,7 +9,11 @@ type OrganizationQueryArgs = {
 }
 
 export const OrganizationResolve = {
-  organization: async (parent: undefined, args: Args<OrganizationQueryArgs>, context: GraphQLContext) => {
+  organization: async (
+    parent: undefined,
+    args: Args<OrganizationQueryArgs>,
+    context: GraphQLContext
+  ) => {
     return context.loader.findOrganizationByLogin.load(args.login)
   },
 
@@ -17,16 +21,26 @@ export const OrganizationResolve = {
     try {
       const referenceFrom = (item: OrganizationMember) => item.joined_at.toISOString()
       const pagination = database.util.paginationArgsToQueryArgs(args)
-      const items = await database.organization.findOrganizationPeopleByLogin(parent.login, pagination)
+      const items = await database.organization.findOrganizationPeopleByLogin(
+        parent.login, pagination
+      )
 
       if (items.length === 0) return emptyCursorConnection<OrganizationMember>()
 
-      const { hasNextPage, hasPreviousPage } = await database.organization.findOrganizationPeoplePageInfo(
+      const {
+        hasNextPage,
+        hasPreviousPage,
+      } = await database.organization.findOrganizationPeoplePageInfo(
         parent.login,
         items,
         referenceFrom
       )
-      return cursorConnection<OrganizationMember>({ items, referenceFrom, hasNextPage, hasPreviousPage })
+      return cursorConnection<OrganizationMember>({
+        items,
+        referenceFrom,
+        hasNextPage,
+        hasPreviousPage,
+      })
     } catch (error) {
       return handleError(error as Error)
     }

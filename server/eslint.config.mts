@@ -21,7 +21,7 @@ export default defineConfig([
       'jest/prefer-to-have-length': 'warn',
       'jest/valid-expect': 'error',
       'linebreak-style': ['error', 'unix'],
-      'max-len': ['error', { 'code': 120, 'tabWidth': 2, 'ignoreComments': true, 'ignoreTrailingComments': true, 'ignoreUrls': true, 'ignoreStrings': true, 'ignoreTemplateLiterals': true }],
+      'max-len': ['error', { 'code': 100, 'tabWidth': 2, 'ignoreComments': true, 'ignoreTrailingComments': true, 'ignoreUrls': true, 'ignoreStrings': true, 'ignoreTemplateLiterals': true }],
       'no-console': 'error',
       'no-multiple-empty-lines': ['error', { 'max': 1 }],
       'no-unused-vars': ['error', { 'argsIgnorePattern': '^_', 'caughtErrorsIgnorePattern': '^_' }],

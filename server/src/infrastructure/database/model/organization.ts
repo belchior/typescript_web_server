@@ -30,7 +30,10 @@ export async function findOrganizationsByLogins(logins: readonly string[]) {
   ))
 }
 
-export async function findOrganizationPeopleByLogin(login: string, pagination: PaginationQueryArgs) {
+export async function findOrganizationPeopleByLogin(
+  login: string,
+  pagination: PaginationQueryArgs
+) {
   const startFrom = pagination.reference && isISOString(pagination.reference)
     ? `AND om.created_at ${pagination.operator} '${pagination.reference}'::timestamptz`
     : ''

@@ -23,7 +23,13 @@ export default function AvatarList(props: AvatarListProps) {
             : 'rounded'
           return (
             <Anchor className="anchor" href={localUrl} key={owner.login} data-testid="owner-link">
-              <Image alt={owner.login} src={owner.avatarUrl} height={32} width={32} decoration={decoration} />
+              <Image
+                alt={owner.login}
+                decoration={decoration}
+                height={32}
+                src={owner.avatarUrl}
+                width={32}
+              />
             </Anchor>
           )
         })}
