@@ -11,6 +11,7 @@ The `server` is based on
 - [TypeScript](https://github.com/microsoft/TypeScript)
 - [Node.js](https://github.com/nodejs/node)
 - [Express](https://github.com/expressjs/express)
+- [GraphQL](https://graphql.org/)
 - [PostgreSQL](https://www.postgresql.org/)
 
 The `client` is based on
@@ -29,6 +30,11 @@ You can start the server in development mode executing the command below
 
 ```shell
 docker compose up server
+```
+
+To add sample data to feed the application
+```shell
+docker compose run --rm database_seed
 ```
 
 To run test in development mode
