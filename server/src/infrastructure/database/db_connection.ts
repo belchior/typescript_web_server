@@ -63,9 +63,9 @@ export function getConnection(): DBConnection {
   return pool
 }
 
-export async function find<T extends QueryResultRow>(query: string, args?: unknown[]): Promise<QueryResult<T>> {
+export async function find<T extends QueryResultRow>(query: string, params?: unknown[]): Promise<QueryResult<T>> {
   if (pool == null || pool.ended === true) {
     throw new Error('connection pool not established')
   }
-  return pool.query(query, args)
+  return pool.query(query, params)
 }

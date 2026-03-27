@@ -1,7 +1,7 @@
 import { isISOString } from '../../util/date'
-import { pageInfoQueries, PageInfoFnQueryArgs, PaginationQueryArgs } from '../util/pagination'
 import { Organization } from './organization'
-import { PageInfoItem } from '../../util/cursor_connection/cursor_connection'
+import { PageInfoItem } from '../util/types'
+import { PaginationQueryArgs } from '../util/pagination'
 import { User } from './user'
 import * as db from '../db_connection'
 
@@ -25,7 +25,7 @@ function profileOwnerColumns() {
 
 export async function findFollowingByLogin(login: string, pagination: PaginationQueryArgs) {
   const startFrom = pagination.reference && isISOString(pagination.reference)
-    ? `AND uf.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
+    ? `AND uf.created_at ${pagination.operator} '${pagination.reference}'::timestamptz`
     : ''
 
   const ownerColumns = profileOwnerColumns()
@@ -46,11 +46,8 @@ export async function findFollowingByLogin(login: string, pagination: Pagination
     )
     ORDER BY following_at ASC
   `
-  const args = [
-    login,
-    pagination.limit,
-  ]
-  const { rows: items } = await db.find<Readonly<Following>>(query, args)
+  const params = [login, pagination.limit]
+  const { rows: items } = await db.find<Readonly<Following>>(query, params)
   return items
 }
 
@@ -59,25 +56,41 @@ export async function findFollowingPageInfo(
   items: Following[],
   referenceFrom: (item: Following) => string
 ) {
-  const pageInfoFnQuery = (queryArgs: PageInfoFnQueryArgs) => `
-    SELECT coalesce(u.login, o.login) login, '${queryArgs.row}' AS row
-    FROM users_following uf
-    LEFT JOIN users u ON u.login = uf.following_login
-    LEFT JOIN organizations o ON o.login = uf.following_login
-    WHERE
-      uf.user_login = '${login}'
-      AND uf.created_at ${queryArgs.operator} TIMESTAMP WITH TIME ZONE '${queryArgs.reference}'
-    ORDER BY uf.created_at ${queryArgs.order}
-    LIMIT 1
-  `
+  const referencePrev = referenceFrom(items.at(0)!)
+  const referenceNext = referenceFrom(items.at(-1)!)
 
-  const { prevQuery, nextQuery } = pageInfoQueries({ items, pageInfoFnQuery, referenceFrom })
   const query = `
-    SELECT * FROM (${prevQuery}) as prev
-    UNION
-    SELECT * FROM (${nextQuery}) as next
+    (
+      SELECT coalesce(u.login, o.login) login, 'prev' AS row
+      FROM users_following uf
+      LEFT JOIN users u ON u.login = uf.following_login
+      LEFT JOIN organizations o ON o.login = uf.following_login
+      WHERE
+        uf.user_login = $1::varchar
+        AND uf.created_at < $2::timestamptz
+      ORDER BY uf.created_at DESC
+      LIMIT 1
+    ) UNION (
+      SELECT coalesce(u.login, o.login) login, 'next' AS row
+      FROM users_following uf
+      LEFT JOIN users u ON u.login = uf.following_login
+      LEFT JOIN organizations o ON o.login = uf.following_login
+      WHERE
+        uf.user_login = $1::varchar
+        AND uf.created_at > $3::timestamptz
+      ORDER BY uf.created_at ASC
+      LIMIT 1
+    )
   `
-  const { rows: pageInfoItems } = await db.find<Readonly<PageInfoItem>>(query)
+  const params = [login, referencePrev, referenceNext]
+  const { rows } = await db.find<Readonly<PageInfoItem>>(query, params)
 
-  return pageInfoItems
+  return rows.reduce(
+    (acc, item) => {
+      if (item.row === 'next') acc.hasNextPage = true
+      if (item.row === 'prev') acc.hasPreviousPage = true
+      return acc
+    },
+    { hasNextPage: false, hasPreviousPage: false }
+  )
 }

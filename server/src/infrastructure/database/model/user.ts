@@ -1,8 +1,8 @@
-import * as db from '../db_connection'
 import { isISOString } from '../../util/date'
-import { pageInfoQueries, PageInfoFnQueryArgs, PaginationQueryArgs } from '../util/pagination'
 import { Organization } from './organization'
-import { PageInfoItem } from '../../util/cursor_connection/cursor_connection'
+import { PageInfoItem } from '../util/types'
+import { PaginationQueryArgs } from '../util/pagination'
+import * as db from '../db_connection'
 
 export type User = {
   avatar_url: string
@@ -23,10 +23,10 @@ export type UserOrganization = Organization & { joined_at: Date };
 
 export async function findUsersByLogins(logins: readonly string[]) {
   const query = `
-      SELECT *
-      FROM users 
-      WHERE login = ANY($1)
-    `
+    SELECT *
+    FROM users 
+    WHERE login = ANY($1)
+  `
   const args = [logins]
   const { rows: items } = await db.find<Readonly<User>>(query, args)
 
@@ -40,7 +40,7 @@ export async function findUsersByLogins(logins: readonly string[]) {
 
 export async function findFollowersByUserLogin(login: string, pagination: PaginationQueryArgs) {
   const startFrom = pagination.reference && isISOString(pagination.reference)
-    ? `AND uf.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
+    ? `AND uf.created_at ${pagination.operator} '${pagination.reference}'::timestamptz`
     : ''
 
   const query = `
@@ -68,7 +68,7 @@ export async function findFollowersByUserLogin(login: string, pagination: Pagina
 
 export async function findOrganizationsByUserLogin(login: string, pagination: PaginationQueryArgs) {
   const startFrom = pagination.reference && isISOString(pagination.reference)
-    ? `AND om.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
+    ? `AND om.created_at ${pagination.operator} '${pagination.reference}'::timestamptz`
     : ''
 
   const query = `
@@ -99,26 +99,41 @@ export async function findFollowersPageInfo(
   items: Follower[],
   referenceFrom: (item: Follower) => string
 ) {
-  const pageInfoFnQuery = (queryArgs: PageInfoFnQueryArgs) => `
-    SELECT u.login, '${queryArgs.row}' AS row
-    FROM users u
-    INNER JOIN users_following uf ON uf.following_login = u.login
-    WHERE
-      uf.user_login = '${login}'
-      AND uf.created_at ${queryArgs.operator} TIMESTAMP WITH TIME ZONE '${queryArgs.reference}'
-    ORDER BY uf.created_at ${queryArgs.order}
-    LIMIT 1
-  `
+  const referencePrev = referenceFrom(items.at(0)!)
+  const referenceNext = referenceFrom(items.at(-1)!)
 
-  const { prevQuery, nextQuery } = pageInfoQueries({ items, pageInfoFnQuery, referenceFrom })
   const query = `
-    SELECT * FROM (${prevQuery}) as prev
-    UNION
-    SELECT * FROM (${nextQuery}) as next
+    (
+      SELECT u.login, 'prev' AS row
+      FROM users u
+      INNER JOIN users_following uf ON uf.following_login = u.login
+      WHERE
+        uf.user_login = $1::varchar
+        AND uf.created_at < $2::timestamptz
+      ORDER BY uf.created_at DESC
+      LIMIT 1
+    ) UNION (
+      SELECT u.login, 'next' AS row
+      FROM users u
+      INNER JOIN users_following uf ON uf.following_login = u.login
+      WHERE
+        uf.user_login = $1::varchar
+        AND uf.created_at > $3::timestamptz
+      ORDER BY uf.created_at ASC
+      LIMIT 1
+    )
   `
-  const { rows: pageInfoItems } = await db.find<Readonly<PageInfoItem>>(query)
+  const params = [login, referencePrev, referenceNext]
+  const { rows } = await db.find<Readonly<PageInfoItem>>(query, params)
 
-  return pageInfoItems
+  return rows.reduce(
+    (acc, item) => {
+      if (item.row === 'next') acc.hasNextPage = true
+      if (item.row === 'prev') acc.hasPreviousPage = true
+      return acc
+    },
+    { hasNextPage: false, hasPreviousPage: false }
+  )
 }
 
 export async function findOrganizationsPageInfo(
@@ -126,24 +141,39 @@ export async function findOrganizationsPageInfo(
   items: UserOrganization[],
   referenceFrom: (item: UserOrganization) => string
 ) {
-  const pageInfoFnQuery = (queryArgs: PageInfoFnQueryArgs) => `
-    SELECT o.login, '${queryArgs.row}' AS row
-    FROM organizations_members om
-    JOIN organizations o ON o.login = om.organization_login
-    WHERE
-      om.user_login = '${login}'
-      AND om.created_at ${queryArgs.operator} TIMESTAMP WITH TIME ZONE '${queryArgs.reference}'
-    ORDER BY om.created_at ${queryArgs.order}
-    LIMIT 1
-  `
+  const referencePrev = referenceFrom(items.at(0)!)
+  const referenceNext = referenceFrom(items.at(-1)!)
 
-  const { prevQuery, nextQuery } = pageInfoQueries({ items, pageInfoFnQuery, referenceFrom })
   const query = `
-    SELECT * FROM (${prevQuery}) as prev
-    UNION
-    SELECT * FROM (${nextQuery}) as next
+    (
+      SELECT o.login, 'prev' AS row
+      FROM organizations_members om
+      JOIN organizations o ON o.login = om.organization_login
+      WHERE
+        om.user_login = $1::varchar
+        AND om.created_at < $2::timestamptz
+      ORDER BY om.created_at DESC
+      LIMIT 1
+    ) UNION (
+      SELECT o.login, 'next' AS row
+      FROM organizations_members om
+      JOIN organizations o ON o.login = om.organization_login
+      WHERE
+        om.user_login = $1::varchar
+        AND om.created_at > $3::timestamptz
+      ORDER BY om.created_at ASC
+      LIMIT 1
+    )
   `
-  const { rows: pageInfoItems } = await db.find<Readonly<PageInfoItem>>(query)
+  const params = [login, referencePrev, referenceNext]
+  const { rows } = await db.find<Readonly<PageInfoItem>>(query, params)
 
-  return pageInfoItems
+  return rows.reduce(
+    (acc, item) => {
+      if (item.row === 'next') acc.hasNextPage = true
+      if (item.row === 'prev') acc.hasPreviousPage = true
+      return acc
+    },
+    { hasNextPage: false, hasPreviousPage: false }
+  )
 }

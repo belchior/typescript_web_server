@@ -46,8 +46,12 @@ export const RepositoryResolve = {
 
       if (items.length === 0) return emptyCursorConnection<Repository>()
 
-      const pageInfoItems = await database.repository.findRepositoriesPageInfo(parent.login, items, referenceFrom)
-      return cursorConnection<Repository>({ items, pageInfoItems, referenceFrom })
+      const { hasNextPage, hasPreviousPage } = await database.repository.findRepositoriesPageInfo(
+        parent.login,
+        items,
+        referenceFrom
+      )
+      return cursorConnection<Repository>({ items, referenceFrom, hasNextPage, hasPreviousPage })
     } catch (error) {
       return handleError(error as Error)
     }
@@ -61,12 +65,12 @@ export const RepositoryResolve = {
 
       if (items.length === 0) return emptyCursorConnection<StarredRepository>()
 
-      const pageInfoItems = await database.repository.findStarredRepositoriesPageInfo(
+      const { hasNextPage, hasPreviousPage } = await database.repository.findStarredRepositoriesPageInfo(
         parent.login,
         items,
         referenceFrom
       )
-      return cursorConnection<StarredRepository>({ items, pageInfoItems, referenceFrom })
+      return cursorConnection<StarredRepository>({ items, referenceFrom, hasNextPage, hasPreviousPage })
     } catch (error) {
       return handleError(error as Error)
     }

@@ -18,7 +18,8 @@ describe('CursorConnection', () => {
     const args: CursorConnectionArgs<Test> = {
       referenceFrom: (item) => item.created_at.toString(),
       items: [],
-      pageInfoItems: [],
+      hasNextPage: false,
+      hasPreviousPage: false,
     }
     connection = cursorConnection(args)
 
@@ -40,9 +41,8 @@ describe('CursorConnection', () => {
       items: [
         { created_at: new Date('2026-01-01T00:00:00.000Z') },
       ],
-      pageInfoItems: [
-        { row: 'next' },
-      ],
+      hasNextPage: true,
+      hasPreviousPage: false,
     }
 
     const connection = cursorConnection(args)
@@ -73,9 +73,8 @@ describe('CursorConnection', () => {
       items: [
         { created_at: new Date('2026-01-01T00:00:00.000Z') },
       ],
-      pageInfoItems: [
-        { row: 'prev' },
-      ],
+      hasNextPage: false,
+      hasPreviousPage: true,
     }
     const connection = cursorConnection(args)
 

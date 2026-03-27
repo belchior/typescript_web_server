@@ -40,18 +40,17 @@ type PageInfo = {
   startCursor: string | undefined
 }
 export type CursorConnection<T> = {
-  edges: Edge<T>[],
+  edges: Edge<T>[]
   pageInfo: PageInfo
 }
 
 export type ReferenceFrom<T> = (item: T) => string
-export type PageInfoItem = {
-  row: 'prev' | 'next'
-}
+
 export type CursorConnectionArgs<T> = {
-  referenceFrom: ReferenceFrom<T>
   items: T[]
-  pageInfoItems: PageInfoItem[]
+  referenceFrom: ReferenceFrom<T>
+  hasPreviousPage: boolean
+  hasNextPage: boolean
 }
 
 const referenceToCursor = stringToBase64
@@ -61,8 +60,19 @@ export function cursorToReference(cursor: string) {
   return reference.replace(/[']/g, "''"); // eslint-disable-line
 }
 
-function itemsToPageInfo<T>(args: CursorConnectionArgs<T>) {
-  const { referenceFrom, items, pageInfoItems } = args
+function toEdges<T>(args: CursorConnectionArgs<T>) {
+  const { items, referenceFrom } = args
+
+  const edges: Edge<T>[] = items.map(item => ({
+    cursor: referenceToCursor(referenceFrom(item)),
+    node: item,
+  }))
+
+  return edges
+}
+
+function toPageInfo<T>(args: CursorConnectionArgs<T>) {
+  const { hasPreviousPage, hasNextPage, items, referenceFrom } = args
 
   const firstItem = items.at(0)
   const lastItem = items.at(-1)
@@ -74,28 +84,14 @@ function itemsToPageInfo<T>(args: CursorConnectionArgs<T>) {
     ? referenceToCursor(referenceFrom(firstItem))
     : undefined
 
-  const hasItem = (name: PageInfoItem['row'], items: PageInfoItem[]) => items.reduce(
-    (acc, item) => (acc === true || item.row === name),
-    false
-  )
-
   const pageInfo: PageInfo = {
     endCursor,
-    hasNextPage: hasItem('next', pageInfoItems),
-    hasPreviousPage: hasItem('prev', pageInfoItems),
+    hasNextPage,
+    hasPreviousPage,
     startCursor,
   }
 
   return pageInfo
-}
-
-function itemsToEdges<T>(items: T[], referenceFrom: ReferenceFrom<T>) {
-  const edges: Edge<T>[] = items.map(item => ({
-    cursor: referenceToCursor(referenceFrom(item)),
-    node: item,
-  }))
-
-  return edges
 }
 
 export function emptyCursorConnection<T>() {
@@ -113,10 +109,10 @@ export function emptyCursorConnection<T>() {
 }
 
 export function cursorConnection<T>(args: CursorConnectionArgs<T>) {
-  const edges = itemsToEdges<T>(args.items, args.referenceFrom)
-  const pageInfo = itemsToPageInfo<T>(args)
-  const cursorConnection: Readonly<CursorConnection<T>> = { edges, pageInfo }
-  return cursorConnection
+  const edges = toEdges(args)
+  const pageInfo = toPageInfo(args)
+  const cursor: Readonly<CursorConnection<T>> = { edges, pageInfo }
+  return cursor
 }
 
 /**

@@ -18,8 +18,12 @@ export const ProfileResolve = {
 
       if (items.length === 0) return emptyCursorConnection<Following>()
 
-      const pageInfoItems = await database.profileOwner.findFollowingPageInfo(parent.login, items, referenceFrom)
-      return cursorConnection<Following>({ items, pageInfoItems, referenceFrom })
+      const { hasNextPage, hasPreviousPage } = await database.profileOwner.findFollowingPageInfo(
+        parent.login,
+        items,
+        referenceFrom
+      )
+      return cursorConnection<Following>({ items, referenceFrom, hasNextPage, hasPreviousPage })
     } catch (error) {
       return handleError(error as Error)
     }

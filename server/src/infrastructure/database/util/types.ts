@@ -17,3 +17,7 @@ export type Model =
   | Organization
   | Repository
   | ProfileOwner
+
+export type PageInfoItem = {
+  row: 'prev' | 'next'
+}

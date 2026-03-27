@@ -1,11 +1,11 @@
-import { find } from '../db_connection'
 import { deserialize } from '../../util/converter'
+import { find } from '../db_connection'
 import { isISOString } from '../../util/date'
 import { Organization } from './organization'
-import { User } from './user'
-import { PageInfoItem } from '../../util/cursor_connection/cursor_connection'
-import { pageInfoQueries, PageInfoFnQueryArgs, PaginationQueryArgs } from '../util/pagination'
+import { PageInfoItem } from '../util/types'
+import { PaginationQueryArgs } from '../util/pagination'
 import { ProfileOwner } from './profileOwner'
+import { User } from './user'
 
 export type Repository = {
   created_at: Date
@@ -89,7 +89,7 @@ export async function findRepositoryOwners(serializedOwners: readonly string[]) 
 
 export async function findRepositoriesByLogin(login: string, pagination: PaginationQueryArgs) {
   const startFrom = pagination.reference && isISOString(pagination.reference)
-    ? `AND r.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
+    ? `AND r.created_at ${pagination.operator} '${pagination.reference}'::timestamptz`
     : ''
 
   const query = `
@@ -114,18 +114,15 @@ export async function findRepositoriesByLogin(login: string, pagination: Paginat
     )
     ORDER BY created_at ASC
   `
-  const args = [
-    login,
-    pagination.limit,
-  ]
-  const { rows: items } = await find<Readonly<Repository>>(query, args)
+  const params = [login, pagination.limit]
+  const { rows: items } = await find<Readonly<Repository>>(query, params)
 
   return items
 }
 
 export async function findStarredRepositoriesByLogin(login: string, pagination: PaginationQueryArgs) {
   const startFrom = pagination.reference && isISOString(pagination.reference)
-    ? `AND rs.created_at ${pagination.operator} TIMESTAMP WITH TIME ZONE '${pagination.reference}'`
+    ? `AND rs.created_at ${pagination.operator} '${pagination.reference}'::timestamptz`
     : ''
 
   const query = `
@@ -142,11 +139,8 @@ export async function findStarredRepositoriesByLogin(login: string, pagination: 
     )
     ORDER BY starred_at ASC
   `
-  const args = [
-    login,
-    pagination.limit,
-  ]
-  const { rows: items } = await find<Readonly<StarredRepository>>(query, args)
+  const params = [login, pagination.limit]
+  const { rows: items } = await find<Readonly<StarredRepository>>(query, params)
 
   return items
 }
@@ -156,25 +150,39 @@ export async function findRepositoriesPageInfo(
   items: Repository[],
   referenceFrom: (item: Repository) => string
 ) {
-  const pageInfoFnQuery = (queryArgs: PageInfoFnQueryArgs) => `
-    SELECT r.name, '${queryArgs.row}' AS row
-    FROM repositories r
-    WHERE
-      r.owner_login = '${login}'
-      AND r.created_at ${queryArgs.operator} TIMESTAMP WITH TIME ZONE '${queryArgs.reference}'
-    ORDER BY r.created_at ${queryArgs.order}
-    LIMIT 1
-  `
+  const referencePrev = referenceFrom(items.at(0)!)
+  const referenceNext = referenceFrom(items.at(-1)!)
 
-  const { prevQuery, nextQuery } = pageInfoQueries({ items, pageInfoFnQuery, referenceFrom })
   const query = `
-    SELECT * FROM (${prevQuery}) as prev
-    UNION
-    SELECT * FROM (${nextQuery}) as next
+    (
+      SELECT r.name, 'prev' AS row
+      FROM repositories r
+      WHERE
+        r.owner_login = $1::varchar
+        AND r.created_at < $2::timestamptz
+      ORDER BY r.created_at DESC
+      LIMIT 1
+    ) UNION (
+      SELECT r.name, 'next' AS row
+      FROM repositories r
+      WHERE
+        r.owner_login = $1::varchar
+        AND r.created_at > $3::timestamptz
+      ORDER BY r.created_at ASC
+      LIMIT 1
+    )
   `
-  const { rows: pageInfoItems } = await find<Readonly<PageInfoItem>>(query)
+  const params = [login, referencePrev, referenceNext]
+  const { rows } = await find<Readonly<PageInfoItem>>(query, params)
 
-  return pageInfoItems
+  return rows.reduce(
+    (acc, item) => {
+      if (item.row === 'next') acc.hasNextPage = true
+      if (item.row === 'prev') acc.hasPreviousPage = true
+      return acc
+    },
+    { hasNextPage: false, hasPreviousPage: false }
+  )
 }
 
 export async function findStarredRepositoriesPageInfo(
@@ -182,24 +190,39 @@ export async function findStarredRepositoriesPageInfo(
   items: StarredRepository[],
   referenceFrom: (item: StarredRepository) => string
 ) {
-  const pageInfoFnQuery = (queryArgs: PageInfoFnQueryArgs) => `
-    SELECT r.name, '${queryArgs.row}' AS row
-    FROM repositories_stars rs
-    JOIN repositories r using(repository_id)
-    WHERE
-      rs.owner_login = '${login}'
-      AND rs.created_at ${queryArgs.operator} TIMESTAMP WITH TIME ZONE '${queryArgs.reference}'
-    ORDER BY rs.created_at ${queryArgs.order}
-    LIMIT 1
-  `
+  const referencePrev = referenceFrom(items.at(0)!)
+  const referenceNext = referenceFrom(items.at(-1)!)
 
-  const { prevQuery, nextQuery } = pageInfoQueries({ items, pageInfoFnQuery, referenceFrom })
   const query = `
-    SELECT * FROM (${prevQuery}) as prev
-    UNION
-    SELECT * FROM (${nextQuery}) as next
+    (
+      SELECT r.name, 'prev' AS row
+      FROM repositories_stars rs
+      JOIN repositories r using(repository_id)
+      WHERE
+        rs.owner_login = $1::varchar
+        AND rs.created_at < $2::timestamptz
+      ORDER BY rs.created_at DESC
+      LIMIT 1
+    ) UNION (
+      SELECT r.name, 'next' AS row
+      FROM repositories_stars rs
+      JOIN repositories r using(repository_id)
+      WHERE
+        rs.owner_login = $1::varchar
+        AND rs.created_at > $3::timestamptz
+      ORDER BY rs.created_at ASC
+      LIMIT 1
+    )
   `
-  const { rows: pageInfoItems } = await find<Readonly<PageInfoItem>>(query)
+  const params = [login, referencePrev, referenceNext]
+  const { rows } = await find<Readonly<PageInfoItem>>(query, params)
 
-  return pageInfoItems
+  return rows.reduce(
+    (acc, item) => {
+      if (item.row === 'next') acc.hasNextPage = true
+      if (item.row === 'prev') acc.hasPreviousPage = true
+      return acc
+    },
+    { hasNextPage: false, hasPreviousPage: false }
+  )
 }

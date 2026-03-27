@@ -1,4 +1,4 @@
-import { emptyCursorConnection, cursorConnection, PaginationArguments } from '../../util/cursor_connection/cursor_connection'
+import { emptyCursorConnection, PaginationArguments, cursorConnection } from '../../util/cursor_connection/cursor_connection'
 import { handleError } from '../util/error_handler'
 import { RepositoryResolve } from '../repository/repository_resolve'
 import { Args, GraphQLContext } from '../graphql/types'
@@ -21,8 +21,12 @@ export const UserResolve = {
 
       if (items.length === 0) return emptyCursorConnection<Follower>()
 
-      const pageInfoItems = await database.user.findFollowersPageInfo(parent.login, items, referenceFrom)
-      return cursorConnection<Follower>({ items, pageInfoItems, referenceFrom })
+      const { hasNextPage, hasPreviousPage } = await database.user.findFollowersPageInfo(
+        parent.login,
+        items,
+        referenceFrom
+      )
+      return cursorConnection<Follower>({ items, referenceFrom, hasNextPage, hasPreviousPage })
     } catch (error) {
       return handleError(error as Error)
     }
@@ -36,8 +40,12 @@ export const UserResolve = {
 
       if (items.length === 0) return emptyCursorConnection<UserOrganization>()
 
-      const pageInfoItems = await database.user.findOrganizationsPageInfo(parent.login, items, referenceFrom)
-      return cursorConnection<UserOrganization>({ items, pageInfoItems, referenceFrom })
+      const { hasNextPage, hasPreviousPage } = await database.user.findOrganizationsPageInfo(
+        parent.login,
+        items,
+        referenceFrom
+      )
+      return cursorConnection<UserOrganization>({ items, referenceFrom, hasNextPage, hasPreviousPage })
     } catch (error) {
       return handleError(error as Error)
     }

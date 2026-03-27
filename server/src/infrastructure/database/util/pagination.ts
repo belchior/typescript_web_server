@@ -2,12 +2,11 @@ import {
   cursorToReference,
   BackwardPagination,
   ForwardPagination,
-  PageInfoItem,
   PaginationArguments,
   validateArgs,
   ReferenceFrom,
 } from '../../util/cursor_connection/cursor_connection'
-import { Model } from './types'
+import { Model, PageInfoItem } from './types'
 
 type Operator = '<' | '>'
 type Order = 'ASC' | 'DESC'
