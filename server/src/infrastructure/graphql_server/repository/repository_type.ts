@@ -45,7 +45,7 @@ export const RepositoryOwnerInterface = new GraphQLInterfaceType({
   resolveType: async (owner: RepositoryOwner) => {
     if ((owner as User)?.user_id) return 'User'
     if ((owner as Organization)?.organization_id) return 'Organization'
-    throw new Error('Invalid typename')
+    throw new Error('Invalid typename', { cause: owner })
   },
 })
 

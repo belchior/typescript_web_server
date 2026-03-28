@@ -197,7 +197,7 @@ describe('Organization', () => {
                 node: {
                   forkCount: repository.fork_count,
                   description: repository.description,
-                  id: `repositories_${repository.repository_id}`,
+                  id: `re_${repository.repository_id}`,
                   licenseInfo: {
                     name: repository.license_name,
                   },

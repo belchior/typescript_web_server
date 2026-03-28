@@ -1,4 +1,4 @@
-import { useFragment } from 'react-relay'
+import { usePaginationFragment } from 'react-relay'
 
 import PeopleList from '../PeopleList/PeopleList'
 import Title from '../../../../designSystem/Title/Title'
@@ -9,11 +9,11 @@ type OrganizationPeopleProps = {
   profile: OrganizationPeople$key
 }
 export function OrganizationPeople(props: OrganizationPeopleProps) {
-  const user = useFragment(fragment.people, props.profile)
+  const { data: user, ...pagination } = usePaginationFragment(fragment.people, props.profile)
 
   return <div>
     <Title variant="h2">People</Title>
-    <PeopleList items={user.people} />
+    <PeopleList items={user.people} pagination={pagination} />
   </div>
 }
 

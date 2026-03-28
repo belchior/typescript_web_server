@@ -4,7 +4,7 @@ export const fragment = {
   profile: graphql`
     fragment UserSidebar on User
       @argumentDefinitions(
-        count: { type: "Int", defaultValue: 5 }
+        count: { type: "Int", defaultValue: 2 }
         cursor: { type: "String" }
       ) {
       avatarUrl

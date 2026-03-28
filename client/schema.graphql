@@ -2,6 +2,7 @@ type Query {
   organization(login: ID!): Organization
   profile(login: ID!): ProfileOwner
   user(login: ID!): User
+  node(id: ID!): Node
 }
 
 type Organization implements Node & ProfileOwner & RepositoryOwner {

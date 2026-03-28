@@ -1,4 +1,4 @@
-import List from '../../../../designSystem/List/List'
+import List, { type ListPagination } from '../../../../designSystem/List/List'
 import ProfileOwnerItem from './ProfileOwnerItem'
 
 export type ProfileOwnerType = 'User' | 'Organization' | 'Following'
@@ -13,11 +13,12 @@ export type ProfileOwner = {
 
 type ProfileOwnerListProps = {
   items: ProfileOwner[]
+  pagination: ListPagination
 }
 
 export default function ProfileOwnerList(props: ProfileOwnerListProps) {
   return (
-    <List>
+    <List pagination={props.pagination}>
       {props.items.map(owner => <ProfileOwnerItem key={owner.login} owner={owner} />)}
     </List>
   )

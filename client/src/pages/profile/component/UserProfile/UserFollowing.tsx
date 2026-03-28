@@ -1,4 +1,4 @@
-import { useFragment } from 'react-relay'
+import { usePaginationFragment } from 'react-relay'
 
 import { fragment } from './UserFollowing.relay'
 import PeopleList from '../PeopleList/PeopleList'
@@ -11,14 +11,14 @@ type UserFollowingProps = {
   profile: UserFollowing_following$key
 }
 export function UserFollowing(props: UserFollowingProps) {
-  const user = useFragment(fragment.following, props.profile)
+  const { data: user, ...pagination } = usePaginationFragment(fragment.following, props.profile)
   const items = user.following.edges
     .map(edge => edge?.node)
     .filter(node => node != null) as ProfileOwner[]
 
   return <div>
     <Title variant="h2">Following</Title>
-    <ProfileOwnerList items={items} />
+    <ProfileOwnerList items={items} pagination={pagination} />
   </div>
 }
 
@@ -26,10 +26,10 @@ type UserFollowersProps = {
   profile: UserFollowing_followers$key
 }
 export function UserFollowers(props: UserFollowersProps) {
-  const user = useFragment(fragment.followers, props.profile)
+  const { data: user, ...pagination } = usePaginationFragment(fragment.followers, props.profile)
 
   return <div>
     <Title variant="h2">Followers</Title>
-    <PeopleList items={user.followers} />
+    <PeopleList items={user.followers} pagination={pagination} />
   </div>
 }

@@ -31,7 +31,7 @@ export const OrganizationType: GraphQLObjectType<Organization> = new GraphQLObje
     },
     id: {
       type: new GraphQLNonNull(GraphQLID),
-      resolve: (parent) => `organizations_${parent.organization_id}`,
+      resolve: (parent) => `or_${parent.organization_id}`,
     },
     location: { type: GraphQLString },
     login: idType(),

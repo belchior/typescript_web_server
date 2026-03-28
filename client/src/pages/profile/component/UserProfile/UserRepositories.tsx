@@ -1,4 +1,4 @@
-import { useFragment } from 'react-relay'
+import { usePaginationFragment } from 'react-relay'
 
 import { fragment } from './UserRepositories.relay'
 import RepositoriesList from '../RepositoriesList/RepositoriesList'
@@ -10,11 +10,14 @@ type UserRepositoriesProps = {
   profile: UserRepositories_repositories$key
 }
 export function UserRepositories(props: UserRepositoriesProps) {
-  const user = useFragment(fragment.repositories, props.profile)
+  const { data: user, ...pagination } = usePaginationFragment(
+    fragment.repositories,
+    props.profile
+  )
 
   return <div>
     <Title variant="h2">Repositories</Title>
-    <RepositoriesList items={user.repositories} />
+    <RepositoriesList items={user.repositories} pagination={pagination} />
   </div>
 }
 
@@ -22,10 +25,10 @@ type UserStarredRepositoriesProps = {
   profile: UserRepositories_stars$key
 }
 export function UserStarredRepositories(props: UserStarredRepositoriesProps) {
-  const user = useFragment(fragment.stars, props.profile)
+  const { data: user, ...pagination } = usePaginationFragment(fragment.stars, props.profile)
 
   return <div>
     <Title variant="h2">Stars</Title>
-    <RepositoriesList items={user.starredRepositories} />
+    <RepositoriesList items={user.starredRepositories} pagination={pagination} />
   </div>
 }

@@ -48,7 +48,7 @@ describe('User', () => {
           bio: user.bio,
           company: user.company,
           email: user.email,
-          id: `users_${user.user_id}`,
+          id: `us_${user.user_id}`,
           location: user.location,
           login: user.login,
           name: user.name,
@@ -234,7 +234,7 @@ describe('User', () => {
             edges: [
               {
                 node: {
-                  id: `repositories_${repository.repository_id}`,
+                  id: `re_${repository.repository_id}`,
                   name: repository.name,
                 },
               },
@@ -281,7 +281,7 @@ describe('User', () => {
             edges: [
               {
                 node: {
-                  id: `repositories_${repo.repository_id}`,
+                  id: `re_${repo.repository_id}`,
                   name: repo.name,
                 },
               },

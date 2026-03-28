@@ -37,7 +37,7 @@ export const UserType: GraphQLObjectType<User> = new GraphQLObjectType({
     },
     id: {
       type: new GraphQLNonNull(GraphQLID),
-      resolve: (parent) => `users_${parent.user_id}`,
+      resolve: (parent) => `us_${parent.user_id}`,
     },
     location: { type: GraphQLString },
     login: idType(),

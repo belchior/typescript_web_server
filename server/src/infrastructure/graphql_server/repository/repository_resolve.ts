@@ -7,7 +7,7 @@ import application from '../../../application'
 
 export const RepositoryResolve = {
   id: (parent: Repository) => {
-    return `repositories_${parent.repository_id}`
+    return `re_${parent.repository_id}`
   },
 
   forkCount: (parent: Repository) => {

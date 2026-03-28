@@ -5,11 +5,11 @@ import './Button.css'
 type ButtonProps = ComponentPropsWithoutRef<'button'>
 
 export default function Button(props: ButtonProps) {
-  const { children, className } = props
+  const { children, className, ...other } = props
 
   const classes = cls('Button', className)
 
   return (
-    <button type="button" className={classes}>{children}</button>
+    <button type="button" className={classes} {...other}>{children}</button>
   )
 }

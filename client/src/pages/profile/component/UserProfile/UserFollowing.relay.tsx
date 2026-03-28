@@ -3,8 +3,9 @@ import { graphql } from 'react-relay'
 export const fragment = {
   following: graphql`
     fragment UserFollowing_following on User
+      @refetchable(queryName: "UserFollowing_following_query")
       @argumentDefinitions(
-        count: { type: "Int", defaultValue: 5 }
+        count: { type: "Int", defaultValue: 2 }
         cursor: { type: "String" }
       )
       {
@@ -25,8 +26,9 @@ export const fragment = {
   `,
   followers: graphql`
     fragment UserFollowing_followers on User
+      @refetchable(queryName: "UserFollowing_followers_query")
       @argumentDefinitions(
-        count: { type: "Int", defaultValue: 5 }
+        count: { type: "Int", defaultValue: 2 }
         cursor: { type: "String" }
       )
       {

@@ -82,7 +82,10 @@ export async function insertOrganization(suffix: string, organization: Partial<O
   return result
 }
 
-export async function insertRepository(suffix: string, repository: Partial<Repository> = {}): Promise<Repository> {
+export async function insertRepository(
+  suffix: string,
+  repository: Partial<Repository> = {}
+): Promise<Repository> {
   const data: Partial<Repository> = {
     fork_count: randomInteger(10, 999),
     description: `description_${suffix}`,

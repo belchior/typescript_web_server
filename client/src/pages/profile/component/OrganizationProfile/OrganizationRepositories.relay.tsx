@@ -3,8 +3,9 @@ import { graphql } from 'react-relay'
 export const fragment = {
   repositories: graphql`
     fragment OrganizationRepositories on Organization
+      @refetchable(queryName: "OrganizationRepositories_repositories_query")
       @argumentDefinitions(
-        count: { type: "Int", defaultValue: 5 }
+        count: { type: "Int", defaultValue: 2 }
         cursor: { type: "String" }
       )
       {

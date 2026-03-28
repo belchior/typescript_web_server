@@ -1,10 +1,11 @@
+import { find } from '../db_connection'
 import { isISOString } from '../../util/date'
 import { Organization } from './organization'
 import { PageInfoItem } from '../util/types'
 import { paginationArgsToQueryArgs } from '../util/pagination'
-import { User } from './user'
-import * as db from '../db_connection'
 import { PaginationArguments } from '../../util/cursor_connection/cursor_connection'
+import { User } from './user'
+import { Repository } from './repository'
 
 export type ProfileOwner = {
   avatar_url: User['avatar_url'] | Organization['avatar_url']
@@ -50,7 +51,7 @@ export async function findFollowingByLogin(login: string, args: PaginationArgume
     ORDER BY following_at ASC
   `
   const params = [login, pagination.limit]
-  const { rows: items } = await db.find<Readonly<Following>>(query, params)
+  const { rows: items } = await find<Readonly<Following>>(query, params)
   return items
 }
 
@@ -86,7 +87,7 @@ export async function findFollowingPageInfo(
     )
   `
   const params = [login, referencePrev, referenceNext]
-  const { rows } = await db.find<Readonly<PageInfoItem>>(query, params)
+  const { rows } = await find<Readonly<PageInfoItem>>(query, params)
 
   return rows.reduce(
     (acc, item) => {
@@ -96,4 +97,32 @@ export async function findFollowingPageInfo(
     },
     { hasNextPage: false, hasPreviousPage: false }
   )
+}
+
+export type OwnerIdentity = {
+  login: string
+  id: string
+  owner_ref: Repository['owner_ref']
+}
+export async function findOwnerLoginsByIds(ids: readonly string[]) {
+  const query = `
+    (
+      SELECT u.login, u.user_id id, 'users' owner_ref
+      FROM users u
+      WHERE u.user_id = ANY($1)
+    ) UNION (
+      SELECT o.login, o.organization_id id, 'organizations' owner_ref
+      FROM organizations o
+      WHERE o.organization_id = ANY($1)
+    )
+  `
+  const params = [ids]
+  const { rows } = await find<Readonly<OwnerIdentity>>(query, params)
+
+  const ownerIdentities = ids.map(id => (
+    rows.find(row => row.id === id)
+    || new Error(`Login not found for id: ${id}`)
+  ))
+
+  return ownerIdentities
 }

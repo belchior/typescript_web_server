@@ -1,6 +1,7 @@
 import Dataloader from 'dataloader'
 
 import database, { Organization, RepositoryOwner, User } from '../../database'
+import { OwnerIdentity } from '../../database/model/profileOwner'
 
 export const createLoaders = () => ({
   findOrganizationByLogin: new Dataloader<string, Organization>(
@@ -8,6 +9,9 @@ export const createLoaders = () => ({
   ),
   findRepositoryOwner: new Dataloader<string, RepositoryOwner>(
     database.repository.findRepositoryOwners
+  ),
+  findOwnersIdentityById: new Dataloader<string, OwnerIdentity>(
+    database.profileOwner.findOwnerLoginsByIds
   ),
   findUserByLogin: new Dataloader<string, User>(database.user.findUsersByLogins),
 })

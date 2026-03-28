@@ -20,7 +20,7 @@ export const query = graphql`
         ...UserFollowing_followers @arguments(cursor: $cursor) @include(if: $followers)
         ...UserFollowing_following @arguments(cursor: $cursor) @include(if: $following)
       }
-
+      
       ... on Organization {
         ...OrganizationHeader
         ...OrganizationRepositories @arguments(cursor: $cursor) @include(if: $repositories)

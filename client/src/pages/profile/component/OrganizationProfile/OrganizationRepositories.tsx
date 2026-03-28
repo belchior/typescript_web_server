@@ -1,4 +1,4 @@
-import { useFragment } from 'react-relay'
+import { usePaginationFragment } from 'react-relay'
 
 import { fragment } from './OrganizationRepositories.relay'
 import RepositoriesList from '../RepositoriesList/RepositoriesList'
@@ -9,10 +9,13 @@ type OrganizationRepositoriesProps = {
   profile: OrganizationRepositories$key
 }
 export function OrganizationRepositories(props: OrganizationRepositoriesProps) {
-  const organization = useFragment(fragment.repositories, props.profile)
+  const {
+    data: organization,
+    ...pagination
+  } = usePaginationFragment(fragment.repositories, props.profile)
 
   return <div className="OrganizationRepositories">
     <Title variant="h2">Repositories</Title>
-    <RepositoriesList items={organization.repositories} />
+    <RepositoriesList items={organization.repositories} pagination={pagination} />
   </div>
 }
