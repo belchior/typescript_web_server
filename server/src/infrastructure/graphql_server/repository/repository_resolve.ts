@@ -46,12 +46,4 @@ export const RepositoryResolve = {
       return handleError(error as Error)
     }
   },
-
-  starredRepositories: async (parent: RepositoryOwner, args: PaginationArguments) => {
-    try {
-      return await application.profile.starredRepositories(parent.login, args)
-    } catch (error) {
-      return handleError(error as Error)
-    }
-  },
 }

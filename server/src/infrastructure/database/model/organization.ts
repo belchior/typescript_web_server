@@ -1,4 +1,4 @@
-import { find } from '../db_connection'
+import * as conn from '../db_connection'
 import { isISOString } from '../../util/date'
 import { PageInfoItem } from '../util/types'
 import { paginationArgsToQueryArgs } from '../util/pagination'
@@ -24,14 +24,14 @@ export async function findOrganizationsByLogins(logins: readonly string[]) {
   const query = 'SELECT * FROM organizations WHERE login = ANY($1)'
   const args = [logins]
 
-  const { rows: items } = await find<Readonly<Organization>>(query, args)
+  const { rows: items } = await conn.find<Readonly<Organization>>(query, args)
   return logins.map(login => (
     items.find(org => org.login === login)
     || new Error(`Organization not found with login: ${login}`)
   ))
 }
 
-export async function findOrganizationPeopleByLogin(
+export async function findOrganizationMembersByLogin(
   login: string,
   args: PaginationArguments
 ) {
@@ -57,12 +57,12 @@ export async function findOrganizationPeopleByLogin(
   `
 
   const params = [login, pagination.limit]
-  const { rows: items } = await find<Readonly<OrganizationMember>>(query, params)
+  const { rows: items } = await conn.find<Readonly<OrganizationMember>>(query, params)
 
   return items
 }
 
-export async function findOrganizationPeoplePageInfo(
+export async function findOrganizationMembersPageInfo(
   login: string,
   items: OrganizationMember[],
   referenceFrom: (item: OrganizationMember) => string
@@ -92,7 +92,7 @@ export async function findOrganizationPeoplePageInfo(
     )
   `
   const params = [login, referencePrev, referenceNext]
-  const { rows } = await find<PageInfoItem>(query, params)
+  const { rows } = await conn.find<PageInfoItem>(query, params)
 
   return rows.reduce(
     (acc, item) => {

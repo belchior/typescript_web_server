@@ -3,14 +3,14 @@ import { cursorConnection, emptyCursorConnection, PaginationArguments } from '..
 
 export async function findMembers(login: string, args: PaginationArguments) {
   const referenceFrom = (item: OrganizationMember) => item.joined_at.toISOString()
-  const items = await database.organization.findOrganizationPeopleByLogin(login, args)
+  const items = await database.organization.findOrganizationMembersByLogin(login, args)
 
   if (items.length === 0) return emptyCursorConnection<OrganizationMember>()
 
   const {
     hasNextPage,
     hasPreviousPage,
-  } = await database.organization.findOrganizationPeoplePageInfo(
+  } = await database.organization.findOrganizationMembersPageInfo(
     login,
     items,
     referenceFrom

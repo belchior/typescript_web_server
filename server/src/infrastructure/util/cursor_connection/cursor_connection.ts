@@ -1,5 +1,3 @@
-import { GraphQLError } from 'graphql'
-
 import { stringToBase64, base64ToString } from '../converter'
 
 /**
@@ -128,38 +126,38 @@ export function validateArgs(args: PaginationArguments) {
 
   function testPaginationBoundaries(args: PaginationArgumentsMixed) {
     if (
-      typeof args != 'object' ||
+      typeof args !== 'object' ||
       (args.first == null && args.last == null)
     ) {
-      throw new GraphQLError('Missing pagination boundaries')
+      throw new Error('Missing pagination boundaries')
     }
   }
 
   function testLimit(args: PaginationArgumentsMixed) {
-    if (args.first != null && args.last != null) throw new GraphQLError(
+    if (args.first != null && args.last != null) throw new Error(
       'first and last must not be specified at the same time'
     )
     const limit = args.first ?? args.last
-    if (typeof limit !== 'number' || limit <= 0 || Number.isSafeInteger(limit) === false) throw new GraphQLError(
+    if (typeof limit !== 'number' || limit <= 0 || Number.isSafeInteger(limit) === false) throw new Error(
       'first and last must be a positive integer'
     )
   }
 
   function testReference(args: PaginationArgumentsMixed) {
-    if (args.before != null && args.after != null) throw new GraphQLError(
+    if (args.before != null && args.after != null) throw new Error(
       'before and after must not be specified at the same time'
     )
   }
 
   function testArgumentConsistency(args: PaginationArgumentsMixed) {
-    if (args.first != null && args.before != null) throw new GraphQLError(
+    if (args.first != null && args.before != null) throw new Error(
       'first must be used with after but receive before instead'
     )
-    if (args.last != null && args.after != null) throw new GraphQLError(
+    if (args.last != null && args.after != null) throw new Error(
       'last must be used with before but receive after instead'
     )
     const cursor = args.before ?? args.after
-    if (cursor != null && (typeof cursor !== 'string' || cursor === '')) throw new GraphQLError(
+    if (cursor != null && (typeof cursor !== 'string' || cursor === '')) throw new Error(
       'before and after must be non empty string'
     )
   }

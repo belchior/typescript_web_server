@@ -1,5 +1,5 @@
 import { deserialize } from '../../util/converter'
-import { find } from '../db_connection'
+import * as conn from '../db_connection'
 import { isISOString } from '../../util/date'
 import { Organization } from './organization'
 import { PageInfoItem } from '../util/types'
@@ -68,11 +68,11 @@ export async function findRepositoryOwners(serializedOwners: readonly string[]) 
   const logins = groupByRef(owners)
 
   const usersPromise = logins.users.length > 0
-    ? find<Readonly<User>>(usersQuery, [logins.users])
+    ? conn.find<Readonly<User>>(usersQuery, [logins.users])
     : Promise.resolve({ rows: [] })
 
   const organiztionsPromise = logins.organizations.length > 0
-    ? find<Readonly<Organization>>(organizationsQuery, [logins.organizations])
+    ? conn.find<Readonly<Organization>>(organizationsQuery, [logins.organizations])
     : Promise.resolve({ rows: [] })
 
   const settledResult = await Promise.allSettled([usersPromise, organiztionsPromise])
@@ -118,37 +118,7 @@ export async function findRepositoriesByLogin(login: string, args: PaginationArg
     ORDER BY created_at ASC
   `
   const params = [login, pagination.limit]
-  const { rows: items } = await find<Readonly<Repository>>(query, params)
-
-  return items
-}
-
-export async function findStarredRepositoriesByLogin(
-  login: string,
-  args: PaginationArguments
-) {
-  const pagination = paginationArgsToQueryArgs(args)
-
-  const startFrom = pagination.reference && isISOString(pagination.reference)
-    ? `AND rs.created_at ${pagination.operator} '${pagination.reference}'::timestamptz`
-    : ''
-
-  const query = `
-    SELECT *
-    FROM (
-      SELECT r.*, rs.created_at AS starred_at
-      FROM repositories r
-      INNER JOIN repositories_stars rs using(repository_id)
-      WHERE
-        rs.owner_login = $1
-        ${startFrom}
-      ORDER BY rs.created_at ${pagination.order}
-      LIMIT $2
-    )
-    ORDER BY starred_at ASC
-  `
-  const params = [login, pagination.limit]
-  const { rows: items } = await find<Readonly<StarredRepository>>(query, params)
+  const { rows: items } = await conn.find<Readonly<Repository>>(query, params)
 
   return items
 }
@@ -181,7 +151,7 @@ export async function findRepositoriesPageInfo(
     )
   `
   const params = [login, referencePrev, referenceNext]
-  const { rows } = await find<Readonly<PageInfoItem>>(query, params)
+  const { rows } = await conn.find<Readonly<PageInfoItem>>(query, params)
 
   return rows.reduce(
     (acc, item) => {
@@ -191,6 +161,36 @@ export async function findRepositoriesPageInfo(
     },
     { hasNextPage: false, hasPreviousPage: false }
   )
+}
+
+export async function findStarredRepositoriesByLogin(
+  login: string,
+  args: PaginationArguments
+) {
+  const pagination = paginationArgsToQueryArgs(args)
+
+  const startFrom = pagination.reference && isISOString(pagination.reference)
+    ? `AND rs.created_at ${pagination.operator} '${pagination.reference}'::timestamptz`
+    : ''
+
+  const query = `
+    SELECT *
+    FROM (
+      SELECT r.*, rs.created_at AS starred_at
+      FROM repositories r
+      INNER JOIN repositories_stars rs using(repository_id)
+      WHERE
+        rs.owner_login = $1
+        ${startFrom}
+      ORDER BY rs.created_at ${pagination.order}
+      LIMIT $2
+    )
+    ORDER BY starred_at ASC
+  `
+  const params = [login, pagination.limit]
+  const { rows: items } = await conn.find<Readonly<StarredRepository>>(query, params)
+
+  return items
 }
 
 export async function findStarredRepositoriesPageInfo(
@@ -223,7 +223,7 @@ export async function findStarredRepositoriesPageInfo(
     )
   `
   const params = [login, referencePrev, referenceNext]
-  const { rows } = await find<Readonly<PageInfoItem>>(query, params)
+  const { rows } = await conn.find<Readonly<PageInfoItem>>(query, params)
 
   return rows.reduce(
     (acc, item) => {

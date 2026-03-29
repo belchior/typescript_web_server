@@ -11,7 +11,7 @@ export const createLoaders = () => ({
     database.repository.findRepositoryOwners
   ),
   findOwnersIdentityById: new Dataloader<string, OwnerIdentity>(
-    database.profileOwner.findOwnerLoginsByIds
+    database.profileOwner.findOwnerIdentitiesByIds
   ),
   findUserByLogin: new Dataloader<string, User>(database.user.findUsersByLogins),
 })

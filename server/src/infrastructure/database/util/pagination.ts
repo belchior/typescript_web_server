@@ -18,7 +18,7 @@ export type PageInfoFnQueryArgs = {
 }
 
 export type PaginationQueryArgs = {
-  limit: number | undefined
+  limit: number
   operator: Operator
   order: Order
   reference: string | undefined
@@ -26,7 +26,7 @@ export type PaginationQueryArgs = {
 
 function backwardPagination(args: BackwardPagination): PaginationQueryArgs {
   return {
-    limit: args.last,
+    limit: args.last!,
     reference: args.before ? cursorToReference(args.before) : undefined,
     operator: '<',
     order: 'DESC',
@@ -35,7 +35,7 @@ function backwardPagination(args: BackwardPagination): PaginationQueryArgs {
 
 function forwardPagination(args: ForwardPagination): PaginationQueryArgs {
   return {
-    limit: args.first,
+    limit: args.first!,
     reference: args.after ? cursorToReference(args.after) : undefined,
     operator: '>',
     order: 'ASC',

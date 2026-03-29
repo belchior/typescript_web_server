@@ -2,24 +2,14 @@ import { addTypename, modelId } from '../util/model_adapter'
 import { Args, GraphQLContext } from '../graphql/types'
 import { handleError } from '../util/error_handler'
 import { OrganizationResolve } from '../organization/organization_resolve'
-import { PaginationArguments } from '../../util/cursor_connection/cursor_connection'
 import { type Organization, ProfileOwner, User } from '../../database'
 import { UserResolve } from '../user/user_resolve'
-import application from '../../../application'
 
 type ProfileQueryArgs = {
   login: string
 }
 
 export const ProfileResolve = {
-  following: async (parent: ProfileOwner, args: PaginationArguments) => {
-    try {
-      return await application.profile.findFollowingProfiles(parent.login, args)
-    } catch (error) {
-      return handleError(error as Error)
-    }
-  },
-
   node: async (parent: undefined, args: Args<{ id: string }>, context: GraphQLContext) => {
     const loginArg = await context.loader.findOwnersIdentityById.load(modelId(args.id))
     const profile = await ProfileResolve.profile(parent, loginArg, context)

@@ -1,18 +1,18 @@
-import database, { type Repository, Following, StarredRepository } from '../../infrastructure/database'
+import database, { type Repository, Follower } from '../../infrastructure/database'
 import { cursorConnection, emptyCursorConnection, type PaginationArguments } from '../../infrastructure/util/cursor_connection/cursor_connection'
 
-export async function findFollowingProfiles(login: string, args: PaginationArguments) {
-  const referenceFrom = (item: Following) => item.following_at.toISOString()
-  const items = await database.profileOwner.findFollowingByLogin(login, args)
+export async function findFollowers(login: string, args: PaginationArguments) {
+  const referenceFrom = (item: Follower) => item.followed_at.toISOString()
+  const items = await database.profileOwner.findFollowersByUserLogin(login, args)
 
-  if (items.length === 0) return emptyCursorConnection<Following>()
+  if (items.length === 0) return emptyCursorConnection<Follower>()
 
-  const { hasNextPage, hasPreviousPage } = await database.profileOwner.findFollowingPageInfo(
+  const { hasNextPage, hasPreviousPage } = await database.profileOwner.findFollowersPageInfo(
     login,
     items,
     referenceFrom
   )
-  return cursorConnection<Following>({ items, referenceFrom, hasNextPage, hasPreviousPage })
+  return cursorConnection<Follower>({ items, referenceFrom, hasNextPage, hasPreviousPage })
 }
 
 export async function findRepositories(login: string, args: PaginationArguments) {
@@ -27,29 +27,4 @@ export async function findRepositories(login: string, args: PaginationArguments)
     referenceFrom
   )
   return cursorConnection<Repository>({ items, referenceFrom, hasNextPage, hasPreviousPage })
-}
-
-export async function starredRepositories(login: string, args: PaginationArguments) {
-  const referenceFrom = (item: StarredRepository) => item.starred_at.toISOString()
-  const items = await database.repository.findStarredRepositoriesByLogin(
-    login,
-    args
-  )
-
-  if (items.length === 0) return emptyCursorConnection<StarredRepository>()
-
-  const {
-    hasNextPage,
-    hasPreviousPage,
-  } = await database.repository.findStarredRepositoriesPageInfo(
-    login,
-    items,
-    referenceFrom
-  )
-  return cursorConnection<StarredRepository>({
-    items,
-    referenceFrom,
-    hasNextPage,
-    hasPreviousPage,
-  })
 }
