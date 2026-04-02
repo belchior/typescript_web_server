@@ -82,7 +82,7 @@ export async function findFollowingByLogin(login: string, args: PaginationArgume
 export async function findFollowingPageInfo(
   login: string,
   items: Following[],
-  referenceFrom: (item: Following) => string
+  referenceFrom: (_item: Following) => string
 ) {
   const referencePrev = referenceFrom(items.at(0)!)
   const referenceNext = referenceFrom(items.at(-1)!)
@@ -153,7 +153,7 @@ export async function findUserOrganizationsByLogin(login: string, args: Paginati
 export async function findOrganizationsPageInfo(
   login: string,
   items: UserOrganization[],
-  referenceFrom: (item: UserOrganization) => string
+  referenceFrom: (_item: UserOrganization) => string
 ) {
   const referencePrev = referenceFrom(items.at(0)!)
   const referenceNext = referenceFrom(items.at(-1)!)

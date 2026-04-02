@@ -22,6 +22,7 @@ export default defineConfig([
     },
     plugins: { jest: pluginJest },
     rules: {
+      '@typescript-eslint/no-unused-vars': 'off',
       'comma-dangle': ['error', { 'arrays': 'always-multiline', 'objects': 'always-multiline', 'imports': 'always-multiline', 'exports': 'always-multiline', 'functions': 'never' }],
       'indent': ['error', 2, { 'SwitchCase': 1 }],
       'jest/no-disabled-tests': 'warn',

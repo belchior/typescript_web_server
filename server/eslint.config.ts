@@ -5,6 +5,7 @@ import pluginJest from 'eslint-plugin-jest'
 import tseslint from 'typescript-eslint'
 
 export default defineConfig([
+  tseslint.configs.recommended,
   {
     files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
     plugins: { js, jest: pluginJest },
@@ -13,6 +14,7 @@ export default defineConfig([
       globals: { ...globals.node, ...pluginJest.environments.globals.globals },
     },
     rules: {
+      '@typescript-eslint/no-unused-vars': 'off',
       'comma-dangle': ['error', { 'arrays': 'always-multiline', 'objects': 'always-multiline', 'imports': 'always-multiline', 'exports': 'always-multiline', 'functions': 'never' }],
       'indent': ['error', 2, { 'SwitchCase': 1 }],
       'jest/no-disabled-tests': 'warn',
@@ -33,5 +35,4 @@ export default defineConfig([
       'space-in-parens': ['error', 'never'],
     },
   },
-  tseslint.configs.recommended,
 ])

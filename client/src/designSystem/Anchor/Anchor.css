@@ -22,7 +22,7 @@
 
   &.contained {
     background-color: #f1f8ff;
-    border-radius: 3px;
+    border-radius: var(--border-radius);
     color: var(--color-2);
     font-size: 12px;
     margin: 4px 6px;

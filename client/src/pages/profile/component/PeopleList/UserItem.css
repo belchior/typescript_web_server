@@ -9,7 +9,7 @@
 
   .avatar {
     align-self: flex-start;
-    border-radius: 3;
+    border-radius: var(--border-radius);
     flex: 0 0 auto;
     margin-right: 1rem;
   }

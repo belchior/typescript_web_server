@@ -14,10 +14,11 @@ services:
     networks:
       - mynetwork
     volumes:
+      - ./server/coverage:/usr/app/coverage
+      - ./server/eslint.config.ts:/usr/app/eslint.config.ts:ro
       - ./server/jest.config.ts:/usr/app/jest.config.ts:ro
       - ./server/package.json:/usr/app/package.json:ro
       - ./server/src:/usr/app/src
-      - ./server/coverage:/usr/app/coverage
       - ./server/tests:/usr/app/tests
       - ./server/tsconfig.json:/usr/app/tsconfig.json:ro
     restart: always
@@ -72,6 +73,7 @@ services:
     networks:
       - mynetwork
     volumes:
+      - ./client/eslint.config.js:/usr/app/eslint.config.js:ro
       - ./client/index.html:/usr/app/index.html:ro
       - ./client/package-lock.json:/usr/app/package-lock.json:ro
       - ./client/package.json:/usr/app/package.json:ro

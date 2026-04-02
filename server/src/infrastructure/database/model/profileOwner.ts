@@ -54,7 +54,7 @@ export async function findFollowersByUserLogin(login: string, args: PaginationAr
 export async function findFollowersPageInfo(
   login: string,
   items: Follower[],
-  referenceFrom: (item: Follower) => string
+  referenceFrom: (_item: Follower) => string
 ) {
   const referencePrev = referenceFrom(items.at(0)!)
   const referenceNext = referenceFrom(items.at(-1)!)
