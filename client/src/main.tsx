@@ -6,7 +6,7 @@ import { StrictMode, Suspense } from 'react'
 import { environment } from './util/environment'
 import App from './designSystem/App/App'
 import Home from './pages/home/Home'
-import NotFound from './pages/notfound/NotFound'
+import NotFound from './pages/notFound/NotFound'
 import Profile from './pages/profile/Profile'
 import './main.css'
 
