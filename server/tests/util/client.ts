@@ -8,3 +8,9 @@ export async function graphqlRequest(app: e.Express, query: string) {
     .set('Accept', 'application/json')
     .send({ query })
 }
+
+export async function httpRequest(app: e.Express, urlPath: string) {
+  return request(app)
+    .get(urlPath)
+    .set('Accept', 'application/json')
+}

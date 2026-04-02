@@ -126,7 +126,7 @@ export async function findRepositoriesByLogin(login: string, args: PaginationArg
 export async function findRepositoriesPageInfo(
   login: string,
   items: Repository[],
-  referenceFrom: (item: Repository) => string
+  referenceFrom: (_item: Repository) => string
 ) {
   const referencePrev = referenceFrom(items.at(0)!)
   const referenceNext = referenceFrom(items.at(-1)!)
@@ -196,7 +196,7 @@ export async function findStarredRepositoriesByLogin(
 export async function findStarredRepositoriesPageInfo(
   login: string,
   items: StarredRepository[],
-  referenceFrom: (item: StarredRepository) => string
+  referenceFrom: (_item: StarredRepository) => string
 ) {
   const referencePrev = referenceFrom(items.at(0)!)
   const referenceNext = referenceFrom(items.at(-1)!)

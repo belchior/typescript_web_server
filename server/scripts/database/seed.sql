@@ -18,7 +18,6 @@ INSERT INTO users_following (user_login, following_login, created_at) VALUES
   ('belchior', 'rust-lang', '2026-01-01T00:00:00.001Z'),
   ('belchior', 'bar', '2026-01-01T00:00:00.002Z'),
   ('belchior', 'dee', '2026-01-01T00:00:00.003Z'),
-  ('belchior', 'foo', '2026-01-01T00:00:00.004Z'),
   ('foo', 'belchior', '2026-01-01T00:00:00.005Z'),
   ('foo', 'dee', '2026-01-01T00:00:00.005Z'),
   ('foo', 'rust-lang', '2026-01-01T00:00:00.006Z'),

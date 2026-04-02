@@ -183,6 +183,7 @@ export async function insertUser(suffix: string, user: Partial<User> = {}): Prom
 type UsersFollowing = {
   user_login: User['login'],
   following_login: User['login'],
+  created_at?: Date,
 }
 export async function insertUsersFollowing(list: UsersFollowing[]) {
   const results = []

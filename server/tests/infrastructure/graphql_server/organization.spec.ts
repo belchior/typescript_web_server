@@ -1,5 +1,5 @@
 import { createApp } from '../../../src/infrastructure/graphql_server/server'
-import { graphqlRequest } from '../../util/graphql_client'
+import { graphqlRequest } from '../../util/client'
 import { randomId } from '../../util/random'
 import * as mockHelper from '../../util/mocked_data'
 import database from '../../../src/infrastructure/database'
