@@ -1,5 +1,5 @@
-import { createApp } from '../../../src/infrastructure/graphql_server/server'
-import { graphqlRequest } from '../../util/client'
+import { createApp } from '../../../src/infrastructure/http_server/server'
+import { httpRequest } from '../../util/client'
 import { randomId } from '../../util/random'
 import database from '../../../src/infrastructure/database'
 import * as mockHelper from '../../util/mocked_data'
@@ -23,23 +23,12 @@ describe('Profile', () => {
       mockHelper.insertOrganization(suffix, { login }),
     ])
 
-    const query = `
-      {
-        profile(login: "${login}") {
-          login
-          name
-        }
-      }
-    `
-    const response = await graphqlRequest(app, query)
+    const url = `/profile/${login}`
+    const response = await httpRequest(app, url)
 
     expect(response.body).toEqual(expect.objectContaining({
-      data: {
-        profile: {
-          login: organization.login,
-          name: organization.name,
-        },
-      },
+      login: organization.login,
+      name: organization.name,
     }))
   })
 
@@ -51,23 +40,12 @@ describe('Profile', () => {
       mockHelper.insertUser(suffix, { login }),
     ])
 
-    const query = `
-      {
-        profile(login: "${login}") {
-          login
-          name
-        }
-      }
-    `
-    const response = await graphqlRequest(app, query)
+    const url = `/profile/${login}`
+    const response = await httpRequest(app, url)
 
     expect(response.body).toEqual(expect.objectContaining({
-      data: {
-        profile: {
-          login: user.login,
-          name: user.name,
-        },
-      },
+      login: user.login,
+      name: user.name,
     }))
   })
 })

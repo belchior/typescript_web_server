@@ -1,18 +1,11 @@
 import { type PropsWithChildren } from 'react'
 
 import Button from '../Button/Button'
+import type { PaginationController } from '../../network/httpServer'
 import './List.css'
 
-export type ListPagination = {
-  loadNext: (_count: number) => void
-  loadPrevious: (_count: number) => void
-  hasNext: boolean
-  hasPrevious: boolean
-  isLoadingNext: boolean
-  isLoadingPrevious: boolean
-}
 type ListProps = PropsWithChildren & {
-  pagination: ListPagination
+  pagination: PaginationController
 }
 
 export default function List(props: ListProps) {
@@ -33,7 +26,7 @@ export default function List(props: ListProps) {
       </ul>
       <div className="action-container">
         {pagination.hasNext && (
-          <Button onClick={() => pagination.loadNext(10)}>load more</Button>
+          <Button onClick={() => pagination.loadNext()}>load more</Button>
         )}
       </div>
     </div>

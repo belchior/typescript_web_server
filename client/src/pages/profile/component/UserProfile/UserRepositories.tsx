@@ -1,34 +1,43 @@
-import { usePaginationFragment } from 'react-relay'
-
-import { fragment } from './UserRepositories.relay'
+import { useUserRepositories, useUserStarredRepositories, type ProfileOwner } from '../../../../network/httpServer'
 import RepositoriesList from '../RepositoriesList/RepositoriesList'
 import Title from '../../../../designSystem/Title/Title'
-import type { UserRepositories_repositories$key } from './__generated__/UserRepositories_repositories.graphql'
-import type { UserRepositories_stars$key } from './__generated__/UserRepositories_stars.graphql'
 
 type UserRepositoriesProps = {
-  profile: UserRepositories_repositories$key
+  profile: ProfileOwner
 }
 export function UserRepositories(props: UserRepositoriesProps) {
-  const { data: user, ...pagination } = usePaginationFragment(
-    fragment.repositories,
-    props.profile
-  )
+  const { profile } = props
+  const { data: repositories, loadNext } = useUserRepositories(profile.login, { first: 1 })
+
+  if (repositories == null) return <p>loading...</p>
+
+  const pagination = {
+    loadNext: () => loadNext(1),
+    hasNext: repositories.pageInfo.hasNextPage,
+  }
 
   return <div>
     <Title variant="h2">Repositories</Title>
-    <RepositoriesList items={user.repositories} pagination={pagination} />
+    <RepositoriesList items={repositories} pagination={pagination} />
   </div>
 }
 
 type UserStarredRepositoriesProps = {
-  profile: UserRepositories_stars$key
+  profile: ProfileOwner
 }
 export function UserStarredRepositories(props: UserStarredRepositoriesProps) {
-  const { data: user, ...pagination } = usePaginationFragment(fragment.stars, props.profile)
+  const { profile } = props
+  const { data: repositories, loadNext } = useUserStarredRepositories(profile.login, { first: 2 })
+
+  if (repositories == null) return <p>loading...</p>
+
+  const pagination = {
+    loadNext,
+    hasNext: repositories.pageInfo.hasNextPage,
+  }
 
   return <div>
     <Title variant="h2">Stars</Title>
-    <RepositoriesList items={user.starredRepositories} pagination={pagination} />
+    <RepositoriesList items={repositories} pagination={pagination} />
   </div>
 }

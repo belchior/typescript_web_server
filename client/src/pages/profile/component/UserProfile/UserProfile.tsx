@@ -2,11 +2,7 @@ import { useCurrentTab, type TUserTabs } from '../PageMenu/PageMenu.hooks'
 import { UserFollowers, UserFollowing } from './UserFollowing'
 import { UserRepositories, UserStarredRepositories } from './UserRepositories'
 import Title from '../../../../designSystem/Title/Title'
-import type { UserFollowing_followers$key } from './__generated__/UserFollowing_followers.graphql'
-import type { UserFollowing_following$key } from './__generated__/UserFollowing_following.graphql'
-import type { UserRepositories_repositories$key } from './__generated__/UserRepositories_repositories.graphql'
-import type { UserRepositories_stars$key } from './__generated__/UserRepositories_stars.graphql'
-import type { UserSidebar$key } from './__generated__/UserSidebar.graphql'
+import type { ProfileOwner } from '../../../../network/httpServer'
 import UserSidebar from './UserSidebar'
 import './UserProfile.css'
 
@@ -19,11 +15,7 @@ function Overview() {
 }
 
 type UserProfileProps = {
-  profile: UserSidebar$key
-  & UserRepositories_repositories$key
-  & UserRepositories_stars$key
-  & UserFollowing_followers$key
-  & UserFollowing_following$key
+  profile: ProfileOwner
 }
 
 export default function UserProfile(props: UserProfileProps) {

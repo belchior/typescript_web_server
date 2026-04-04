@@ -3,17 +3,25 @@ import cors from 'cors'
 import express from 'express'
 import pinoHttp from 'pino-http'
 
-import { createGraphqlHandler } from './graphql/handler'
+import { registerOrganizationRoutes } from './route/organization'
+import { registerProfileRoutes } from './route/profile'
+import { registerSwaggerRoute } from './route/swagger'
+import { registerUserRoutes } from './route/user'
 import database from '../database'
 import envs from '../util/environment'
 import logger, { logConfig } from '../util/logger'
 
 export function createApp() {
   const app = express()
+
   app.disable('x-powered-by')
   app.use(pinoHttp(logConfig))
   app.use(cors({ methods: 'GET,POST', origin: envs.CLIENT_URL }))
-  app.all('/graphql', createGraphqlHandler())
+
+  registerSwaggerRoute(app)
+  registerOrganizationRoutes(app)
+  registerProfileRoutes(app)
+  registerUserRoutes(app)
 
   return app
 }
@@ -24,7 +32,10 @@ async function startServer() {
   const app = createApp()
   const server = app.listen(envs.SERVER_PORT, () => {
     logger.info({
-      message: `Running a GraphQL API server at ${envs.SERVER_URL}/graphql`,
+      message: `Running the server at ${envs.SERVER_URL}`,
+    })
+    logger.info({
+      message: `Swagger is available at ${envs.SERVER_URL}/api-docs`,
     })
     logger.info({
       message: `Accepting requests from ${envs.CLIENT_URL}`,
@@ -54,6 +65,6 @@ function addGracefulShutdown(server: Server) {
 if (envs.NODE_ENV !== 'test') {
   startServer()
     .then(addGracefulShutdown)
-    .catch(logger.error)
+    .catch((error) => logger.error({ error: { message: error.message } }))
 }
 

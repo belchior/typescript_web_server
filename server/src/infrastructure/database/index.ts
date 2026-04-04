@@ -6,7 +6,7 @@ import * as conn from './db_connection'
 import * as pagination from './util/pagination'
 
 import type { Organization, OrganizationMember } from './model/organization'
-import type { Repository, RepositoryOwner, StarredRepository, ProfileOwnerIdentifier } from './model/repository'
+import type { Repository, StarredRepository } from './model/repository'
 import type { ProfileOwner, Following } from './model/profileOwner'
 import type { User, UserOrganization, Follower } from './model/user'
 import type { DBConnection } from './db_connection'
@@ -30,9 +30,7 @@ export type {
   Organization,
   OrganizationMember,
   ProfileOwner,
-  ProfileOwnerIdentifier,
   Repository,
-  RepositoryOwner,
   StarredRepository,
   TableNames,
   User,

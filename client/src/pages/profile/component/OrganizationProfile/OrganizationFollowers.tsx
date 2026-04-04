@@ -1,21 +1,23 @@
-import { usePaginationFragment } from 'react-relay'
-
-import { fragment } from './OrganizationFollowers.relay'
+import { useOrganizationFollowers, type ProfileOwner } from '../../../../network/httpServer'
 import PeopleList from '../PeopleList/PeopleList'
 import Title from '../../../../designSystem/Title/Title'
-import type { OrganizationFollowers$key } from './__generated__/OrganizationFollowers.graphql'
 
 type OrganizationFollowersProps = {
-  profile: OrganizationFollowers$key
+  profile: ProfileOwner
 }
 export function OrganizationFollowers(props: OrganizationFollowersProps) {
-  const {
-    data: organiztion,
-    ...pagination
-  } = usePaginationFragment(fragment.followers, props.profile)
+  const { profile } = props
+  const { data: followers, loadNext } = useOrganizationFollowers(profile.login, { first: 2 })
+
+  if (followers == null) return <p>loading...</p>
+
+  const pagination = {
+    loadNext,
+    hasNext: followers.pageInfo.hasNextPage,
+  }
 
   return <div>
     <Title variant="h2">Followers</Title>
-    <PeopleList items={organiztion.followers} pagination={pagination} />
+    <PeopleList items={followers} pagination={pagination} />
   </div>
 }

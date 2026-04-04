@@ -1,6 +1,10 @@
 import database, { type OrganizationMember } from '../../infrastructure/database'
 import { cursorConnection, emptyCursorConnection, PaginationArguments } from '../../infrastructure/util/cursor_connection/cursor_connection'
 
+export async function findOrganization(login: string) {
+  return await database.organization.findOneByLogin(login)
+}
+
 export async function findMembers(login: string, args: PaginationArguments) {
   const referenceFrom = (item: OrganizationMember) => item.joined_at.toISOString()
   const items = await database.organization.findOrganizationMembersByLogin(login, args)

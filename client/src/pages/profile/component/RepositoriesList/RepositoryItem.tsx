@@ -4,12 +4,8 @@ import IconLicense from '../../../../designSystem/Icon/License'
 import IconStar from '../../../../designSystem/Icon/Star'
 import Language from '../Language/Language'
 import Title from '../../../../designSystem/Title/Title'
-import type { NonNullable } from '../../../../util/types'
-import type { UserRepositories_repositories$data } from '../UserProfile/__generated__/UserRepositories_repositories.graphql'
+import type { Repository } from '../../../../network/httpServer'
 import './RepositoryItem.css'
-
-type Edge = NonNullable<UserRepositories_repositories$data['repositories']['edges'][number]>
-type Repository = NonNullable<Edge['node']>
 
 type RepositoryItemProps = {
   repository: Repository
@@ -17,7 +13,6 @@ type RepositoryItemProps = {
 
 export default function RepositoryItem(props: RepositoryItemProps) {
   const { repository } = props
-  const language = repository.primaryLanguage
 
   return (
     <li className="RepositoryItem" data-testid="repository-item">
@@ -29,23 +24,25 @@ export default function RepositoryItem(props: RepositoryItemProps) {
         <p className="description">{repository.description}</p>
       }
       <div className="details">
-        {language && <Language color={language.color}>{language.name}</Language>}
-        {(repository.forkCount ?? 0) > 0 &&
+        {repository.language_name && (
+          <Language color={repository.language_color}>{repository.language_name}</Language>
+        )}
+        {(repository.fork_count ?? 0) > 0 &&
           <p>
             <IconFork />
-            {repository.forkCount}
+            {repository.fork_count}
           </p>
         }
-        {(repository.starCount ?? 0) > 0 &&
+        {(repository.star_count ?? 0) > 0 &&
           <p>
             <IconStar />
-            {repository.starCount}
+            {repository.star_count}
           </p>
         }
-        {repository.licenseInfo &&
+        {repository.license_name &&
           <span>
             <IconLicense />
-            {repository.licenseInfo.name}
+            {repository.license_name}
           </span>
         }
       </div>

@@ -1,49 +1,40 @@
-import { useLazyLoadQuery } from 'react-relay'
 import { useParams } from 'react-router'
 
-import { query } from './Profile.relay'
-import { useCurrentTab } from './component/PageMenu/PageMenu.hooks'
+import { useProfile, type ProfileOwner } from '../../network/httpServer'
 import Container from '../../designSystem/Container/Container'
 import ErrorBoundary from '../../designSystem/ErrorBoundary/ErrorBoundary'
 import NotFound from '../notFound/NotFound'
 import OrganizationProfile from './component/OrganizationProfile/OrganizationProfile'
 import PageMenu from './component/PageMenu/PageMenu'
-import type { ProfileOwnerType } from './component/ProfileOwnerList/ProfileOwnerList'
-import type { ProfileQuery, ProfileQuery$data } from './__generated__/ProfileQuery.graphql'
 import UserProfile from './component/UserProfile/UserProfile'
 
 type ProfilePageProps = {
-  data: ProfileQuery$data
+  profile: ProfileOwner
 }
 function ProfilePage(props: ProfilePageProps) {
-  const { data } = props
-  switch (data.profile?.__typename) {
-    case 'User': return <UserProfile profile={data.profile} />
-    case 'Organization': return <OrganizationProfile profile={data.profile} />
+  const { profile } = props
+  const profileType = profile.user_id != null ? 'User' : 'Organization'
+
+  switch (profileType) {
+    case 'User': return <UserProfile profile={profile} />
+    case 'Organization': return <OrganizationProfile profile={profile} />
     default: return <NotFound />
   }
 }
 
 export default function Profile() {
-  const params = useParams()
-  const tabName = useCurrentTab()
-  const data = useLazyLoadQuery<ProfileQuery>(
-    query,
-    {
-      login: params.login!,
-      repositories: tabName === 'repositories',
-      stars: tabName === 'stars',
-      followers: tabName === 'followers',
-      following: tabName === 'following',
-      people: tabName === 'people',
-    }
-  )
+  const { login } = useParams()
+  const { data: profile } = useProfile(login!)
+
+  if (profile == null) return <p>loading...</p>
+
+  const profileType = profile.user_id != null ? 'User' : 'Organization'
 
   return <>
-    <PageMenu profileOwnerType={data?.profile?.__typename as ProfileOwnerType} />
+    <PageMenu profileOwnerType={profileType} />
     <Container className="AppContent" maxWidth="lg">
       <ErrorBoundary>
-        <ProfilePage data={data} />
+        <ProfilePage profile={profile} />
       </ErrorBoundary>
     </Container>
   </>

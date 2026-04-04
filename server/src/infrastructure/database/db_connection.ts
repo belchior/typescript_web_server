@@ -69,3 +69,17 @@ export async function find<T extends QueryResultRow>(query: string, params?: unk
   }
   return pool.query<T>(query, params)
 }
+
+export async function findOne<T extends QueryResultRow>(query: string, params?: unknown[]) {
+  if (pool == null || pool.ended === true) {
+    throw new Error('connection pool not established')
+  }
+
+  const { rows } = await pool.query<T>(query, params)
+
+  if (rows.length > 1) {
+    throw new Error('Query result has more than one line')
+  }
+
+  return rows.at(0)
+}

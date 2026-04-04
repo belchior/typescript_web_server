@@ -3,12 +3,8 @@ import IconLocation from '../../../../designSystem/Icon/Location'
 import IconOrganization from '../../../../designSystem/Icon/Organization'
 import Image from '../../../../designSystem/Image/Image'
 import Title from '../../../../designSystem/Title/Title'
-import type { NonNullable } from '../../../../util/types'
-import type { UserFollowing_followers$data } from '../UserProfile/__generated__/UserFollowing_followers.graphql'
+import type { User } from '../../../../network/httpServer'
 import './UserItem.css'
-
-type Edge = NonNullable<UserFollowing_followers$data['followers']['edges'][number]>
-type User = NonNullable<Edge['node']>
 
 type UserItemProps = {
   user: User
@@ -24,7 +20,7 @@ export default function UserItem(props: UserItemProps) {
         alt={user.login}
         className="avatar"
         height={50}
-        src={user.avatarUrl}
+        src={user.avatar_url}
         width={50}
         decoration="circle"
       />

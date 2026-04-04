@@ -1,5 +1,20 @@
 import database, { type Repository, Follower } from '../../infrastructure/database'
 import { cursorConnection, emptyCursorConnection, type PaginationArguments } from '../../infrastructure/util/cursor_connection/cursor_connection'
+import * as organization from './organization'
+import * as user from './user'
+
+export async function findProfile(login: string) {
+  const result = await Promise.allSettled([
+    organization.findOrganization(login),
+    user.findUser(login),
+  ])
+
+  const item = result
+    .filter(item => item.status === 'fulfilled')
+    .find(item => item.value != null)
+
+  return item?.value
+}
 
 export async function findFollowers(login: string, args: PaginationArguments) {
   const referenceFrom = (item: Follower) => item.followed_at.toISOString()

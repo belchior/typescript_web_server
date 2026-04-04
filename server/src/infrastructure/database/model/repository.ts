@@ -1,12 +1,8 @@
-import { deserialize } from '../../util/converter'
-import * as conn from '../db_connection'
 import { isISOString } from '../../util/date'
-import { Organization } from './organization'
 import { PageInfoItem } from '../util/types'
 import { paginationArgsToQueryArgs } from '../util/pagination'
-import { ProfileOwner } from './profileOwner'
-import { User } from './user'
 import { PaginationArguments } from '../../util/cursor_connection/cursor_connection'
+import * as conn from '../db_connection'
 
 export type Repository = {
   created_at: Date
@@ -30,63 +26,6 @@ export type Repository = {
 }
 
 export type StarredRepository = Repository & { starred_at: Date }
-
-type OwnerLogin = Repository['owner_login']
-type OwnerRef = Repository['owner_ref']
-
-export type ProfileOwnerIdentifier = {
-  owner_login: OwnerLogin
-  owner_ref: OwnerRef
-}
-
-export type RepositoryOwner = ProfileOwner
-
-type RepositoryOwnerLogins = Record<OwnerRef, OwnerLogin[]>
-
-function groupByRef(owners: ProfileOwnerIdentifier[]) {
-  const logins: RepositoryOwnerLogins = {
-    users: [],
-    organizations: [],
-  }
-  for (const owner of owners) {
-    if (Array.isArray(logins[owner.owner_ref])) logins[owner.owner_ref].push(owner.owner_login)
-  }
-  return logins
-}
-
-function fulfilledValues<T>(result: PromiseSettledResult<T>[]): T[] {
-  return result
-    .filter(item => item.status === 'fulfilled')
-    .map(item => item.value)
-}
-
-export async function findRepositoryOwners(serializedOwners: readonly string[]) {
-  const usersQuery = 'SELECT * FROM users WHERE login = ANY($1)'
-  const organizationsQuery = 'SELECT * FROM organizations WHERE login = ANY($1)'
-
-  const owners = serializedOwners.map<ProfileOwnerIdentifier>(deserialize)
-  const logins = groupByRef(owners)
-
-  const usersPromise = logins.users.length > 0
-    ? conn.find<Readonly<User>>(usersQuery, [logins.users])
-    : Promise.resolve({ rows: [] })
-
-  const organiztionsPromise = logins.organizations.length > 0
-    ? conn.find<Readonly<Organization>>(organizationsQuery, [logins.organizations])
-    : Promise.resolve({ rows: [] })
-
-  const settledResult = await Promise.allSettled([usersPromise, organiztionsPromise])
-  const result = fulfilledValues<{ rows: RepositoryOwner[] }>(settledResult)
-  const items = result.flatMap(item => item.rows)
-
-  return serializedOwners.map(item => {
-    const owner = deserialize<ProfileOwnerIdentifier>(item)
-    return (
-      items.find(item => item.login === owner.owner_login) ||
-      new Error(`Repository Owner not found with login: ${owner.owner_login}`)
-    )
-  })
-}
 
 export async function findRepositoriesByLogin(login: string, args: PaginationArguments) {
   const pagination = paginationArgsToQueryArgs(args)

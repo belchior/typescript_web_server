@@ -14,24 +14,21 @@
   "scripts": {
     "build:prd": "tsc --project tsconfig.prod.json",
     "build": "tsc --project tsconfig.json",
-    "dev": "node --watch-path=src -r ts-node/register src/infrastructure/graphql_server/server.ts",
+    "dev": "node --watch-path=src -r ts-node/register src/infrastructure/http_server/server.ts",
     "lint": "tsc --noEmit && eslint 'src/**/*.ts'",
     "test:ci": "NODE_ENV=test jest --ci --coverage=true src/ tests/",
-    "test:dev": "NODE_ENV=test jest --watch --coverage=false src/ tests/",
-    "test:integration": "NODE_ENV=test jest --watch tests/",
-    "test:unit": "NODE_ENV=test jest --watch --coverage=false src/",
-    "write-schema": "ts-node scripts/write_graphql_schema.ts"
+    "test:dev": "NODE_ENV=test jest --watch --coverage=false src/ tests/"
   },
   "dependencies": {
     "body-parser": "^2.2.2",
     "cors": "^2.8.6",
-    "dataloader": "^2.2.3",
     "express": "^5.2.1",
-    "graphql": "^16.13.1",
-    "graphql-http": "^1.22.4",
     "pg": "^8.2.1",
     "pino": "^10.3.1",
-    "pino-http": "^11.0.0"
+    "pino-http": "^11.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -42,7 +39,8 @@
     "@types/node": "^25.3.3",
     "@types/pg": "^8.18.0",
     "@types/supertest": "^7.2.0",
-    "cross-env": "^10.1.0",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "dotenv": "^17.3.1",
     "eslint": "^10.0.3",
     "eslint-plugin-jest": "^29.15.0",

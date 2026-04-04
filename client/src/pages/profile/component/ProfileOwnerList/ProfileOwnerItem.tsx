@@ -2,7 +2,7 @@ import Anchor from '../../../../designSystem/Anchor/Anchor'
 import IconLocation from '../../../../designSystem/Icon/Location'
 import Image from '../../../../designSystem/Image/Image'
 import Title from '../../../../designSystem/Title/Title'
-import type { ProfileOwner } from './ProfileOwnerList'
+import type { ProfileOwner } from '../../../../network/httpServer'
 import './ProfileOwnerItem.css'
 
 type ProfileOwnerItemProps = {
@@ -19,7 +19,7 @@ export default function ProfileOwnerItem(props: ProfileOwnerItemProps) {
         alt={owner.login}
         className="avatar"
         height={50}
-        src={owner.avatarUrl}
+        src={owner.avatar_url}
         width={50}
         decoration="circle"
       />

@@ -4,10 +4,7 @@ import { OrganizationRepositories } from './OrganizationRepositories'
 import { useCurrentTab, type TOrganizationTabs } from '../PageMenu/PageMenu.hooks'
 import OrganizationHeader from './OrganizationHeader'
 import Title from '../../../../designSystem/Title/Title'
-import type { OrganizationFollowers$key } from './__generated__/OrganizationFollowers.graphql'
-import type { OrganizationHeader$key } from './__generated__/OrganizationHeader.graphql'
-import type { OrganizationPeople$key } from './__generated__/OrganizationPeople.graphql'
-import type { OrganizationRepositories$key } from './__generated__/OrganizationRepositories.graphql'
+import type { ProfileOwner } from '../../../../network/httpServer'
 import './OrganizationProfile.css'
 
 function Overview() {
@@ -24,10 +21,7 @@ function Overview() {
 }
 
 type OrganizationProfileProps = {
-  profile: OrganizationHeader$key
-  & OrganizationRepositories$key
-  & OrganizationPeople$key
-  & OrganizationFollowers$key
+  profile: ProfileOwner
 }
 
 export default function OrganizationProfile(props: OrganizationProfileProps) {

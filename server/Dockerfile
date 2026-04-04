@@ -14,4 +14,4 @@ COPY --from=dependencies /usr/app/package*.json ./
 RUN ["npm", "ci", "--omit=dev"]
 USER node
 EXPOSE 4000
-CMD ["node", "src/infrastructure/graphql_server/server.js"]
+CMD ["node", "src/infrastructure/http_server/server.js"]

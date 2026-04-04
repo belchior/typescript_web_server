@@ -20,15 +20,10 @@ export type Organization = {
 
 export type OrganizationMember = User & { joined_at: Date };
 
-export async function findOrganizationsByLogins(logins: readonly string[]) {
-  const query = 'SELECT * FROM organizations WHERE login = ANY($1)'
-  const args = [logins]
-
-  const { rows: items } = await conn.find<Readonly<Organization>>(query, args)
-  return logins.map(login => (
-    items.find(org => org.login === login)
-    || new Error(`Organization not found with login: ${login}`)
-  ))
+export async function findOneByLogin(login: string) {
+  const query = 'SELECT * FROM organizations WHERE login = $1'
+  const params = [login]
+  return await conn.findOne<Readonly<Organization>>(query, params)
 }
 
 export async function findOrganizationMembersByLogin(
@@ -65,7 +60,7 @@ export async function findOrganizationMembersByLogin(
 export async function findOrganizationMembersPageInfo(
   login: string,
   items: OrganizationMember[],
-  referenceFrom: (item: OrganizationMember) => string
+  referenceFrom: (_item: OrganizationMember) => string
 ) {
   const referencePrev = referenceFrom(items.at(0)!)
   const referenceNext = referenceFrom(items.at(-1)!)

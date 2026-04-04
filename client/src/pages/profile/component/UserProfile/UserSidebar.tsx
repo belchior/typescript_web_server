@@ -1,27 +1,24 @@
-import { useFragment } from 'react-relay'
-
-import { fragment } from './UserSidebar.relay'
+import { useUser, useUserOrganizations, type ProfileOwner } from '../../../../network/httpServer'
 import Anchor from '../../../../designSystem/Anchor/Anchor'
+import AvatarList from '../AvatarList/AvatarList'
 import EmailIcon from '../../../../designSystem/Icon/Email'
 import Image from '../../../../designSystem/Image/Image'
 import LinkIcon from '../../../../designSystem/Icon/Link'
 import LocationIcon from '../../../../designSystem/Icon/Location'
 import OrganizationIcon from '../../../../designSystem/Icon/Organization'
-import AvatarList from '../AvatarList/AvatarList'
 import Title from '../../../../designSystem/Title/Title'
-import type { ProfileOwner } from '../ProfileOwnerList/ProfileOwnerList'
-import type { UserSidebar$key } from './__generated__/UserSidebar.graphql'
 import './UserSidebar.css'
 
 type UserSidebarProps = {
-  profile: UserSidebar$key
+  profile: ProfileOwner
 }
 
 export default function UserSidebar(props: UserSidebarProps) {
-  const user = useFragment(fragment.profile, props.profile)
-  const organizations = user.organizations.edges
-    .map(item => item?.node)
-    .filter(node => node != null) as ProfileOwner[]
+  const { profile } = props
+  const { data: user } = useUser(profile.login)
+  const { data: organizations } = useUserOrganizations(profile.login, { first: 2 })
+
+  if (user == null || organizations == null) return <p>loading...</p>
 
   return (
     <div className="UserSidebar">
@@ -30,7 +27,7 @@ export default function UserSidebar(props: UserSidebarProps) {
         className="avatar"
         decoration="circle"
         height={288}
-        src={user.avatarUrl}
+        src={user.avatar_url}
         width={288}
       />
       <Title className="vcard" variant="h1">
@@ -46,10 +43,10 @@ export default function UserSidebar(props: UserSidebarProps) {
           <span>{user.email}</span>
         </Anchor>
       }
-      {user.websiteUrl &&
-        <Anchor href={user.websiteUrl} external>
+      {user.website_url &&
+        <Anchor href={user.website_url} external>
           <LinkIcon />
-          {user.websiteUrl}
+          {user.website_url}
         </Anchor>
       }
       {user.company &&
@@ -64,9 +61,7 @@ export default function UserSidebar(props: UserSidebarProps) {
           {user.location}
         </p>
       }
-      {organizations.length > 0 &&
-        <AvatarList title="Organizations" items={organizations} />
-      }
+      <AvatarList title="Organizations" items={organizations} />
     </div>
   )
 }

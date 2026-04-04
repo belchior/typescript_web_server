@@ -1,6 +1,10 @@
 import database, { Following, StarredRepository, UserOrganization } from '../../infrastructure/database'
 import { cursorConnection, emptyCursorConnection, type PaginationArguments } from '../../infrastructure/util/cursor_connection/cursor_connection'
 
+export async function findUser(login: string) {
+  return await database.user.findOneByLogin(login)
+}
+
 export async function findFollowingProfiles(login: string, args: PaginationArguments) {
   const referenceFrom = (item: Following) => item.following_at.toISOString()
   const items = await database.user.findFollowingByLogin(login, args)

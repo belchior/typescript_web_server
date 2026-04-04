@@ -78,8 +78,6 @@ services:
       - ./client/package-lock.json:/usr/app/package-lock.json:ro
       - ./client/package.json:/usr/app/package.json:ro
       - ./client/public:/usr/app/public:ro
-      - ./client/relay.config.json:/usr/app/relay.config.json:ro
-      - ./client/schema.graphql:/usr/app/schema.graphql:ro
       - ./client/src:/usr/app/src
       - ./client/tsconfig.app.json:/usr/app/tsconfig.app.json:ro
       - ./client/tsconfig.json:/usr/app/tsconfig.json:ro

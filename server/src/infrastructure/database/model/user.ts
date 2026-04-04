@@ -23,21 +23,10 @@ export type User = {
 export type Follower = User & { followed_at: Date };
 export type UserOrganization = Organization & { joined_at: Date };
 
-export async function findUsersByLogins(logins: readonly string[]) {
-  const query = `
-    SELECT *
-    FROM users 
-    WHERE login = ANY($1)
-  `
-  const args = [logins]
-  const { rows: items } = await conn.find<Readonly<User>>(query, args)
-
-  const users = logins.map(login => (
-    items.find(user => user.login === login)
-    || new Error(`User not found with login: ${login}`)
-  ))
-
-  return users
+export async function findOneByLogin(login: string) {
+  const query = 'SELECT * FROM users WHERE login = $1'
+  const params = [login]
+  return await conn.findOne<Readonly<User>>(query, params)
 }
 
 function profileOwnerColumns() {

@@ -4,7 +4,6 @@ import { Organization } from './organization'
 import { PageInfoItem } from '../util/types'
 import { paginationArgsToQueryArgs } from '../util/pagination'
 import { PaginationArguments } from '../../util/cursor_connection/cursor_connection'
-import { Repository } from './repository'
 import * as conn from '../db_connection'
 
 export type ProfileOwner = {
@@ -16,12 +15,6 @@ export type ProfileOwner = {
 }
 
 export type Following = ProfileOwner & { following_at: Date };
-
-export type OwnerIdentity = {
-  login: string
-  id: string
-  owner_ref: Repository['owner_ref']
-}
 
 export async function findFollowersByUserLogin(login: string, args: PaginationArguments) {
   const pagination = paginationArgsToQueryArgs(args)
@@ -95,25 +88,3 @@ export async function findFollowersPageInfo(
   )
 }
 
-export async function findOwnerIdentitiesByIds(ids: readonly string[]) {
-  const query = `
-    (
-      SELECT u.login, u.user_id id, 'users' owner_ref
-      FROM users u
-      WHERE u.user_id = ANY($1)
-    ) UNION (
-      SELECT o.login, o.organization_id id, 'organizations' owner_ref
-      FROM organizations o
-      WHERE o.organization_id = ANY($1)
-    )
-  `
-  const params = [ids]
-  const { rows } = await conn.find<Readonly<OwnerIdentity>>(query, params)
-
-  const ownerIdentities = ids.map(id => (
-    rows.find(row => row.id === id)
-    || new Error(`Login not found for id: ${id}`)
-  ))
-
-  return ownerIdentities
-}

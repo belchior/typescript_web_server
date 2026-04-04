@@ -1,35 +1,44 @@
-import { usePaginationFragment } from 'react-relay'
-
-import { fragment } from './UserFollowing.relay'
+import { useUserFollowers, useUserFollowing, type ProfileOwner } from '../../../../network/httpServer'
 import PeopleList from '../PeopleList/PeopleList'
+import ProfileOwnerList from '../ProfileOwnerList/ProfileOwnerList'
 import Title from '../../../../designSystem/Title/Title'
-import type { UserFollowing_followers$key } from './__generated__/UserFollowing_followers.graphql'
-import type { UserFollowing_following$key } from './__generated__/UserFollowing_following.graphql'
-import ProfileOwnerList, { type ProfileOwner } from '../ProfileOwnerList/ProfileOwnerList'
 
 type UserFollowingProps = {
-  profile: UserFollowing_following$key
+  profile: ProfileOwner
 }
 export function UserFollowing(props: UserFollowingProps) {
-  const { data: user, ...pagination } = usePaginationFragment(fragment.following, props.profile)
-  const items = user.following.edges
-    .map(edge => edge?.node)
-    .filter(node => node != null) as ProfileOwner[]
+  const { profile } = props
+  const { data: following, loadNext } = useUserFollowing(profile.login, { first: 2 })
+
+  if (following == null) return <p>loading...</p>
+
+  const pagination = {
+    loadNext,
+    hasNext: following.pageInfo.hasNextPage,
+  }
 
   return <div>
     <Title variant="h2">Following</Title>
-    <ProfileOwnerList items={items} pagination={pagination} />
+    <ProfileOwnerList items={following} pagination={pagination} />
   </div>
 }
 
 type UserFollowersProps = {
-  profile: UserFollowing_followers$key
+  profile: ProfileOwner
 }
 export function UserFollowers(props: UserFollowersProps) {
-  const { data: user, ...pagination } = usePaginationFragment(fragment.followers, props.profile)
+  const { profile } = props
+  const { data: followers, loadNext } = useUserFollowers(profile.login, { first: 2 })
+
+  if (followers == null) return <p>loading...</p>
+
+  const pagination = {
+    loadNext,
+    hasNext: followers.pageInfo.hasNextPage,
+  }
 
   return <div>
     <Title variant="h2">Followers</Title>
-    <PeopleList items={user.followers} pagination={pagination} />
+    <PeopleList items={followers} pagination={pagination} />
   </div>
 }

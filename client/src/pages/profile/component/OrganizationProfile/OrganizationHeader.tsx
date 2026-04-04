@@ -1,51 +1,51 @@
-import { useFragment } from 'react-relay'
-
+import { useOrganization, type ProfileOwner } from '../../../../network/httpServer'
 import Anchor from '../../../../designSystem/Anchor/Anchor'
 import Image from '../../../../designSystem/Image/Image'
 import LinkIcon from '../../../../designSystem/Icon/Link'
 import LocationIcon from '../../../../designSystem/Icon/Location'
 import Title from '../../../../designSystem/Title/Title'
-import { fragment } from './OrganizationHeader.relay'
-import type { OrganizationHeader$key } from './__generated__/OrganizationHeader.graphql'
 import './OrganizationHeader.css'
 
 type OrganizationHeaderProps = {
-  profile: OrganizationHeader$key
+  profile: ProfileOwner
 }
 
 export default function OrganizationHeader(props: OrganizationHeaderProps) {
-  const profile = useFragment(fragment.profile, props.profile)
+  const { profile } = props
+  const { data: organization } = useOrganization(profile.login)
+
+  if (organization == null) return <p>loading...</p>
 
   return (
     <header className="OrganizationHeader">
       <Image
         className="logo"
         decoration="rounded"
-        src={profile.avatarUrl}
-        alt={profile.login}
+        src={organization.avatar_url}
+        alt={organization.login}
         height={100}
         width={100}
       />
       <div>
-        {profile.name && <Title component="h1" variant="h2">{profile.name}</Title>}
-        {profile.description &&
-          <p className="description">{profile.description}</p>
+        {organization.name && <Title component="h1" variant="h2">{organization.name}</Title>}
+        {organization.description &&
+          <p className="description">{organization.description}</p>
         }
-        {profile.location &&
+        {organization.location &&
           <span className="label">
             <LocationIcon />
-            {profile.location}
+            {organization.location}
           </span>
         }
-        {profile.websiteUrl &&
+        {organization.website_url &&
           <Anchor
             className="label"
             decoration="secondary"
             external
-            href={profile.websiteUrl}
+            href={organization.website_url}
           >
             <LinkIcon />
-            {profile.websiteUrl}
+            {organization.website_url}
           </Anchor>
         }
       </div>
