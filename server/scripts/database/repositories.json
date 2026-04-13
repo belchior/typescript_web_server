@@ -1,0 +1,175 @@
+{
+  "_id": {
+    "$oid": "5e5580d6f72291487ec648c1"
+  },
+  "name": "rust",
+  "fork_count": 14668,
+  "license_info": {
+    "name": "MIT"
+  },
+  "star_count": 111452,
+  "owner": {
+    "_id": {
+      "$oid": "5e5580d6f72291487ec648b1"
+    },
+    "login": "rust-lang",
+    "ref": "organizations"
+  },
+  "primary_language": {
+    "name": "Rust",
+    "color": "#dea584"
+  },
+  "url": "https://github.com/rust-lang/rust",
+  "description": "Empowering everyone to build reliable and efficient software.",
+  "created_at": { "$date": "2026-01-01T00:00:00.001Z" }
+}
+{
+  "_id": {
+    "$oid": "5e5580d6f72291487ec648c2"
+  },
+  "name": "cargo",
+  "fork_count": 2994,
+  "license_info": {
+    "name": "MIT"
+  },
+  "star_count": 14541,
+  "owner": {
+    "_id": {
+      "$oid": "5e5580d6f72291487ec648b1"
+    },
+    "login": "rust-lang",
+    "ref": "organizations"
+  },
+  "primary_language": {
+    "name": "Rust",
+    "color": "#dea584"
+  },
+  "url": "https://github.com/rust-lang/cargo",
+  "description": "The Rust package manager",
+  "created_at": { "$date": "2026-01-01T00:00:00.002Z" }
+}
+{
+  "_id": {
+    "$oid": "5e5580d6f72291487ec648c3"
+  },
+  "name": "rust_web_server",
+  "fork_count": 0,
+  "license_info": {
+    "name": "MIT"
+  },
+  "star_count": 1,
+  "owner": {
+    "_id": {
+      "$oid": "5e5580d6f72291487ec648a1"
+    },
+    "login": "belchior",
+    "ref": "users"
+  },
+  "primary_language": {
+    "name": "Rust",
+    "color": "#dea584"
+  },
+  "url": "https://github.com/belchior/rust_web_server",
+  "description": "Project description",
+  "created_at": { "$date": "2026-01-01T00:00:00.003Z" }
+}
+{
+  "_id": {
+    "$oid": "5e5580d6f72291487ec648c4"
+  },
+  "name": "typescript_web_server",
+  "fork_count": 0,
+  "license_info": {
+    "name": "MIT"
+  },
+  "star_count": 0,
+  "owner": {
+    "_id": {
+      "$oid": "5e5580d6f72291487ec648a1"
+    },
+    "login": "belchior",
+    "ref": "users"
+  },
+  "primary_language": {
+    "name": "TypeScript",
+    "color": "#2b7489"
+  },
+  "url": "https://github.com/belchior/rust_web_server",
+  "description": "The purpose of this repository is to practice GraphQL acquired knowledge as well as the ecosystem",
+  "created_at": { "$date": "2026-01-01T00:00:00.004Z" }
+}
+{
+  "_id": {
+    "$oid": "5e5580d6f72291487ec648c5"
+  },
+  "name": "sql_query_builder",
+  "fork_count": 8,
+  "license_info": {
+    "name": "MIT"
+  },
+  "star_count": 73,
+  "owner": {
+    "_id": {
+      "$oid": "5e5580d6f72291487ec648a1"
+    },
+    "login": "belchior",
+    "ref": "users"
+  },
+  "primary_language": {
+    "name": "Rust",
+    "color": "#dea584"
+  },
+  "url": "https://github.com/belchior/rust_web_server",
+  "description": "Write SQL queries in a simple and composable way",
+  "created_at": { "$date": "2026-01-01T00:00:00.005Z" }
+}
+{
+  "_id": {
+    "$oid": "5e5580d6f72291487ec648c6"
+  },
+  "name": "repo_foo",
+  "fork_count": 3,
+  "license_info": {
+    "name": "MIT"
+  },
+  "star_count": 1,
+  "owner": {
+    "_id": {
+      "$oid": "5e5580d6f72291487ec648b2"
+    },
+    "login": "belchior-org",
+    "ref": "organizations"
+  },
+  "primary_language": {
+    "name": "Rust",
+    "color": "#dea584"
+  },
+  "url": "https://github.com/belchior-org/repo_foo",
+  "description": "The Foo repository",
+  "created_at": { "$date": "2026-01-01T00:00:00.006Z" }
+}
+{
+  "_id": {
+    "$oid": "5e5580d6f72291487ec648c7"
+  },
+  "name": "repo_bar",
+  "fork_count": 7,
+  "license_info": {
+    "name": "MIT"
+  },
+  "star_count": 2,
+  "owner": {
+    "_id": {
+      "$oid": "5e5580d6f72291487ec648b2"
+    },
+    "login": "belchior-org",
+    "ref": "organizations"
+  },
+  "primary_language": {
+    "name": "TypeScript",
+    "color": "#2b7489"
+  },
+  "url": "https://github.com/belchior-org/repo_bar",
+  "description": "The Bar repository",
+  "created_at": { "$date": "2026-01-01T00:00:00.007Z" }
+}

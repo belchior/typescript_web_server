@@ -1,0 +1,316 @@
+{
+  "_id": {
+    "$oid": "5e5580d6f72291487ec648a1"
+  },
+  "avatar_url": "https://avatars3.githubusercontent.com/u/2656585?u=de302ff93b129cf3841471deb188a5f5e51a2417&v=4",
+  "bio": "Software engineer",
+  "company": "Belchior Org",
+  "created_at": { "$date": "2026-01-01T00:00:00.001Z" },
+  "email": "belchior@email.com",
+  "location": "Brasil",
+  "login": "belchior",
+  "name": "Belchior Oliveira",
+  "url": "https://github.com/belchior",
+  "website_url": "https://twitter.com/belchiorso",
+  "followers": [
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648a2"
+      },
+      "login": "foo",
+      "ref": "users",
+      "created_at": { "$date": "2026-01-01T00:00:00.001Z" }
+    },
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648a3"
+      },
+      "login": "bar",
+      "ref": "users",
+      "created_at": { "$date": "2026-01-01T00:00:00.002Z" }
+    },
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648a4"
+      },
+      "login": "dee",
+      "ref": "users",
+      "created_at": { "$date": "2026-01-01T00:00:00.003Z" }
+    }
+  ],
+  "following": [
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648b1"
+      },
+      "login": "rust-lang",
+      "ref": "organizations",
+      "created_at": { "$date": "2026-01-01T00:00:00.001Z" }
+    },
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648a3"
+      },
+      "login": "bar",
+      "ref": "users",
+      "created_at": { "$date": "2026-01-01T00:00:00.002Z" }
+    },
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648a4"
+      },
+      "login": "dee",
+      "ref": "users",
+      "created_at": { "$date": "2026-01-01T00:00:00.003Z" }
+    }
+  ],
+  "organizations": [
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648b2"
+      },
+      "login": "belchior-org",
+      "ref": "organizations",
+      "created_at": { "$date": "2026-01-01T00:00:00.001Z" }
+    }
+  ],
+  "repositories": [
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648c3"
+      },
+      "ref": "repositories",
+      "created_at": { "$date": "2026-01-01T00:00:00.001Z" }
+    },
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648c4"
+      },
+      "ref": "repositories",
+      "created_at": { "$date": "2026-01-01T00:00:00.002Z" }
+    },
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648c5"
+      },
+      "ref": "repositories",
+      "created_at": { "$date": "2026-01-01T00:00:00.003Z" }
+    }
+  ],
+  "starred_repositories": [
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648c1"
+      },
+      "ref": "repositories",
+      "created_at": { "$date": "2026-01-01T00:00:00.001Z" }
+    },
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648c2"
+      },
+      "ref": "repositories",
+      "created_at": { "$date": "2026-01-01T00:00:00.002Z" }
+    },
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648c6"
+      },
+      "ref": "repositories",
+      "created_at": { "$date": "2026-01-01T00:00:00.003Z" }
+    },
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648c7"
+      },
+      "ref": "repositories",
+      "created_at": { "$date": "2026-01-01T00:00:00.004Z" }
+    }
+  ]
+}
+{
+  "_id": {
+    "$oid": "5e5580d6f72291487ec648a2"
+  },
+  "avatar_url": "https://avatars.githubusercontent.com/u/90864941?v=4",
+  "bio": null,
+  "company": "Foo Company",
+  "created_at": { "$date": "2026-01-01T00:00:00.002Z" },
+  "email": "foo@email.com",
+  "location": "Brasil",
+  "login": "foo",
+  "name": "Foo",
+  "url": "https://github.com/foo",
+  "website_url": null,
+  "followers": [],
+  "following": [
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648a1"
+      },
+      "login": "belchior",
+      "ref": "users",
+      "created_at": { "$date": "2026-01-01T00:00:00.001Z" }
+    },
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648a4"
+      },
+      "login": "dee",
+      "ref": "users",
+      "created_at": { "$date": "2026-01-01T00:00:00.002Z" }
+    },
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648b1"
+      },
+      "login": "rust-lang",
+      "ref": "organizations",
+      "created_at": { "$date": "2026-01-01T00:00:00.003Z" }
+    }
+  ],
+  "organizations": [
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648b1"
+      },
+      "login": "rust-lang",
+      "ref": "organizations",
+      "created_at": { "$date": "2026-01-01T00:00:00.001Z" }
+    }
+  ],
+  "repositories": [],
+  "starred_repositories": []
+}
+{
+  "_id": {
+    "$oid": "5e5580d6f72291487ec648a3"
+  },
+  "avatar_url": "https://avatars.githubusercontent.com/u/8262550?v=4",
+  "bio": "Bio of Bar",
+  "company": "Bar Company",
+  "created_at": { "$date": "2026-01-01T00:00:00.003Z" },
+  "email": "bar@email.com",
+  "location": "Brasil",
+  "login": "bar",
+  "name": "Bar",
+  "url": "https://github.com/bar",
+  "website_url": null,
+  "followers": [
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648a1"
+      },
+      "login": "belchior",
+      "ref": "users",
+      "created_at": { "$date": "2026-01-01T00:00:00.002Z" }
+    },
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648a4"
+      },
+      "login": "dee",
+      "ref": "users",
+      "created_at": { "$date": "2026-01-01T00:00:00.002Z" }
+    }
+  ],
+  "following": [
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648a4"
+      },
+      "login": "dee",
+      "ref": "users",
+      "created_at": { "$date": "2026-01-01T00:00:00.001Z" }
+    },
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648a1"
+      },
+      "login": "belchior",
+      "ref": "users",
+      "created_at": { "$date": "2026-01-01T00:00:00.003Z" }
+    }
+  ],
+  "organizations": [],
+  "repositories": [],
+  "starred_repositories": [
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648c2"
+      },
+      "ref": "repositories",
+      "created_at": { "$date": "2026-01-01T00:00:00.001Z" }
+    }
+  ]
+}
+{
+  "_id": {
+    "$oid": "5e5580d6f72291487ec648a4"
+  },
+  "avatar_url": "https://avatars.githubusercontent.com/u/68281832?v=4",
+  "bio": "Bio of Dee",
+  "company": "Dee Company",
+  "created_at": { "$date": "2026-01-01T00:00:00.004Z" },
+  "email": "dee@email.com",
+  "location": "Brasil",
+  "login": "dee",
+  "name": "Dee",
+  "url": "https://github.com/dee",
+  "website_url": null,
+  "followers": [
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648a3"
+      },
+      "login": "bar",
+      "ref": "users",
+      "created_at": { "$date": "2026-01-01T00:00:00.001Z" }
+    },
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648a2"
+      },
+      "login": "foo",
+      "ref": "users",
+      "created_at": { "$date": "2026-01-01T00:00:00.002Z" }
+    },
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648a1"
+      },
+      "login": "belchior",
+      "ref": "users",
+      "created_at": { "$date": "2026-01-01T00:00:00.003Z" }
+    }
+  ],
+  "following": [
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648a3"
+      },
+      "login": "bar",
+      "ref": "users",
+      "created_at": { "$date": "2026-01-01T00:00:00.001Z" }
+    },
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648a1"
+      },
+      "login": "belchior",
+      "ref": "users",
+      "created_at": { "$date": "2026-01-01T00:00:00.002Z" }
+    },
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648b1"
+      },
+      "login": "rust-lang",
+      "ref": "organizations",
+      "created_at": { "$date": "2026-01-01T00:00:00.004Z" }
+    }
+  ],
+  "organizations": [],
+  "repositories": [],
+  "starred_repositories": []
+}

@@ -1,8 +1,8 @@
+import * as mockHelper from '../../util/mocked_data'
+import database from '../../../src/infrastructure/database'
 import { createApp } from '../../../src/infrastructure/http_server/server'
 import { httpRequest } from '../../util/client'
 import { randomId } from '../../util/random'
-import * as mockHelper from '../../util/mocked_data'
-import database from '../../../src/infrastructure/database'
 
 describe('Organization', () => {
   const app = createApp()
@@ -31,7 +31,7 @@ describe('Organization', () => {
       created_at: organization.created_at.toISOString(),
       description: organization.description,
       email: organization.email,
-      organization_id: organization.organization_id,
+      organization_id: organization._id.toHexString(),
       location: organization.location,
       login: organization.login,
       name: organization.name,
@@ -52,6 +52,7 @@ describe('Organization', () => {
     const [followingData] = await mockHelper.insertUsersFollowing([{
       user_login: userLogin,
       following_login: organizationLogin,
+      following_ref: 'organizations',
     }])
 
     const url = `/organization/${organizationLogin}/followers?first=10`
@@ -70,7 +71,7 @@ describe('Organization', () => {
             login: user.login,
             name: user.name,
             url: user.url,
-            user_id: user.user_id,
+            user_id: user._id.toHexString(),
             website_url: user.website_url,
             followed_at: followingData?.created_at?.toISOString(),
           }),
@@ -79,7 +80,7 @@ describe('Organization', () => {
     }))
   })
 
-  it('should fetch the organization people', async () => {
+  it('should fetch the organization members', async () => {
     const suffix = randomId()
     const organizationLogin = `org_${suffix}`
     const userLogin = `user_${suffix}`
@@ -113,7 +114,7 @@ describe('Organization', () => {
 
     const [, repository] = await Promise.all([
       mockHelper.insertOrganization(suffix, { login }),
-      mockHelper.insertRepository(suffix, { owner_login: login, owner_ref: 'organizations' }),
+      mockHelper.insertRepository(suffix, { owner: { login, ref: 'organizations' } }),
     ])
 
     const url = `/organization/${login}/repositories?first=10`
@@ -125,14 +126,13 @@ describe('Organization', () => {
           node: expect.objectContaining({
             description: repository.description,
             fork_count: repository.fork_count,
-            language_color: repository.language_color,
-            language_name: repository.language_name,
-            license_key: repository.license_key,
-            license_name: repository.license_name,
+            language_color: repository.primary_language.color,
+            language_name: repository.primary_language.name,
+            license_name: repository.license_info.name,
             name: repository.name,
-            owner_login: repository.owner_login,
-            owner_ref: repository.owner_ref,
-            repository_id: repository.repository_id,
+            owner_login: repository.owner.login,
+            owner_ref: repository.owner.ref,
+            repository_id: repository._id.toHexString(),
             url: repository.url,
           }),
         }),
@@ -164,6 +164,7 @@ describe('Followers Pagination', () => {
     await mockHelper.insertUsersFollowing(followers.map(user => ({
       user_login: user.login,
       following_login: login,
+      following_ref: 'organizations',
     })))
 
     const pageLimit = 2
@@ -200,6 +201,7 @@ describe('Followers Pagination', () => {
     await mockHelper.insertUsersFollowing(followers.map(user => ({
       user_login: user.login,
       following_login: login,
+      following_ref: 'organizations',
     })))
 
     const pageLimit = 2
@@ -257,6 +259,7 @@ describe('Followers Pagination', () => {
     await mockHelper.insertUsersFollowing(followers.map(user => ({
       user_login: user.login,
       following_login: login,
+      following_ref: 'organizations',
     })))
 
     const pageLimit = 2
@@ -316,7 +319,7 @@ describe('Followers Pagination', () => {
   })
 })
 
-describe('People Pagination', () => {
+describe('Members Pagination', () => {
   const app = createApp()
 
   beforeAll(async () => {
@@ -508,9 +511,9 @@ describe('Repository Pagination', () => {
     const [, repos] = await Promise.all([
       mockHelper.insertOrganization(suffix, { login }),
       mockHelper.insertRepositories(suffix, [
-        { name: `repo0_${suffix}`, owner_login: login, owner_ref: 'organizations' },
-        { name: `repo1_${suffix}`, owner_login: login, owner_ref: 'organizations' },
-        { name: `repo2_${suffix}`, owner_login: login, owner_ref: 'organizations' },
+        { name: `repo0_${suffix}`, owner: { login, ref: 'organizations' } },
+        { name: `repo1_${suffix}`, owner: { login, ref: 'organizations' } },
+        { name: `repo2_${suffix}`, owner: { login, ref: 'organizations' } },
       ]),
     ])
 
@@ -542,9 +545,9 @@ describe('Repository Pagination', () => {
     const [, repos] = await Promise.all([
       mockHelper.insertOrganization(suffix, { login }),
       mockHelper.insertRepositories(suffix, [
-        { name: `repo0_${suffix}`, owner_login: login, owner_ref: 'organizations' },
-        { name: `repo1_${suffix}`, owner_login: login, owner_ref: 'organizations' },
-        { name: `repo2_${suffix}`, owner_login: login, owner_ref: 'organizations' },
+        { name: `repo0_${suffix}`, owner: { login, ref: 'organizations' } },
+        { name: `repo1_${suffix}`, owner: { login, ref: 'organizations' } },
+        { name: `repo2_${suffix}`, owner: { login, ref: 'organizations' } },
       ]),
     ])
 
@@ -597,9 +600,9 @@ describe('Repository Pagination', () => {
     const [, repos] = await Promise.all([
       mockHelper.insertOrganization(suffix, { login }),
       mockHelper.insertRepositories(suffix, [
-        { name: `repo0_${suffix}`, owner_login: login, owner_ref: 'organizations' },
-        { name: `repo1_${suffix}`, owner_login: login, owner_ref: 'organizations' },
-        { name: `repo2_${suffix}`, owner_login: login, owner_ref: 'organizations' },
+        { name: `repo0_${suffix}`, owner: { login, ref: 'organizations' } },
+        { name: `repo1_${suffix}`, owner: { login, ref: 'organizations' } },
+        { name: `repo2_${suffix}`, owner: { login, ref: 'organizations' } },
       ]),
     ])
 

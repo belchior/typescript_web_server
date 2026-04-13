@@ -1,64 +1,106 @@
-import database, { Following, StarredRepository, UserOrganization } from '../../infrastructure/database'
+import database from '../../infrastructure/database'
 import { cursorConnection, emptyCursorConnection, type PaginationArguments } from '../../infrastructure/util/cursor_connection/cursor_connection'
+import {
+  Follower,
+  Following,
+  StarredRepository,
+  toFollower,
+  toFollowing,
+  toStarredRepository,
+  toUserOrganization,
+  toUser,
+  UserOrganization,
+  Repository,
+  toRepository,
+} from '../util/converter'
 
-export async function findUser(login: string) {
-  return await database.user.findOneByLogin(login)
+export async function findOneUser(login: string) {
+  const result = await database.user.findOneByLogin(login)
+  return result != null
+    ? toUser(result)
+    : result
 }
 
-export async function findFollowingProfiles(login: string, args: PaginationArguments) {
+export async function findFollowers(login: string, args: PaginationArguments) {
+  const referenceFrom = (item: Follower) => item.followed_at.toISOString()
+  const documents = await database.profileOwner.findFollowersByUserLogin(login, args, 'users')
+
+  if (documents.length === 0) return emptyCursorConnection<Follower>()
+
+  const items = documents.map(toFollower)
+  const { hasNextPage, hasPreviousPage } = await database.profileOwner.findFollowersPageInfo(
+    login,
+    items,
+    referenceFrom,
+    'users'
+  )
+
+  return cursorConnection({ items, referenceFrom, hasNextPage, hasPreviousPage })
+}
+
+export async function findFollowing(login: string, args: PaginationArguments) {
   const referenceFrom = (item: Following) => item.following_at.toISOString()
-  const items = await database.user.findFollowingByLogin(login, args)
+  const documents = await database.user.findFollowingByLogin(login, args)
 
-  if (items.length === 0) return emptyCursorConnection<Following>()
+  if (documents.length === 0) return emptyCursorConnection<Following>()
 
+  const items = documents.map(toFollowing)
   const { hasNextPage, hasPreviousPage } = await database.user.findFollowingPageInfo(
     login,
     items,
     referenceFrom
   )
-  return cursorConnection<Following>({ items, referenceFrom, hasNextPage, hasPreviousPage })
+
+  return cursorConnection({ items, referenceFrom, hasNextPage, hasPreviousPage })
 }
 
 export async function findUserOrganizations(login: string, args: PaginationArguments) {
   const referenceFrom = (item: UserOrganization) => item.joined_at.toISOString()
-  const items = await database.user.findUserOrganizationsByLogin(login, args)
+  const documents = await database.user.findUserOrganizationsByLogin(login, args)
 
-  if (items.length === 0) return emptyCursorConnection<UserOrganization>()
+  if (documents.length === 0) return emptyCursorConnection<UserOrganization>()
 
-  const { hasNextPage, hasPreviousPage } = await database.user.findOrganizationsPageInfo(
+  const items = documents.map(toUserOrganization)
+  const { hasNextPage, hasPreviousPage } = await database.user.findUserOrganizationsPageInfo(
     login,
     items,
     referenceFrom
   )
-  return cursorConnection<UserOrganization>({
-    items,
-    referenceFrom,
-    hasNextPage,
-    hasPreviousPage,
-  })
+
+  return cursorConnection({ items, referenceFrom, hasNextPage, hasPreviousPage })
 }
 
-export async function starredRepositories(login: string, args: PaginationArguments) {
+export async function findRepositories(login: string, args: PaginationArguments) {
+  const referenceFrom = (item: Repository) => item.created_at.toISOString()
+  const documents = await database.repository.findRepositoriesByLogin(login, args)
+
+  if (documents.length === 0) return emptyCursorConnection<Repository>()
+
+  const items = documents.map(toRepository)
+  const { hasNextPage, hasPreviousPage } = await database.repository.findRepositoriesPageInfo(
+    login,
+    items,
+    referenceFrom
+  )
+
+  return cursorConnection({ items, referenceFrom, hasNextPage, hasPreviousPage })
+}
+
+export async function findStarredRepositories(login: string, args: PaginationArguments) {
   const referenceFrom = (item: StarredRepository) => item.starred_at.toISOString()
-  const items = await database.repository.findStarredRepositoriesByLogin(
+  const documents = await database.user.findStarredRepositoriesByLogin(
     login,
     args
   )
 
-  if (items.length === 0) return emptyCursorConnection<StarredRepository>()
+  if (documents.length === 0) return emptyCursorConnection<StarredRepository>()
 
-  const {
-    hasNextPage,
-    hasPreviousPage,
-  } = await database.repository.findStarredRepositoriesPageInfo(
+  const items = documents.map(toStarredRepository)
+  const { hasNextPage, hasPreviousPage } = await database.user.findStarredRepositoriesPageInfo(
     login,
     items,
     referenceFrom
   )
-  return cursorConnection<StarredRepository>({
-    items,
-    referenceFrom,
-    hasNextPage,
-    hasPreviousPage,
-  })
+
+  return cursorConnection({ items, referenceFrom, hasNextPage, hasPreviousPage })
 }

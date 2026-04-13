@@ -1,10 +1,9 @@
 import express, { Request, Response } from 'express'
 
+import application, { Follower, Following, User, Repository, StarredRepository, UserOrganization } from '../../../application'
 import { CursorConnection } from '../../util/cursor_connection/cursor_connection'
 import { ErrorBody, ParamsValidationError, QueryValidationError, responseError } from '../util/error_handler'
-import { Follower, Following, Repository, StarredRepository, User, UserOrganization } from '../../database'
 import { paramsToOwnerIdentity, queryToPaginationArgs } from '../util/request_validation'
-import application from '../../../application'
 
 export function registerUserRoutes(app: express.Express) {
   /**
@@ -13,11 +12,11 @@ export function registerUserRoutes(app: express.Express) {
   *   get:
   *     description: Gets the User based on provided login
   *     parameters:
-  *       - name: login
-  *         in: path
+  *       - in: path
+  *         name: login
   *         required: true
   *         schema:
-  *         type: string
+  *           type: string
   *     responses:
   *       "200":
   *         description: An User based on provided login
@@ -45,11 +44,31 @@ export function registerUserRoutes(app: express.Express) {
   * /user/{login}/followers:
   *   get:
   *     parameters:
-  *       - name: login
-  *         in: path
+  *       - in: path
+  *         name: login
   *         required: true
   *         schema:
-  *         type: string
+  *           type: string
+  *       - in: query
+  *         name: first
+  *         description: The number of items to retrieve starting from beginning
+  *         schema:
+  *           type: number
+  *       - in: query
+  *         name: after
+  *         description: The opaque cursor to advance to the next page
+  *         schema:
+  *           type: string
+  *       - in: query
+  *         name: last
+  *         description: The number of items to retrieve starting from end
+  *         schema:
+  *           type: number
+  *       - in: query
+  *         name: before
+  *         description: The opaque cursor to advance to the next page in inverse order
+  *         schema:
+  *           type: string
   *     responses:
   *       "200":
   *         description: Gets a list of people that follow the user
@@ -71,11 +90,31 @@ export function registerUserRoutes(app: express.Express) {
   * /user/{login}/following:
   *   get:
   *     parameters:
-  *       - name: login
-  *         in: path
+  *       - in: path
+  *         name: login
   *         required: true
   *         schema:
-  *         type: string
+  *           type: string
+  *       - in: query
+  *         name: first
+  *         description: The number of items to retrieve starting from beginning
+  *         schema:
+  *           type: number
+  *       - in: query
+  *         name: after
+  *         description: The opaque cursor to advance to the next page
+  *         schema:
+  *           type: string
+  *       - in: query
+  *         name: last
+  *         description: The number of items to retrieve starting from end
+  *         schema:
+  *           type: number
+  *       - in: query
+  *         name: before
+  *         description: The opaque cursor to advance to the next page in inverse order
+  *         schema:
+  *           type: string
   *     responses:
   *       "200":
   *         description: Gets a list of people that follow the user
@@ -97,11 +136,31 @@ export function registerUserRoutes(app: express.Express) {
   * /user/{login}/organizations:
   *   get:
   *     parameters:
-  *       - name: login
-  *         in: path
+  *       - in: path
+  *         name: login
   *         required: true
   *         schema:
-  *         type: string
+  *           type: string
+  *       - in: query
+  *         name: first
+  *         description: The number of items to retrieve starting from beginning
+  *         schema:
+  *           type: number
+  *       - in: query
+  *         name: after
+  *         description: The opaque cursor to advance to the next page
+  *         schema:
+  *           type: string
+  *       - in: query
+  *         name: last
+  *         description: The number of items to retrieve starting from end
+  *         schema:
+  *           type: number
+  *       - in: query
+  *         name: before
+  *         description: The opaque cursor to advance to the next page in inverse order
+  *         schema:
+  *           type: string
   *     responses:
   *       "200":
   *         description: Gets a list of organizations that the user is member
@@ -123,11 +182,31 @@ export function registerUserRoutes(app: express.Express) {
   * /user/{login}/repositories:
   *   get:
   *     parameters:
-  *       - name: login
-  *         in: path
+  *       - in: path
+  *         name: login
   *         required: true
   *         schema:
-  *         type: string
+  *           type: string
+  *       - in: query
+  *         name: first
+  *         description: The number of items to retrieve starting from beginning
+  *         schema:
+  *           type: number
+  *       - in: query
+  *         name: after
+  *         description: The opaque cursor to advance to the next page
+  *         schema:
+  *           type: string
+  *       - in: query
+  *         name: last
+  *         description: The number of items to retrieve starting from end
+  *         schema:
+  *           type: number
+  *       - in: query
+  *         name: before
+  *         description: The opaque cursor to advance to the next page in inverse order
+  *         schema:
+  *           type: string
   *     responses:
   *       "200":
   *         description: Gets a list of repositories of the user
@@ -149,11 +228,31 @@ export function registerUserRoutes(app: express.Express) {
   * /user/{login}/stars:
   *   get:
   *     parameters:
-  *       - name: login
-  *         in: path
+  *       - in: path
+  *         name: login
   *         required: true
   *         schema:
-  *         type: string
+  *           type: string
+  *       - in: query
+  *         name: first
+  *         description: The number of items to retrieve starting from beginning
+  *         schema:
+  *           type: number
+  *       - in: query
+  *         name: after
+  *         description: The opaque cursor to advance to the next page
+  *         schema:
+  *           type: string
+  *       - in: query
+  *         name: last
+  *         description: The number of items to retrieve starting from end
+  *         schema:
+  *           type: number
+  *       - in: query
+  *         name: before
+  *         description: The opaque cursor to advance to the next page in inverse order
+  *         schema:
+  *           type: string
   *     responses:
   *       "200":
   *         description: Gets a list of repositories that the user starred
@@ -171,13 +270,10 @@ export function registerUserRoutes(app: express.Express) {
   app.get('/user/:login/stars', getStarredRepositories)
 }
 
-async function getUser(
-  req: Request,
-  res: Response<User | ErrorBody>
-) {
+async function getUser(req: Request, res: Response<User | ErrorBody>) {
   try {
     const { login } = paramsToOwnerIdentity(req.params)
-    const user = await application.user.findUser(login)
+    const user = await application.user.findOneUser(login)
 
     if (user == null) {
       throw new Error('Not found')
@@ -206,7 +302,7 @@ async function getUserFollowers(
   try {
     const { login } = paramsToOwnerIdentity(req.params)
     const pagination = queryToPaginationArgs(req.query)
-    const followers = await application.profile.findFollowers(login, pagination)
+    const followers = await application.user.findFollowers(login, pagination)
 
     res.json(followers)
     return
@@ -227,7 +323,7 @@ async function getUserFollowing(
   try {
     const { login } = paramsToOwnerIdentity(req.params)
     const pagination = queryToPaginationArgs(req.query)
-    const following = await application.user.findFollowingProfiles(login, pagination)
+    const following = await application.user.findFollowing(login, pagination)
 
     res.json(following)
     return
@@ -269,7 +365,7 @@ async function getUserRepositories(
   try {
     const { login } = paramsToOwnerIdentity(req.params)
     const pagination = queryToPaginationArgs(req.query)
-    const repositories = await application.profile.findRepositories(login, pagination)
+    const repositories = await application.user.findRepositories(login, pagination)
 
     res.json(repositories)
     return
@@ -290,7 +386,7 @@ async function getStarredRepositories(
   try {
     const { login } = paramsToOwnerIdentity(req.params)
     const pagination = queryToPaginationArgs(req.query)
-    const stars = await application.user.starredRepositories(login, pagination)
+    const stars = await application.user.findStarredRepositories(login, pagination)
 
     res.json(stars)
     return

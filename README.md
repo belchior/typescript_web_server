@@ -1,4 +1,4 @@
-# Learning Postgres
+# Learning MongoDB
 
 > The purpose of this repository is to practice acquired knowledge in build web services with TypeScript as well as your ecosystem
 
@@ -11,7 +11,7 @@ The `server` is based on
 - [TypeScript](https://github.com/microsoft/TypeScript)
 - [Node.js](https://github.com/nodejs/node)
 - [Express](https://github.com/expressjs/express)
-- [PostgreSQL](https://www.postgresql.org/)
+- [MongoDB](https://www.mongodb.org/)
 - [Swagger](https://swagger.io/)
 
 The `client` is based on
@@ -20,7 +20,7 @@ The `client` is based on
 - [React.js](https://github.com/facebook/react)
 - [SWR](https://swr.vercel.app/docs/getting-started)
 
-The server implement the [Relay Cursor Connections Specification](https://relay.dev/graphql/connections.htm) to handle paginated list and are compliance with [Relay Relay Server Specification](https://relay.dev/docs/en/graphql-server-specification.html) to take's advantages of Relay Modern features.
+The server implements the [Relay Cursor Connections Specification](https://relay.dev/graphql/connections.htm) to handle paginated list
 
 ## Development
 
@@ -52,15 +52,18 @@ docker compose up client
 
 ## References
 
-Some links that have somehow helped to develop this project or influenced my decisions
+Some links that have somehow helped to develop this project or influence my decisions
 
 ### Docs
 
 - [The TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/)
 - [Swagger OpenAPI Guide](https://swagger.io/docs/specification/v3_0/basic-structure/)
 - [SWR Getting Started](https://swr.vercel.app/docs/getting-started)
+- [Aggregation Operations](https://www.mongodb.com/docs/manual/aggregation/)
 
 
 ### Articles
 
-- [Five ways to paginate in Postgres, from the basic to the exotic](https://www.citusdata.com/blog/2016/03/30/five-ways-to-paginate/)
+- [Testing for NoSQL Injection](https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/05.6-Testing_for_NoSQL_Injection)
+- [4 Common Misconceptions About Security That Hackers Hope You Don't Know](https://www.mongodb.com/company/blog/technical/hack-common-security-issues-fix-them)
+- [How does MongoDB address SQL or Query injection?](https://www.mongodb.com/docs/manual/faq/fundamentals/#how-does-mongodb-address-sql-or-query-injection-)

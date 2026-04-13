@@ -1,15 +1,14 @@
 import * as organization from './model/organization'
 import * as repository from './model/repository'
-import * as profileOwner from './model/profileOwner'
+import * as profileOwner from './model/profile'
 import * as user from './model/user'
 import * as conn from './db_connection'
 import * as pagination from './util/pagination'
 
-import type { Organization, OrganizationMember } from './model/organization'
-import type { Repository, StarredRepository } from './model/repository'
-import type { ProfileOwner, Following } from './model/profileOwner'
-import type { User, UserOrganization, Follower } from './model/user'
-import type { DBConnection } from './db_connection'
+import type { FollowerDocView } from './model/profile'
+import type { FollowingDocView, StarredRepository, UserDocument, UserDocView, UserOrganizationDocView } from './model/user'
+import type { OrganizationDocument, OrganizationDocView, OrganizationMemberDocView } from './model/organization'
+import type { RepositoryDocument } from './model/repository'
 import type { TableNames } from './util/types'
 
 export default {
@@ -24,15 +23,15 @@ export default {
 }
 
 export type {
-  DBConnection,
-  Follower,
-  Following,
-  Organization,
-  OrganizationMember,
-  ProfileOwner,
-  Repository,
+  FollowerDocView,
+  FollowingDocView,
+  OrganizationDocument,
+  OrganizationMemberDocView,
+  OrganizationDocView,
+  RepositoryDocument,
   StarredRepository,
   TableNames,
-  User,
-  UserOrganization,
+  UserDocument,
+  UserOrganizationDocView,
+  UserDocView,
 }

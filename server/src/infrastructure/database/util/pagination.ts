@@ -5,40 +5,29 @@ import {
   PaginationArguments,
   validateArgs,
 } from '../../util/cursor_connection/cursor_connection'
-import { PageInfoItem } from './types'
-
-type Operator = '<' | '>'
-type Order = 'ASC' | 'DESC'
-
-export type PageInfoFnQueryArgs = {
-  operator: Operator
-  order: Order
-  reference: string
-  row: PageInfoItem['row']
-}
 
 export type PaginationQueryArgs = {
   limit: number
-  operator: Operator
-  order: Order
+  operator: '$gt' | '$lt'
   reference: string | undefined
+  sort: 1 | -1
 }
 
 function backwardPagination(args: BackwardPagination): PaginationQueryArgs {
   return {
     limit: args.last!,
+    operator: '$lt',
     reference: args.before ? cursorToReference(args.before) : undefined,
-    operator: '<',
-    order: 'DESC',
+    sort: -1,
   }
 }
 
 function forwardPagination(args: ForwardPagination): PaginationQueryArgs {
   return {
     limit: args.first!,
+    operator: '$gt',
     reference: args.after ? cursorToReference(args.after) : undefined,
-    operator: '>',
-    order: 'ASC',
+    sort: 1,
   }
 }
 
@@ -48,4 +37,3 @@ export function paginationArgsToQueryArgs(args: PaginationArguments) {
     ? forwardPagination(args)
     : backwardPagination(args)
 }
-

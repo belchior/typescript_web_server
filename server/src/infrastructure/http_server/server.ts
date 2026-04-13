@@ -1,15 +1,15 @@
-import { Server } from 'node:http'
 import cors from 'cors'
 import express from 'express'
 import pinoHttp from 'pino-http'
+import { Server } from 'node:http'
 
+import database from '../database'
+import envs from '../util/environment'
+import logger, { logConfig } from '../util/logger'
 import { registerOrganizationRoutes } from './route/organization'
 import { registerProfileRoutes } from './route/profile'
 import { registerSwaggerRoute } from './route/swagger'
 import { registerUserRoutes } from './route/user'
-import database from '../database'
-import envs from '../util/environment'
-import logger, { logConfig } from '../util/logger'
 
 export function createApp() {
   const app = express()
@@ -67,4 +67,3 @@ if (envs.NODE_ENV !== 'test') {
     .then(addGracefulShutdown)
     .catch((error) => logger.error({ error: { message: error.message } }))
 }
-

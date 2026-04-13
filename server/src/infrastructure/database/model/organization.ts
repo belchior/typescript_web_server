@@ -1,100 +1,138 @@
-import * as conn from '../db_connection'
-import { isISOString } from '../../util/date'
-import { PageInfoItem } from '../util/types'
-import { paginationArgsToQueryArgs } from '../util/pagination'
-import { User } from './user'
-import { PaginationArguments } from '../../util/cursor_connection/cursor_connection'
+import { Document, ObjectId } from 'mongodb'
 
-export type Organization = {
+import { CollRef, HasPage, ReferenceFrom } from '../util/types'
+import { getCollection } from '../db_connection'
+import { paginationArgsToQueryArgs } from '../util/pagination'
+import { PaginationArguments } from '../../util/cursor_connection/cursor_connection'
+import { UserDocView } from './user'
+import { projectOrganizationMember, projectOrganizationDocView } from '../util/project_type'
+
+export type OrganizationDocument = Document & {
+  _id: ObjectId
   avatar_url: string
   created_at: Date
   description?: string
   email?: string
-  organization_id: string
+  followers: CollRef<'users'>[]
   location?: string
   login: string
   name?: string
+  members: CollRef<'users'>[]
   url: string
   website_url?: string
 }
 
-export type OrganizationMember = User & { joined_at: Date };
+type OrganizationSubDocument =
+  | 'followers'
+  | 'members'
+
+export type OrganizationDocView = Omit<OrganizationDocument, OrganizationSubDocument> & {
+  ref: 'organizations'
+}
+
+export type OrganizationMemberDocView = UserDocView & { joined_at: Date }
 
 export async function findOneByLogin(login: string) {
-  const query = 'SELECT * FROM organizations WHERE login = $1'
-  const params = [login]
-  return await conn.findOne<Readonly<Organization>>(query, params)
+  const result = await getCollection<OrganizationDocument>('organizations')
+    .findOne<OrganizationDocView>(
+      { login },
+      {
+        projection: projectOrganizationDocView(),
+      }
+    )
+
+  return result
 }
 
 export async function findOrganizationMembersByLogin(
   login: string,
   args: PaginationArguments
 ) {
-  const pagination = paginationArgsToQueryArgs(args)
+  const { limit, sort, reference, operator } = paginationArgsToQueryArgs(args)
 
-  const startFrom = pagination.reference && isISOString(pagination.reference)
-    ? `AND om.created_at ${pagination.operator} '${pagination.reference}'::timestamptz`
-    : ''
+  const query: Document[] = [
+    { $match: { login: login } },
+    { $unwind: '$members' },
+    { $replaceRoot: { newRoot: '$members' } },
+    { $sort: { created_at: sort } },
+    ...(reference
+      ? [{ $match: { created_at: { [operator]: new Date(reference) } } }]
+      : []
+    ),
+    { $limit: limit },
+    { $sort: { created_at: 1 } },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'login',
+        foreignField: 'login',
+        as: 'members',
+      },
+    },
+    {
+      $replaceWith: {
+        $mergeObjects: [
+          { $arrayElemAt: ['$members', 0] },
+          { joined_at: '$created_at' },
+        ],
+      },
+    },
+    {
+      $project: projectOrganizationMember(),
+    },
+  ]
 
-  const query = `
-    SELECT *
-    FROM (
-      SELECT u.*, om.created_at AS joined_at
-      FROM users u
-      INNER JOIN organizations_members om ON om.user_login = u.login
-      WHERE
-        om.organization_login = $1
-        ${startFrom}
-      ORDER BY om.created_at ${pagination.order}
-      LIMIT $2
-    )
-    ORDER BY joined_at ASC
-  `
+  const result = await getCollection<OrganizationDocument>('organizations')
+    .aggregate<OrganizationMemberDocView>(query)
+    .toArray()
 
-  const params = [login, pagination.limit]
-  const { rows: items } = await conn.find<Readonly<OrganizationMember>>(query, params)
-
-  return items
+  return result
 }
 
-export async function findOrganizationMembersPageInfo(
+export async function findOrganizationMembersPageInfo<T>(
   login: string,
-  items: OrganizationMember[],
-  referenceFrom: (_item: OrganizationMember) => string
+  items: T[],
+  referenceFrom: ReferenceFrom<T>
 ) {
   const referencePrev = referenceFrom(items.at(0)!)
   const referenceNext = referenceFrom(items.at(-1)!)
 
-  const query = `
-    (
-      SELECT u.login, 'prev' AS row
-      FROM users u
-      INNER JOIN organizations_members om ON om.user_login = u.login
-      WHERE
-        om.organization_login = $1::varchar
-        and om.created_at < $2::timestamptz
-      ORDER BY om.created_at DESC
-      LIMIT 1
-    ) UNION (
-      SELECT u.login, 'next' AS row
-      FROM users u
-      INNER JOIN organizations_members om ON om.user_login = u.login
-      WHERE
-        om.organization_login = $1::varchar
-        and om.created_at > $3::timestamptz
-      ORDER BY om.created_at ASC
-      LIMIT 1
-    )
-  `
-  const params = [login, referencePrev, referenceNext]
-  const { rows } = await conn.find<PageInfoItem>(query, params)
-
-  return rows.reduce(
-    (acc, item) => {
-      if (item.row === 'next') acc.hasNextPage = true
-      if (item.row === 'prev') acc.hasPreviousPage = true
-      return acc
+  const query: Document[] = [
+    {
+      $facet: {
+        previous: [
+          { $match: { login: login } },
+          { $unwind: '$members' },
+          { $project: { created_at: '$members.created_at', _id: 0 } },
+          { $sort: { created_at: 1 } },
+          { $match: { created_at: { $lt: new Date(referencePrev) } } },
+          { $limit: 1 },
+        ],
+        next: [
+          { $match: { login: login } },
+          { $unwind: '$members' },
+          { $project: { created_at: '$members.created_at', _id: 0 } },
+          { $sort: { created_at: 1 } },
+          { $match: { created_at: { $gt: new Date(referenceNext) } } },
+          { $limit: 1 },
+        ],
+      },
     },
-    { hasNextPage: false, hasPreviousPage: false }
-  )
+    {
+      $project: {
+        hasPreviousPage: {
+          $cond: [{ $gt: [{ $size: '$previous' }, 0] }, true, false],
+        },
+        hasNextPage: {
+          $cond: [{ $gt: [{ $size: '$next' }, 0] }, true, false],
+        },
+      },
+    },
+  ]
+
+  const result = await getCollection<OrganizationDocument>('organizations')
+    .aggregate<HasPage>(query)
+    .toArray()
+
+  return result.at(0)!
 }

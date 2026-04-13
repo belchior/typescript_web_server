@@ -1,145 +1,128 @@
 
+import { ObjectId } from 'mongodb'
+
+import database, { OrganizationDocument, RepositoryDocument, UserDocument } from '../../src/infrastructure/database'
 import { delay } from './delay'
 import { randomInteger } from './random'
-import database, {
-  type User, Organization, Repository, TableNames,
-} from '../../src/infrastructure/database'
 
-function escapeData(data: Record<string, unknown>) {
-  const keys = Object.keys(data)
-  for (const key of keys) {
-    if (key.startsWith('__')) {
-      delete data[key]
-    }
-    if (typeof data[key] === 'string') {
-      data[key] = `'${data[key]}'`
-    }
-    if (data[key] instanceof Date) {
-      data[key] = `'${data[key].toISOString()}'`
-    }
-  }
-  return data
-}
-
-function toSQLInsert(tableName: TableNames, data: Record<string, unknown>) {
-  const columns = Object.keys(data).join(',')
-  const values = Object.values(data).join(',')
-  const query = `
-    INSERT INTO ${tableName} (${columns})
-    VALUES (${values})
-    RETURNING *
-  `
-  return query.replace(/\n|\s+/g, ' ').trim()
-}
-
-async function insertLanguages() {
-  const query = `
-    INSERT INTO languages (language_name, language_color) 
-    VALUES
-      ('JavaScript','#f1e05a'),
-      ('Python','#3572A5'),
-      ('Rust', '#dea584'),
-      ('Shell','#89e051'),
-      ('TypeScript','#2b7489')
-    ON CONFLICT DO NOTHING
-  `
-
-  await database.getConnection().query(query)
-}
-
-async function insertLicenses() {
-  const query = `
-    INSERT INTO licenses (license_key, license_name) 
-    VALUES
-      ('unlicense', 'The Unlicense'),
-      ('mit', 'MIT License'),
-      ('apache-2.0', 'Apache-2.0'),
-      ('gpl-2.0', 'GPL-2.0'),
-      ('gpl-3.0', 'GPL-3.0')
-    ON CONFLICT DO NOTHING
-  `
-
-  await database.getConnection().query(query)
-}
-
-export async function insertOrganization(suffix: string, organization: Partial<Organization> = {})
-  : Promise<Organization> {
-  const data: Partial<Organization> = {
-    avatar_url: `https://test.com/avatar_${suffix}.jpg`,
-    description: `description_${suffix}`,
-    email: `email_${suffix}@email.com`,
-    location: `location_${suffix}`,
-    login: `login_${suffix}`,
+export async function insertOrganization(suffix: string, doc: Partial<OrganizationDocument>) {
+  const data: OrganizationDocument = {
+    _id: new ObjectId(),
+    avatar_url: 'https://mysite.com/avatar.png',
+    created_at: new Date(),
+    description: `Description ${suffix}`,
+    followers: [],
+    location: 'World',
+    login: `org_${suffix}`,
     name: `name_${suffix}`,
-    url: `https://test.com/${suffix}`,
-    website_url: `https://test.com/${suffix}`,
-    ...organization,
+    members: [],
+    repositories: [],
+    url: `https://github.com/owner_${suffix}/name_${suffix}`,
+    email: 'email@mysite.com',
+    website_url: 'https://mysite.com',
+    ...doc,
   }
 
-  const query = toSQLInsert('organizations', escapeData(data))
-  const { rows } = await database.getConnection().query<Organization>(query)
-  const result = rows.at(0)!
-  return result
+  const coll = database.getCollection<OrganizationDocument>('organizations')
+  const insertResult = await coll.insertOne(data)
+  const result = await coll.findOne({ _id: insertResult.insertedId })
+
+  return result as OrganizationDocument
 }
 
-export async function insertRepository(
-  suffix: string,
-  repository: Partial<Repository> = {}
-): Promise<Repository> {
-  const data: Partial<Repository> = {
-    fork_count: randomInteger(10, 999),
-    description: `description_${suffix}`,
-    name: `name_${suffix}`,
-    owner_login: `login_${suffix}`,
-    owner_ref: 'users',
-    primary_language: 'TypeScript',
-    url: `https://test.com/${suffix}`,
-    language_color: '#2b7489',
-    language_name: 'TypeScript',
-    license_key: 'mit',
-    license_name: 'MIT License',
-    ...repository,
-  }
+type InsertOrganizationsMembersArgs = {
+  organization_login: OrganizationDocument['login'],
+  user_login: UserDocument['login'],
+  created_at?: Date,
+}
+async function insertOrganizationMember(args: InsertOrganizationsMembersArgs) {
+  const { organization_login, user_login } = args
 
-  // copy before delete
-  const languageColor = data.language_color!
-  const languageName = data.language_name!
-  const licenseKey = data.license_key!
-  const licenseName = data.license_name!
+  const createdAt = new Date()
+  const orgColl = database.getCollection<OrganizationDocument>('organizations')
+  const userColl = database.getCollection<UserDocument>('users')
 
-  // from table languages
-  delete data.language_color
-  delete data.language_name
-  // from table licenses
-  delete data.license_key
-  delete data.license_name
+  await orgColl.updateOne(
+    { login: organization_login },
+    {
+      // @ts-expect-error TODO
+      $push: {
+        members: {
+          login: user_login,
+          ref: 'users',
+          created_at: createdAt,
+        },
+      },
+    }
+  )
 
-  await Promise.all([
-    insertLanguages(),
-    insertLicenses(),
-  ])
+  await userColl.updateOne(
+    { login: user_login },
+    {
+      // @ts-expect-error TODO
+      $push: {
+        organizations: {
+          login: organization_login,
+          ref: 'organizations',
+          created_at: createdAt,
+        },
+      },
+    }
+  )
 
-  const query = toSQLInsert('repositories', escapeData(data))
-  const { rows } = await database.getConnection().query<Repository>(query)
-  const repo = rows.at(0)!
+  args.created_at = createdAt
 
-  await insertRepositoriesLicenses({
-    repository_id: repo.repository_id,
-    license_key: licenseKey,
-  })
-
-  repo.language_color = languageColor
-  repo.language_name = languageName
-  repo.license_key = licenseKey
-  repo.license_name = licenseName
-
-  return repo
+  return args
 }
 
-export async function insertRepositories(suffix: string, repositories: Partial<Repository>[]) {
+export async function insertOrganizationsMembers(list: InsertOrganizationsMembersArgs[]) {
   const results = []
 
-  for (const data of repositories) {
+  for (const data of list) {
+    // needed to bind user to an org in a consistent order
+    await delay(randomInteger(1, 10))
+    const result = await insertOrganizationMember(data)
+    results.push(result)
+  }
+
+  return results
+}
+
+export async function insertRepository(suffix: string, doc: Partial<RepositoryDocument>) {
+  const data: RepositoryDocument = {
+    _id: new ObjectId(),
+    created_at: new Date(),
+    description: `Description ${suffix}`,
+    fork_count: randomInteger(1, 10000),
+    license_info: {
+      name: 'MIT',
+    },
+    name: `repo_${suffix}`,
+    owner: {
+      _id: new ObjectId(),
+      login: `owner_${suffix}`,
+      ref: 'users',
+    },
+    primary_language: {
+      color: '#2b7489',
+      name: 'TypeScript',
+    },
+    star_count: randomInteger(1, 10000),
+    url: `http://github.com/owner_${suffix}/name_${suffix}`,
+    ...doc,
+  }
+
+  const coll = database.getCollection<RepositoryDocument>('repositories')
+  const insertResult = await coll.insertOne(data)
+  const result = await coll.findOne({ _id: insertResult.insertedId })
+
+  return result as RepositoryDocument
+}
+
+export async function insertRepositories(suffix: string, repos: Partial<RepositoryDocument>[]) {
+  const results = []
+
+  for (const data of repos) {
     // needed to create repositories in a consistent order
     await delay(randomInteger(1, 10))
     const repo = await insertRepository(suffix, data)
@@ -149,87 +132,126 @@ export async function insertRepositories(suffix: string, repositories: Partial<R
   return results
 }
 
-type RepositoriesLicenses = {
-  repository_id: Repository['repository_id']
-  license_key: string
-}
-export async function insertRepositoriesLicenses(data: RepositoriesLicenses) {
-  const query = toSQLInsert('repositories_licenses', escapeData(data))
-  const { rows } = await database.getConnection().query<RepositoriesLicenses>(query)
-  const result = rows.at(0)!
-  return result
-}
-
-export async function insertUser(suffix: string, user: Partial<User> = {}): Promise<User> {
-  const data: Partial<User> = {
-    avatar_url: `https://test.com/avatar_${suffix}.jpg`,
-    bio: `bio_${suffix}`,
-    company: `company_${suffix}`,
-    email: `email_${suffix}@email.com`,
-    location: `location_${suffix}`,
-    login: `login_${suffix}`,
-    name: `name_${suffix}`,
-    url: `https://test.com/${suffix}`,
-    website_url: `https://test.com/${suffix}`,
-    ...user,
-  }
-
-  const query = toSQLInsert('users', escapeData(data))
-  const { rows } = await database.getConnection().query<User & { user_id: string }>(query)
-  const result = rows.at(0)!
-  return result
-}
-
-type UsersFollowing = {
-  user_login: User['login'],
-  following_login: User['login'],
+type InsertUsersStarredRepositoriesArgs = {
+  user_login: UserDocument['login'],
+  repository_id: RepositoryDocument['_id'],
   created_at?: Date,
 }
-export async function insertUsersFollowing(list: UsersFollowing[]) {
+async function insertStarredRepository(args: InsertUsersStarredRepositoriesArgs) {
+  const { user_login, repository_id } = args
+  const createdAt = new Date()
+
+  await database.getCollection<UserDocument>('users').updateOne(
+    { login: user_login },
+    {
+      // @ts-expect-error TODO
+      $push: {
+        starred_repositories: {
+          _id: repository_id,
+          ref: 'repositories',
+          created_at: createdAt,
+        },
+      },
+    }
+  )
+
+  args.created_at = createdAt
+
+  return args
+}
+
+export async function insertUsersStarredRepositories(list: InsertUsersStarredRepositoriesArgs[]) {
   const results = []
 
-  for (const data of list) {
-    // needed to bind following user in a consistent order
-    await delay(randomInteger(1, 10))
-    const query = toSQLInsert('users_following', escapeData(data))
-    const { rows } = await database.getConnection().query<UsersFollowing>(query)
-    results.push(rows.at(0)!)
-  }
-
-  return results
-}
-
-type OrganizationsMembers = {
-  organization_login: Organization['login'],
-  user_login: User['login'],
-}
-export async function insertOrganizationsMembers(list: OrganizationsMembers[]) {
-  const results = []
-
-  for (const data of list) {
-    // needed to bind user to an org in a consistent order
-    await delay(randomInteger(1, 10))
-    const query = toSQLInsert('organizations_members', escapeData(data))
-    const { rows } = await database.getConnection().query<OrganizationsMembers>(query)
-    results.push(rows.at(0)!)
-  }
-
-  return results
-}
-
-type TRepositoriesStars = {
-  owner_login: User['login'] | Organization['login'],
-  repository_id: Repository['repository_id'],
-}
-export async function insertUsersStarredRepositories(list: TRepositoriesStars[]) {
-  const results = []
-
-  for (const data of list) {
+  for (const args of list) {
     // needed to bind star a repositories in a consistent order
     await delay(randomInteger(1, 10))
-    const query = toSQLInsert('repositories_stars', escapeData(data))
-    const { rows } = await database.getConnection().query<TRepositoriesStars>(query)
-    results.push(rows.at(0)!)
+    const result = await insertStarredRepository(args)
+    results.push(result)
+  }
+
+  return results
+}
+
+export async function insertUser(suffix: string, doc: Partial<UserDocument>) {
+  const data: UserDocument = {
+    _id: new ObjectId(),
+    avatar_url: 'https://mysite.com/avatar.png',
+    bio: `bio ${suffix}`,
+    company: `company ${suffix}`,
+    created_at: new Date(),
+    email: `email@${suffix}`,
+    followers: [],
+    following: [],
+    location: 'World',
+    login: `user_${suffix}`,
+    name: `name_${suffix}`,
+    organizations: [],
+    repositories: [],
+    starred_repositories: [],
+    url: `https://github.com/owner_${suffix}/name_${suffix}`,
+    website_url: 'https://mysite.com',
+    ...doc,
+  }
+
+  const coll = database.getCollection<UserDocument>('users')
+  const insertResult = await coll.insertOne(data)
+  const result = await coll.findOne({ _id: insertResult.insertedId })
+
+  return result as UserDocument
+}
+
+type InsertFollowingArgs = {
+  user_login: UserDocument['login'],
+  following_login: UserDocument['login'] | OrganizationDocument['login'],
+  following_ref: 'users' | 'organizations'
+  created_at?: Date,
+}
+async function insertFollowing(args: InsertFollowingArgs) {
+  const { user_login, following_login, following_ref } = args
+  const createdAt = new Date()
+
+  await database.getCollection<UserDocument>('users').updateOne(
+    { login: user_login },
+    {
+      // @ts-expect-error TODO
+      $push: {
+        following: {
+          login: following_login,
+          ref: following_ref,
+          created_at: createdAt,
+        },
+      },
+    }
+  )
+
+  await database.getCollection(following_ref).updateOne(
+    { login: following_login },
+    {
+      // @ts-expect-error TODO
+      $push: {
+        followers: {
+          login: user_login,
+          ref: 'users',
+          created_at: createdAt,
+        },
+      },
+    }
+  )
+
+  args.created_at = createdAt
+
+  return args
+}
+
+export async function insertUsersFollowing(list: InsertFollowingArgs[]) {
+  const results = []
+
+  for (const args of list) {
+    // needed to bind following user in a consistent order
+    await delay(randomInteger(1, 10))
+    const result = await insertFollowing(args)
+    results.push(result)
   }
 
   return results

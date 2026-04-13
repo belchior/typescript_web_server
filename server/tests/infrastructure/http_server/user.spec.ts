@@ -31,11 +31,11 @@ describe('User', () => {
       bio: user.bio,
       company: user.company,
       email: user.email,
-      user_id: user.user_id,
       location: user.location,
       login: user.login,
       name: user.name,
       url: user.url,
+      user_id: user._id.toHexString(),
       website_url: user.website_url,
     }))
   })
@@ -52,6 +52,7 @@ describe('User', () => {
     await mockHelper.insertUsersFollowing([{
       user_login: followerLogin,
       following_login: userLogin,
+      following_ref: 'users',
     }])
 
     const url = `/user/${userLogin}/followers?first=2`
@@ -81,6 +82,7 @@ describe('User', () => {
     await mockHelper.insertUsersFollowing([{
       user_login: userLogin,
       following_login: followingLogin,
+      following_ref: 'users',
     }])
 
     const url = `/user/${userLogin}/following?first=2`
@@ -132,7 +134,7 @@ describe('User', () => {
 
     const [, repository] = await Promise.all([
       mockHelper.insertUser(suffix, { login: userLogin }),
-      mockHelper.insertRepository(suffix, { owner_login: userLogin, owner_ref: 'users' }),
+      mockHelper.insertRepository(suffix, { owner: { login: userLogin, ref: 'users' } }),
     ])
 
     const url = `/user/${userLogin}/repositories?first=2`
@@ -142,7 +144,7 @@ describe('User', () => {
       edges: [
         expect.objectContaining({
           node: expect.objectContaining({
-            repository_id: repository.repository_id,
+            repository_id: repository._id.toHexString(),
             name: repository.name,
           }),
         }),
@@ -156,11 +158,11 @@ describe('User', () => {
 
     const [, repo] = await Promise.all([
       mockHelper.insertUser(suffix, { login: userLogin }),
-      mockHelper.insertRepository(suffix, { owner_login: userLogin, owner_ref: 'users' }),
+      mockHelper.insertRepository(suffix, { owner: { login: userLogin, ref: 'users' } }),
     ])
     await mockHelper.insertUsersStarredRepositories([{
-      repository_id: repo.repository_id,
-      owner_login: userLogin,
+      repository_id: repo._id,
+      user_login: userLogin,
     }])
 
     const url = `/user/${userLogin}/stars?first=2`
@@ -170,7 +172,7 @@ describe('User', () => {
       edges: [
         expect.objectContaining({
           node: expect.objectContaining({
-            repository_id: repo.repository_id,
+            repository_id: repo._id.toHexString(),
             name: repo.name,
           }),
         }),
@@ -202,6 +204,7 @@ describe('Followers Pagination', () => {
     await mockHelper.insertUsersFollowing(followers.map(user => ({
       user_login: user.login,
       following_login: login,
+      following_ref: 'users',
     })))
 
     const pageLimit = 2
@@ -238,6 +241,7 @@ describe('Followers Pagination', () => {
     await mockHelper.insertUsersFollowing(followers.map(user => ({
       user_login: user.login,
       following_login: login,
+      following_ref: 'users',
     })))
 
     const pageLimit = 2
@@ -295,6 +299,7 @@ describe('Followers Pagination', () => {
     await mockHelper.insertUsersFollowing(followers.map(user => ({
       user_login: user.login,
       following_login: login,
+      following_ref: 'users',
     })))
 
     const pageLimit = 2
@@ -377,6 +382,7 @@ describe('Following Pagination', () => {
     await mockHelper.insertUsersFollowing(following.map(user => ({
       user_login: login,
       following_login: user.login,
+      following_ref: 'users',
     })))
 
     const pageLimit = 2
@@ -413,6 +419,7 @@ describe('Following Pagination', () => {
     await mockHelper.insertUsersFollowing(following.map(user => ({
       user_login: login,
       following_login: user.login,
+      following_ref: 'users',
     })))
 
     const pageLimit = 2
@@ -470,6 +477,7 @@ describe('Following Pagination', () => {
     await mockHelper.insertUsersFollowing(following.map(user => ({
       user_login: login,
       following_login: user.login,
+      following_ref: 'users',
     })))
 
     const pageLimit = 2
@@ -690,9 +698,9 @@ describe('Repository Pagination', () => {
     const [, repos] = await Promise.all([
       mockHelper.insertUser(suffix, { login }),
       mockHelper.insertRepositories(suffix, [
-        { name: `repo0_${suffix}`, owner_login: login, owner_ref: 'users' },
-        { name: `repo1_${suffix}`, owner_login: login, owner_ref: 'users' },
-        { name: `repo2_${suffix}`, owner_login: login, owner_ref: 'users' },
+        { name: `repo0_${suffix}`, owner: { login, ref: 'users' } },
+        { name: `repo1_${suffix}`, owner: { login, ref: 'users' } },
+        { name: `repo2_${suffix}`, owner: { login, ref: 'users' } },
       ]),
     ])
 
@@ -716,9 +724,9 @@ describe('Repository Pagination', () => {
     const [, repos] = await Promise.all([
       mockHelper.insertUser(suffix, { login }),
       mockHelper.insertRepositories(suffix, [
-        { name: `repo0_${suffix}`, owner_login: login, owner_ref: 'users' },
-        { name: `repo1_${suffix}`, owner_login: login, owner_ref: 'users' },
-        { name: `repo2_${suffix}`, owner_login: login, owner_ref: 'users' },
+        { name: `repo0_${suffix}`, owner: { login, ref: 'users' } },
+        { name: `repo1_${suffix}`, owner: { login, ref: 'users' } },
+        { name: `repo2_${suffix}`, owner: { login, ref: 'users' } },
       ]),
     ])
 
@@ -759,9 +767,9 @@ describe('Repository Pagination', () => {
     const [, repos] = await Promise.all([
       mockHelper.insertUser(suffix, { login }),
       mockHelper.insertRepositories(suffix, [
-        { name: `repo0_${suffix}`, owner_login: login, owner_ref: 'users' },
-        { name: `repo1_${suffix}`, owner_login: login, owner_ref: 'users' },
-        { name: `repo2_${suffix}`, owner_login: login, owner_ref: 'users' },
+        { name: `repo0_${suffix}`, owner: { login, ref: 'users' } },
+        { name: `repo1_${suffix}`, owner: { login, ref: 'users' } },
+        { name: `repo2_${suffix}`, owner: { login, ref: 'users' } },
       ]),
     ])
 
@@ -827,14 +835,14 @@ describe('Starred Repository Pagination', () => {
     const [, repos] = await Promise.all([
       mockHelper.insertUser(suffix, { login }),
       mockHelper.insertRepositories(suffix, [
-        { name: `repo0_${suffix}`, owner_login: 'other_user', owner_ref: 'users' },
-        { name: `repo1_${suffix}`, owner_login: 'other_user', owner_ref: 'users' },
-        { name: `repo2_${suffix}`, owner_login: 'other_user', owner_ref: 'users' },
+        { name: `repo0_${suffix}`, owner: { login: 'other_user', ref: 'users' } },
+        { name: `repo1_${suffix}`, owner: { login: 'other_user', ref: 'users' } },
+        { name: `repo2_${suffix}`, owner: { login: 'other_user', ref: 'users' } },
       ]),
     ])
     await mockHelper.insertUsersStarredRepositories(repos.map(repo => ({
-      repository_id: repo.repository_id,
-      owner_login: login,
+      repository_id: repo._id,
+      user_login: login,
     })))
 
     const pageLimit = 2
@@ -857,14 +865,14 @@ describe('Starred Repository Pagination', () => {
     const [, repos] = await Promise.all([
       mockHelper.insertUser(suffix, { login }),
       mockHelper.insertRepositories(suffix, [
-        { name: `repo0_${suffix}`, owner_login: 'other_user', owner_ref: 'users' },
-        { name: `repo1_${suffix}`, owner_login: 'other_user', owner_ref: 'users' },
-        { name: `repo2_${suffix}`, owner_login: 'other_user', owner_ref: 'users' },
+        { name: `repo0_${suffix}`, owner: { login: 'other_user', ref: 'users' } },
+        { name: `repo1_${suffix}`, owner: { login: 'other_user', ref: 'users' } },
+        { name: `repo2_${suffix}`, owner: { login: 'other_user', ref: 'users' } },
       ]),
     ])
     await mockHelper.insertUsersStarredRepositories(repos.map(repo => ({
-      repository_id: repo.repository_id,
-      owner_login: login,
+      repository_id: repo._id,
+      user_login: login,
     })))
 
     const pageLimit = 2
@@ -904,14 +912,14 @@ describe('Starred Repository Pagination', () => {
     const [, repos] = await Promise.all([
       mockHelper.insertUser(suffix, { login }),
       mockHelper.insertRepositories(suffix, [
-        { name: `repo0_${suffix}`, owner_login: 'other_user', owner_ref: 'users' },
-        { name: `repo1_${suffix}`, owner_login: 'other_user', owner_ref: 'users' },
-        { name: `repo2_${suffix}`, owner_login: 'other_user', owner_ref: 'users' },
+        { name: `repo0_${suffix}`, owner: { login: 'other_user', ref: 'users' } },
+        { name: `repo1_${suffix}`, owner: { login: 'other_user', ref: 'users' } },
+        { name: `repo2_${suffix}`, owner: { login: 'other_user', ref: 'users' } },
       ]),
     ])
     await mockHelper.insertUsersStarredRepositories(repos.map(repo => ({
-      repository_id: repo.repository_id,
-      owner_login: login,
+      repository_id: repo._id,
+      user_login: login,
     })))
 
     const pageLimit = 2

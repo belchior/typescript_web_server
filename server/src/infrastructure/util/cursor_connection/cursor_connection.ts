@@ -31,7 +31,7 @@ type Edge<T> = {
   cursor: string
   node: T
 }
-type PageInfo = {
+export type PageInfo = {
   endCursor: string | undefined
   hasPreviousPage: boolean
   hasNextPage: boolean
@@ -42,7 +42,7 @@ export type CursorConnection<T> = {
   pageInfo: PageInfo
 }
 
-export type ReferenceFrom<T> = (_item: T) => string
+export type ReferenceFrom<T> = (item: T) => string
 
 export type CursorConnectionArgs<T> = {
   items: T[]

@@ -1,0 +1,99 @@
+{
+  "_id": {
+    "$oid": "5e5580d6f72291487ec648b1"
+  },
+  "avatar_url": "https://avatars.githubusercontent.com/u/5430905?s=200&v=4",
+  "created_at": { "$date": "2026-01-01T00:00:00.001Z" },
+  "description": "Empowering everyone to build reliable and efficient software.",
+  "location": null,
+  "login": "rust-lang",
+  "name": "The Rust Programming Language",
+  "url": "https://github.com/rust-lang",
+  "followers": [
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648a1"
+      },
+      "login": "belchior",
+      "ref": "users",
+      "created_at": { "$date": "2026-01-01T00:00:00.001Z" }
+    },
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648a2"
+      },
+      "login": "foo",
+      "ref": "users",
+      "created_at": { "$date": "2026-01-01T00:00:00.003Z" }
+    },
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648a4"
+      },
+      "login": "dee",
+      "ref": "users",
+      "created_at": { "$date": "2026-01-01T00:00:00.004Z" }
+    }
+  ],
+  "members": [
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648a2"
+      },
+      "login": "foo",
+      "ref": "users",
+      "created_at": { "$date": "2026-01-01T00:00:00.001Z" }
+    }
+  ],
+  "repositories": [
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648c1"
+      },
+      "ref": "repositories"
+    },
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648c2"
+      },
+      "ref": "repositories"
+    }
+  ]
+}
+{
+  "_id": {
+    "$oid": "5e5580d6f72291487ec648b2"
+  },
+  "avatar_url": "https://avatars3.githubusercontent.com/u/2656585?u=de302ff93b129cf3841471deb188a5f5e51a2417&v=4",
+  "created_at": { "$date": "2026-01-01T00:00:00.002Z" },
+  "description": "Test Org",
+  "location": "Brasil",
+  "login": "belchior-org",
+  "name": "My Org",
+  "url": "https://github.com/belchior-org",
+  "followers": [],
+  "members": [
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648a1"
+      },
+      "login": "belchior",
+      "ref": "users",
+      "created_at": { "$date": "2026-01-01T00:00:00.001Z" }
+    }
+  ],
+  "repositories": [
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648c6"
+      },
+      "ref": "repositories"
+    },
+    {
+      "_id": {
+        "$oid": "5e5580d6f72291487ec648c7"
+      },
+      "ref": "repositories"
+    }
+  ]
+}
