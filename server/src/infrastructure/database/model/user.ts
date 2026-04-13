@@ -1,4 +1,4 @@
-import { Following, ProfileOwner } from './profileOwner'
+import { Following, ProfileOwner } from './profile'
 import { isISOString } from '../../util/date'
 import { Organization } from './organization'
 import { PageInfoItem } from '../util/types'
@@ -49,7 +49,7 @@ export async function findFollowingByLogin(login: string, args: PaginationArgume
   const query = `
     SELECT *
     FROM (
-      SELECT 
+      SELECT
         uf.created_at AS following_at,
         ${ownerColumns}
       FROM users_following uf

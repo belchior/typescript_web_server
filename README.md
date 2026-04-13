@@ -20,7 +20,7 @@ The `client` is based on
 - [React.js](https://github.com/facebook/react)
 - [SWR](https://swr.vercel.app/docs/getting-started)
 
-The server implement the [Relay Cursor Connections Specification](https://relay.dev/graphql/connections.htm) to handle paginated list and are compliance with [Relay Relay Server Specification](https://relay.dev/docs/en/graphql-server-specification.html) to take's advantages of Relay Modern features.
+The server implement the [Relay Cursor Connections Specification](https://relay.dev/graphql/connections.htm) to handle paginated list
 
 ## Development
 
@@ -52,13 +52,14 @@ docker compose up client
 
 ## References
 
-Some links that have somehow helped to develop this project or influenced my decisions
+Some links that have somehow helped to develop this project or influence my decisions
 
 ### Docs
 
 - [The TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/)
 - [Swagger OpenAPI Guide](https://swagger.io/docs/specification/v3_0/basic-structure/)
 - [SWR Getting Started](https://swr.vercel.app/docs/getting-started)
+- [Postgres - Don't Do This](https://wiki.postgresql.org/wiki/Don%27t_Do_This)
 
 
 ### Articles

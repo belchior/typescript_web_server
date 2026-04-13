@@ -1,10 +1,10 @@
 INSERT INTO users (login, name, email, url, avatar_url, bio, website_url, location, company) VALUES
   ('belchior', 'Belchior Oliveira', 'belchior@email.com', 'https://github.com/belchior', 'https://avatars3.githubusercontent.com/u/2656585?u=de302ff93b129cf3841471deb188a5f5e51a2417&v=4', 'Software engineer', 'https://twitter.com/belchiorso', 'Brasil', 'Belchior Org'),
-  ('foo', 'Foo', 'foo@email.com', 'https://github.com/foo', 'https://foo.com/avatar.jpg', null, null, 'Brasil', 'Foo Company'),
-  ('bar', 'Bar', 'bar@email.com', 'https://github.com/bar', 'https://bar.com/avatar.jpg', 'Bio of Bar', null, 'Brasil', 'Bar Company'),
-  ('dee', 'Dee', 'dee@email.com', 'https://github.com/dee', 'https://dee.com/avatar.jpg', 'Bio of Dee', null, 'Brasil', 'Dee Company');
+  ('foo', 'Foo', 'foo@email.com', 'https://github.com/foo', 'https://avatars.githubusercontent.com/u/90864941?v=4', null, null, 'Brasil', 'Foo Company'),
+  ('bar', 'Bar', 'bar@email.com', 'https://github.com/bar', 'https://avatars.githubusercontent.com/u/8262550?v=4', 'Bio of Bar', null, 'Brasil', 'Bar Company'),
+  ('dee', 'Dee', 'dee@email.com', 'https://github.com/dee', 'https://avatars.githubusercontent.com/u/68281832?v=4', 'Bio of Dee', null, 'Brasil', 'Dee Company');
 
-INSERT INTO organizations (organization_id, login, url, name, description, avatar_url, location) 
+INSERT INTO organizations (organization_id, login, url, name, description, avatar_url, location)
 OVERRIDING SYSTEM VALUE
 VALUES
   (9000, 'belchior-org', 'https://github.com/belchior-org', 'My Org', 'Test Org', 'https://avatars3.githubusercontent.com/u/2656585?u=de302ff93b129cf3841471deb188a5f5e51a2417&v=4', 'Brasil'),

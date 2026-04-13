@@ -16,14 +16,14 @@ export async function dbConnect() {
   }
 
   pool = new Pool({
-    host: envs.POSTGRES_HOST,
-    user: envs.POSTGRES_USER,
-    port: envs.POSTGRES_PORT,
-    password: envs.POSTGRES_PASSWORD,
-    database: envs.POSTGRES_DB,
-    max: envs.POSTGRES_CONNECTIONS_NUMBER,
-    connectionTimeoutMillis: envs.POSTGRES_TIMEOUT,
-    statement_timeout: envs.POSTGRES_TIMEOUT,
+    host: envs.DATABASE_HOST,
+    user: envs.DATABASE_USER,
+    port: envs.DATABASE_PORT,
+    password: envs.DATABASE_PASSWORD,
+    database: envs.DATABASE_DB,
+    max: envs.DATABASE_CONNECTIONS_NUMBER,
+    connectionTimeoutMillis: envs.DATABASE_TIMEOUT,
+    statement_timeout: envs.DATABASE_TIMEOUT,
   })
 
   pool.on('error', (error) => {

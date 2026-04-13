@@ -6,7 +6,7 @@ import envs from '../../util/environment'
 
 /**
  * @openapi
- * 
+ *
 * components:
 *   schemas:
 *     ErrorBody:
@@ -14,9 +14,9 @@ import envs from '../../util/environment'
 *       properties:
 *         errors:
 *           type: array
-*           items: 
+*           items:
 *             type: string
-* 
+*
 *     PageInfo:
 *       type: object
 *       properties:
@@ -31,7 +31,7 @@ import envs from '../../util/environment'
 *       required:
 *         - hasPreviousPage
 *         - hasNextPage
-* 
+*
 *     Organization:
 *       type: object
 *       properties:
@@ -56,7 +56,7 @@ import envs from '../../util/environment'
 *         - organization_id
 *         - login
 *         - url
-* 
+*
 *     User:
 *       type: object
 *       properties:
@@ -86,7 +86,7 @@ import envs from '../../util/environment'
 *         - login
 *         - url
 *         - user_id
-* 
+*
 *     FollowerCursor:
 *       type: object
 *       properties:
@@ -96,7 +96,7 @@ import envs from '../../util/environment'
 *             $ref: "#/components/schemas/FollowerEdge"
 *         pageInfo:
 *           $ref: "#/components/schemas/PageInfo"
-* 
+*
 *     FollowerEdge:
 *       type: object
 *       properties:
@@ -104,7 +104,7 @@ import envs from '../../util/environment'
 *           type: string
 *         node:
 *           $ref: "#/components/schemas/Follower"
-* 
+*
 *     Follower:
 *       type: object
 *       properties:
@@ -138,7 +138,7 @@ import envs from '../../util/environment'
 *         - login
 *         - url
 *         - user_id
-* 
+*
 *     FollowingCursor:
 *       type: object
 *       properties:
@@ -148,7 +148,7 @@ import envs from '../../util/environment'
 *             $ref: "#/components/schemas/FollowingEdge"
 *         pageInfo:
 *           $ref: "#/components/schemas/PageInfo"
-* 
+*
 *     FollowingEdge:
 *       type: object
 *       properties:
@@ -156,7 +156,7 @@ import envs from '../../util/environment'
 *           type: string
 *         node:
 *           $ref: "#/components/schemas/Following"
-* 
+*
 *     Following:
 *       type: object
 *       properties:
@@ -174,7 +174,7 @@ import envs from '../../util/environment'
 *         - avatar_url
 *         - login
 *         - url
-* 
+*
 *     OrganizationMemberCursor:
 *       type: object
 *       properties:
@@ -184,7 +184,7 @@ import envs from '../../util/environment'
 *             $ref: "#/components/schemas/OrganizationMemberEdge"
 *         pageInfo:
 *           $ref: "#/components/schemas/PageInfo"
-* 
+*
 *     OrganizationMemberEdge:
 *       type: object
 *       properties:
@@ -192,7 +192,7 @@ import envs from '../../util/environment'
 *           type: string
 *         node:
 *           $ref: "#/components/schemas/OrganizationMember"
-* 
+*
 *     OrganizationMember:
 *       type: object
 *       properties:
@@ -226,7 +226,7 @@ import envs from '../../util/environment'
 *         - login
 *         - url
 *         - user_id
-* 
+*
 *     RepositoryCursor:
 *       type: object
 *       properties:
@@ -236,7 +236,7 @@ import envs from '../../util/environment'
 *             $ref: "#/components/schemas/RepositoryEdge"
 *         pageInfo:
 *           $ref: "#/components/schemas/PageInfo"
-* 
+*
 *     RepositoryEdge:
 *       type: object
 *       properties:
@@ -244,7 +244,7 @@ import envs from '../../util/environment'
 *           type: string
 *         node:
 *           $ref: "#/components/schemas/Repository"
-* 
+*
 *     Repository:
 *       type: object
 *       properties:
@@ -286,7 +286,7 @@ import envs from '../../util/environment'
 *         - language_name
 *         - license_key
 *         - license_name
-* 
+*
 *     StarredRepositoryCursor:
 *       type: object
 *       properties:
@@ -296,7 +296,7 @@ import envs from '../../util/environment'
 *             $ref: "#/components/schemas/StarredRepositoryEdge"
 *         pageInfo:
 *           $ref: "#/components/schemas/PageInfo"
-* 
+*
 *     StarredRepositoryEdge:
 *       type: object
 *       properties:
@@ -304,7 +304,7 @@ import envs from '../../util/environment'
 *           type: string
 *         node:
 *           $ref: "#/components/schemas/StarredRepository"
-* 
+*
 *     StarredRepository:
 *       type: object
 *       properties:
@@ -350,7 +350,7 @@ import envs from '../../util/environment'
 *         - license_key
 *         - license_name
 *         - starred_at
-* 
+*
 *     UserOrganizationCursor:
 *       type: object
 *       properties:
@@ -360,7 +360,7 @@ import envs from '../../util/environment'
 *             $ref: "#/components/schemas/UserOrganizationEdge"
 *         pageInfo:
 *           $ref: "#/components/schemas/PageInfo"
-* 
+*
 *     UserOrganizationEdge:
 *       type: object
 *       properties:
@@ -368,7 +368,7 @@ import envs from '../../util/environment'
 *           type: string
 *         node:
 *           $ref: "#/components/schemas/UserOrganization"
-* 
+*
 *     UserOrganization:
 *       type: object
 *       properties:
@@ -409,7 +409,8 @@ export function registerSwaggerRoute(app: express.Express) {
         version: '0.1.0',
         description: 'TypeScript Web Server',
       },
-      servers: [{ url: envs.SERVER_PORT }],
+      servers: [{ url: envs.SERVER_URL }],
+      basePath: '/',
     },
     apis: [
       './src/infrastructure/http_server/route/*.ts',

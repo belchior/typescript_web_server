@@ -8,13 +8,14 @@ export default defineConfig([
   tseslint.configs.recommended,
   {
     files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
+    ignores: ['dist/**/*.{js,ts}'],
     plugins: { js, jest: pluginJest },
     extends: ['js/recommended'],
     languageOptions: {
       globals: { ...globals.node, ...pluginJest.environments.globals.globals },
     },
     rules: {
-      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { 'argsIgnorePattern': '^_', 'caughtErrorsIgnorePattern': '^_' }],
       'comma-dangle': ['error', { 'arrays': 'always-multiline', 'objects': 'always-multiline', 'imports': 'always-multiline', 'exports': 'always-multiline', 'functions': 'never' }],
       'indent': ['error', 2, { 'SwitchCase': 1 }],
       'jest/no-disabled-tests': 'warn',
@@ -26,7 +27,7 @@ export default defineConfig([
       'max-len': ['error', { 'code': 100, 'tabWidth': 2, 'ignoreComments': true, 'ignoreTrailingComments': true, 'ignoreUrls': true, 'ignoreStrings': true, 'ignoreTemplateLiterals': true }],
       'no-console': 'error',
       'no-multiple-empty-lines': ['error', { 'max': 1 }],
-      'no-unused-vars': ['error', { 'argsIgnorePattern': '^_', 'caughtErrorsIgnorePattern': '^_' }],
+      'no-unused-vars': 'off',
       'object-curly-spacing': ['error', 'always'],
       'padded-blocks': ['error', 'never'],
       'quotes': ['error', 'single'],

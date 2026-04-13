@@ -1,10 +1,10 @@
 import express, { Request, Response } from 'express'
 
+import application from '../../../application'
 import { CursorConnection } from '../../util/cursor_connection/cursor_connection'
 import { ErrorBody, ParamsValidationError, QueryValidationError, responseError } from '../util/error_handler'
 import { Follower, Organization, OrganizationMember, Repository } from '../../database'
 import { paramsToOwnerIdentity, queryToPaginationArgs } from '../util/request_validation'
-import application from '../../../application'
 
 export function registerOrganizationRoutes(app: express.Express) {
   /**
@@ -13,11 +13,11 @@ export function registerOrganizationRoutes(app: express.Express) {
   *   get:
   *     description: Gets an Organization based on provided login
   *     parameters:
-  *       - name: login
-  *         in: path
+  *       - in: path
+  *         name: login
   *         required: true
   *         schema:
-  *         type: string
+  *           type: string
   *     responses:
   *       "200":
   *         description: The organization data
@@ -45,11 +45,31 @@ export function registerOrganizationRoutes(app: express.Express) {
   * /organization/{login}/followers:
   *   get:
   *     parameters:
-  *       - name: login
-  *         in: path
+  *       - in: path
+  *         name: login
   *         required: true
   *         schema:
-  *         type: string
+  *           type: string
+  *       - in: query
+  *         name: first
+  *         description: The number of items to retrieve starting from beginning
+  *         schema:
+  *           type: number
+  *       - in: query
+  *         name: after
+  *         description: The opaque cursor to advance to the next page
+  *         schema:
+  *           type: string
+  *       - in: query
+  *         name: last
+  *         description: The number of items to retrieve starting from end
+  *         schema:
+  *           type: number
+  *       - in: query
+  *         name: before
+  *         description: The opaque cursor to advance to the next page in inverse order
+  *         schema:
+  *           type: string
   *     responses:
   *       "200":
   *         description: Gets a list of people that follow the Organization
@@ -71,11 +91,31 @@ export function registerOrganizationRoutes(app: express.Express) {
   * /organization/{login}/people:
   *   get:
   *     parameters:
-  *       - name: login
-  *         in: path
+  *       - in: path
+  *         name: login
   *         required: true
   *         schema:
-  *         type: string
+  *           type: string
+  *       - in: query
+  *         name: first
+  *         description: The number of items to retrieve starting from beginning
+  *         schema:
+  *           type: number
+  *       - in: query
+  *         name: after
+  *         description: The opaque cursor to advance to the next page
+  *         schema:
+  *           type: string
+  *       - in: query
+  *         name: last
+  *         description: The number of items to retrieve starting from end
+  *         schema:
+  *           type: number
+  *       - in: query
+  *         name: before
+  *         description: The opaque cursor to advance to the next page in inverse order
+  *         schema:
+  *           type: string
   *     responses:
   *       "200":
   *         description: Gets a list of members of the organization
@@ -97,11 +137,31 @@ export function registerOrganizationRoutes(app: express.Express) {
   * /organization/{login}/repositories:
   *   get:
   *     parameters:
-  *       - name: login
-  *         in: path
+  *       - in: path
+  *         name: login
   *         required: true
   *         schema:
-  *         type: string
+  *           type: string
+  *       - in: query
+  *         name: first
+  *         description: The number of items to retrieve starting from beginning
+  *         schema:
+  *           type: number
+  *       - in: query
+  *         name: after
+  *         description: The opaque cursor to advance to the next page
+  *         schema:
+  *           type: string
+  *       - in: query
+  *         name: last
+  *         description: The number of items to retrieve starting from end
+  *         schema:
+  *           type: number
+  *       - in: query
+  *         name: before
+  *         description: The opaque cursor to advance to the next page in inverse order
+  *         schema:
+  *           type: string
   *     responses:
   *       "200":
   *         description: Gets a list of repositories of the organization
@@ -154,7 +214,7 @@ async function getOrganizationFollowers(
   try {
     const { login } = paramsToOwnerIdentity(req.params)
     const pagination = queryToPaginationArgs(req.query)
-    const followers = await application.profile.findFollowers(login, pagination)
+    const followers = await application.organization.findFollowers(login, pagination)
 
     res.json(followers)
     return
@@ -196,7 +256,7 @@ async function getOrganizationRepositories(
   try {
     const { login } = paramsToOwnerIdentity(req.params)
     const pagination = queryToPaginationArgs(req.query)
-    const repositories = await application.profile.findRepositories(login, pagination)
+    const repositories = await application.organization.findRepositories(login, pagination)
 
     res.json(repositories)
     return

@@ -1,10 +1,10 @@
+import * as conn from '../db_connection'
 import { Follower, User } from './user'
 import { isISOString } from '../../util/date'
 import { Organization } from './organization'
 import { PageInfoItem } from '../util/types'
 import { paginationArgsToQueryArgs } from '../util/pagination'
 import { PaginationArguments } from '../../util/cursor_connection/cursor_connection'
-import * as conn from '../db_connection'
 
 export type ProfileOwner = {
   avatar_url: User['avatar_url'] | Organization['avatar_url']
@@ -87,4 +87,3 @@ export async function findFollowersPageInfo(
     { hasNextPage: false, hasPreviousPage: false }
   )
 }
-
