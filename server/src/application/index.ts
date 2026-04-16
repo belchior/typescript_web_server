@@ -11,6 +11,7 @@ import type {
   StarredRepository,
   UserOrganization,
   User,
+  Organization,
 } from './util/converter'
 
 export default {
@@ -22,6 +23,7 @@ export default {
 export type {
   Follower,
   Following,
+  Organization,
   OrganizationMember,
   Repository,
   StarredRepository,

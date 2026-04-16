@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express'
 
 import application, { Follower, Following, User, Repository, StarredRepository, UserOrganization } from '../../../application'
 import { CursorConnection } from '../../util/cursor_connection/cursor_connection'
-import { ErrorBody, ParamsValidationError, QueryValidationError, responseError } from '../util/error_handler'
+import { errorBody, ErrorBody, ParamsValidationError, QueryValidationError } from '../util/error_handler'
 import { paramsToOwnerIdentity, queryToPaginationArgs } from '../util/request_validation'
 
 export function registerUserRoutes(app: express.Express) {
@@ -282,16 +282,16 @@ async function getUser(req: Request, res: Response<User | ErrorBody>) {
     return
   } catch (error) {
     if (error instanceof ParamsValidationError) {
-      responseError({ status: 400, res, error })
+      res.status(400).json(errorBody({ error }))
       return
     }
 
     if (error instanceof Error && error.message === 'Not found') {
-      responseError({ status: 404, res, error })
+      res.status(404).json(errorBody({ error }))
       return
     }
 
-    responseError({ res, error: error as Error })
+    res.status(500).json(errorBody({ error: error as Error }))
   }
 }
 
@@ -308,11 +308,11 @@ async function getUserFollowers(
     return
   } catch (error) {
     if (error instanceof ParamsValidationError || error instanceof QueryValidationError) {
-      responseError({ status: 400, res, error })
+      res.status(400).json(errorBody({ error }))
       return
     }
 
-    responseError({ res, error: error as Error })
+    res.status(500).json(errorBody({ error: error as Error }))
   }
 }
 
@@ -329,11 +329,11 @@ async function getUserFollowing(
     return
   } catch (error) {
     if (error instanceof ParamsValidationError || error instanceof QueryValidationError) {
-      responseError({ status: 400, res, error })
+      res.status(400).json(errorBody({ error }))
       return
     }
 
-    responseError({ res, error: error as Error })
+    res.status(500).json(errorBody({ error: error as Error }))
   }
 }
 
@@ -350,11 +350,11 @@ async function getUserOrganizations(
     return
   } catch (error) {
     if (error instanceof ParamsValidationError || error instanceof QueryValidationError) {
-      responseError({ status: 400, res, error })
+      res.status(400).json(errorBody({ error }))
       return
     }
 
-    responseError({ res, error: error as Error })
+    res.status(500).json(errorBody({ error: error as Error }))
   }
 }
 
@@ -371,11 +371,11 @@ async function getUserRepositories(
     return
   } catch (error) {
     if (error instanceof ParamsValidationError || error instanceof QueryValidationError) {
-      responseError({ status: 400, res, error })
+      res.status(400).json(errorBody({ error }))
       return
     }
 
-    responseError({ res, error: error as Error })
+    res.status(500).json(errorBody({ error: error as Error }))
   }
 }
 
@@ -392,10 +392,10 @@ async function getStarredRepositories(
     return
   } catch (error) {
     if (error instanceof ParamsValidationError || error instanceof QueryValidationError) {
-      responseError({ status: 400, res, error })
+      res.status(400).json(errorBody({ error }))
       return
     }
 
-    responseError({ res, error: error as Error })
+    res.status(500).json(errorBody({ error: error as Error }))
   }
 }
