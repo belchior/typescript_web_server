@@ -1,19 +1,17 @@
-import { Response } from 'express'
 import logger from '../../util/logger'
 
 export type ErrorBody = {
   errors: string[]
 }
-export type ResponseError<T extends ErrorBody = ErrorBody> = Response<T>
 
-type ErrorContext<T extends ErrorBody> = {
+type ErrorContext = {
   error: Error
-  res: ResponseError<T>
   status?: number
   message?: string
 }
-export function responseError(args: ErrorContext<ErrorBody>) {
-  const { error, res, status = 500, message } = args
+
+export function errorBody(args: ErrorContext): ErrorBody {
+  const { error, message } = args
   const finalMessage = message ?? error?.message
 
   logger.error({
@@ -23,9 +21,9 @@ export function responseError(args: ErrorContext<ErrorBody>) {
     },
   })
 
-  res.status(status).json({
+  return {
     errors: [finalMessage],
-  })
+  }
 }
 
 export class QueryValidationError extends Error {

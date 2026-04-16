@@ -1,27 +1,26 @@
-import cors from 'cors'
-import express from 'express'
-import pinoHttp from 'pino-http'
-import { Server } from 'node:http'
+import Fastify, { FastifyInstance } from 'fastify'
+import { fastifyCors } from '@fastify/cors'
+import { serializerCompiler, validatorCompiler, ZodTypeProvider } from 'fastify-type-provider-zod'
 
 import database from '../database'
 import envs from '../util/environment'
-import logger, { logConfig } from '../util/logger'
+import logger from '../util/logger'
 import { registerOrganizationRoutes } from './route/organization'
 import { registerProfileRoutes } from './route/profile'
 import { registerSwaggerRoute } from './route/swagger'
 import { registerUserRoutes } from './route/user'
 
 export function createApp() {
-  const app = express()
+  const app = Fastify().withTypeProvider<ZodTypeProvider>()
 
-  app.disable('x-powered-by')
-  app.use(pinoHttp(logConfig))
-  app.use(cors({ methods: 'GET,POST', origin: envs.CLIENT_URL }))
+  app.setValidatorCompiler(validatorCompiler)
+  app.setSerializerCompiler(serializerCompiler)
+  app.register(fastifyCors, { origin: envs.CLIENT_URL })
 
-  registerSwaggerRoute(app)
-  registerOrganizationRoutes(app)
-  registerProfileRoutes(app)
-  registerUserRoutes(app)
+  app.register(registerSwaggerRoute)
+  app.register(registerProfileRoutes)
+  app.register(registerOrganizationRoutes)
+  app.register(registerUserRoutes)
 
   return app
 }
@@ -29,8 +28,17 @@ export function createApp() {
 async function startServer() {
   await database.dbConnect()
 
-  const app = createApp()
-  const server = app.listen(envs.SERVER_PORT, () => {
+  const server = createApp()
+
+  server.listen({ host: envs.SERVER_HOST, port: envs.SERVER_PORT }, (error) => {
+    if (error) {
+      logger.error({
+        error: {
+          message: error.message,
+        },
+      })
+      process.exit(1)
+    }
     logger.info({
       message: `Running the server at ${envs.SERVER_URL}`,
     })
@@ -45,7 +53,7 @@ async function startServer() {
   return server
 }
 
-function addGracefulShutdown(server: Server) {
+function addGracefulShutdown(server: FastifyInstance) {
   const stopServer = async (signal: string) => {
     logger.info({
       message: `Server received a ${signal} signal and will shutdown`,

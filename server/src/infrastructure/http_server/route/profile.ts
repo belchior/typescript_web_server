@@ -1,72 +1,38 @@
-import express, { Request, Response } from 'express'
+import { FastifyReply } from 'fastify'
 
 import application from '../../../application'
-import { ErrorBody, ParamsValidationError, responseError } from '../util/error_handler'
+import { errorBody, ErrorBody, ParamsValidationError } from '../util/error_handler'
+import { FastifyTypedInstance } from '../util/types'
 import { Organization, User } from '../../database'
 import { paramsToOwnerIdentity } from '../util/request_validation'
 
-export function registerProfileRoutes(app: express.Express) {
-  /**
-  * @openapi
-  * /profile/{login}:
-  *   get:
-  *     description: Gets an Organization or User based on provided login
-  *     parameters:
-  *       - in: path
-  *         name: login
-  *         required: true
-  *         schema:
-  *           type: string
-  *     responses:
-  *       "200":
-  *         description: An Organization or User based on provided login
-  *         content:
-  *           application/json:
-  *             schema:
-  *               oneOf:
-  *                - $ref: "#/components/schemas/Organization"
-  *                - $ref: "#/components/schemas/User"
-  *       "400":
-  *         description: The login parameter is invalid, the error payload contains a list of error messages
-  *         content:
-  *           application/json:
-  *             schema:
-  *               $ref: "#/components/schemas/ErrorBody"
-  *       "404":
-  *         description: The resource was not found, the error payload contains a list of error messages
-  *         content:
-  *           application/json:
-  *             schema:
-  *               $ref: "#/components/schemas/ErrorBody"
-  */
-  app.get('/profile/:login', getProfile)
-}
+export function registerProfileRoutes(app: FastifyTypedInstance) {
+  app.get('/profile/:login', async function getProfile(
+    request,
+    reply: FastifyReply<{ Reply: Organization | User | ErrorBody }>
+  ) {
+    try {
+      const { login } = paramsToOwnerIdentity(request)
+      const profile = await application.profile.findProfile(login)
 
-async function getProfile(
-  req: Request,
-  res: Response<User | Organization | ErrorBody>
-) {
-  try {
-    const { login } = paramsToOwnerIdentity(req.params)
-    const profile = await application.profile.findProfile(login)
+      if (profile == null) {
+        throw new Error('Not found')
+      }
 
-    if (profile == null) {
-      throw new Error('Not found')
-    }
-
-    res.json(profile)
-    return
-  } catch (error) {
-    if (error instanceof ParamsValidationError) {
-      responseError({ status: 400, res, error })
+      reply.send(profile)
       return
-    }
+    } catch (error) {
+      if (error instanceof ParamsValidationError) {
+        reply.status(400).send(errorBody({ error }))
+        return
+      }
 
-    if (error instanceof Error && error.message === 'Not found') {
-      responseError({ status: 404, res, error })
-      return
-    }
+      if (error instanceof Error && error.message === 'Not found') {
+        reply.status(404).send(errorBody({ error }))
+        return
+      }
 
-    responseError({ res, error: error as Error })
-  }
+      reply.status(500).send(errorBody({ error: error as Error }))
+    }
+  })
 }

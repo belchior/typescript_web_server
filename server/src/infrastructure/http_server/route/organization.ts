@@ -1,271 +1,101 @@
-import express, { Request, Response } from 'express'
+import { FastifyReply } from 'fastify'
 
 import application from '../../../application'
 import { CursorConnection } from '../../util/cursor_connection/cursor_connection'
-import { ErrorBody, ParamsValidationError, QueryValidationError, responseError } from '../util/error_handler'
+import { errorBody, ErrorBody, ParamsValidationError, QueryValidationError } from '../util/error_handler'
 import { Follower, Organization, OrganizationMember, Repository } from '../../database'
 import { paramsToOwnerIdentity, queryToPaginationArgs } from '../util/request_validation'
+import { FastifyTypedInstance } from '../util/types'
 
-export function registerOrganizationRoutes(app: express.Express) {
-  /**
-  * @openapi
-  * /organization/{login}:
-  *   get:
-  *     description: Gets an Organization based on provided login
-  *     parameters:
-  *       - in: path
-  *         name: login
-  *         required: true
-  *         schema:
-  *           type: string
-  *     responses:
-  *       "200":
-  *         description: The organization data
-  *         content:
-  *           application/json:
-  *             schema:
-  *               $ref: "#/components/schemas/Organization"
-  *       "400":
-  *         description: The login parameter is invalid, the error payload contains a list of error messages
-  *         content:
-  *           application/json:
-  *             schema:
-  *               $ref: "#/components/schemas/ErrorBody"
-  *       "404":
-  *         description: The resource was not found, the error payload contains a list of error messages
-  *         content:
-  *           application/json:
-  *             schema:
-  *               $ref: "#/components/schemas/ErrorBody"
-  */
-  app.get('/organization/:login', getOrganization)
+export function registerOrganizationRoutes(app: FastifyTypedInstance) {
+  app.get('/organization/:login', async function getOrganization(
+    request,
+    reply: FastifyReply<{ Reply: Organization | ErrorBody }>
+  ) {
+    try {
+      const { login } = paramsToOwnerIdentity(request)
+      const organization = await application.organization.findOrganization(login)
 
-  /**
-  * @openapi
-  * /organization/{login}/followers:
-  *   get:
-  *     parameters:
-  *       - in: path
-  *         name: login
-  *         required: true
-  *         schema:
-  *           type: string
-  *       - in: query
-  *         name: first
-  *         description: The number of items to retrieve starting from beginning
-  *         schema:
-  *           type: number
-  *       - in: query
-  *         name: after
-  *         description: The opaque cursor to advance to the next page
-  *         schema:
-  *           type: string
-  *       - in: query
-  *         name: last
-  *         description: The number of items to retrieve starting from end
-  *         schema:
-  *           type: number
-  *       - in: query
-  *         name: before
-  *         description: The opaque cursor to advance to the next page in inverse order
-  *         schema:
-  *           type: string
-  *     responses:
-  *       "200":
-  *         description: Gets a list of people that follow the Organization
-  *         content:
-  *           application/json:
-  *             schema:
-  *               $ref: "#/components/schemas/FollowerCursor"
-  *       "400":
-  *         description: The login parameter is invalid, the error payload contains a list of error messages
-  *         content:
-  *           application/json:
-  *             schema:
-  *               $ref: "#/components/schemas/ErrorBody"
-  */
-  app.get('/organization/:login/followers', getOrganizationFollowers)
-
-  /**
-  * @openapi
-  * /organization/{login}/people:
-  *   get:
-  *     parameters:
-  *       - in: path
-  *         name: login
-  *         required: true
-  *         schema:
-  *           type: string
-  *       - in: query
-  *         name: first
-  *         description: The number of items to retrieve starting from beginning
-  *         schema:
-  *           type: number
-  *       - in: query
-  *         name: after
-  *         description: The opaque cursor to advance to the next page
-  *         schema:
-  *           type: string
-  *       - in: query
-  *         name: last
-  *         description: The number of items to retrieve starting from end
-  *         schema:
-  *           type: number
-  *       - in: query
-  *         name: before
-  *         description: The opaque cursor to advance to the next page in inverse order
-  *         schema:
-  *           type: string
-  *     responses:
-  *       "200":
-  *         description: Gets a list of members of the organization
-  *         content:
-  *           application/json:
-  *             schema:
-  *               $ref: "#/components/schemas/OrganizationMemberCursor"
-  *       "400":
-  *         description: The login parameter is invalid, the error payload contains a list of error messages
-  *         content:
-  *           application/json:
-  *             schema:
-  *               $ref: "#/components/schemas/ErrorBody"
-  */
-  app.get('/organization/:login/people', getOrganizationMembers)
-
-  /**
-  * @openapi
-  * /organization/{login}/repositories:
-  *   get:
-  *     parameters:
-  *       - in: path
-  *         name: login
-  *         required: true
-  *         schema:
-  *           type: string
-  *       - in: query
-  *         name: first
-  *         description: The number of items to retrieve starting from beginning
-  *         schema:
-  *           type: number
-  *       - in: query
-  *         name: after
-  *         description: The opaque cursor to advance to the next page
-  *         schema:
-  *           type: string
-  *       - in: query
-  *         name: last
-  *         description: The number of items to retrieve starting from end
-  *         schema:
-  *           type: number
-  *       - in: query
-  *         name: before
-  *         description: The opaque cursor to advance to the next page in inverse order
-  *         schema:
-  *           type: string
-  *     responses:
-  *       "200":
-  *         description: Gets a list of repositories of the organization
-  *         content:
-  *           application/json:
-  *             schema:
-  *               $ref: "#/components/schemas/RepositoryCursor"
-  *       "400":
-  *         description: The login parameter is invalid, the error payload contains a list of error messages
-  *         content:
-  *           application/json:
-  *             schema:
-  *               $ref: "#/components/schemas/ErrorBody"
-  */
-  app.get('/organization/:login/repositories', getOrganizationRepositories)
-}
-
-async function getOrganization(
-  req: Request,
-  res: Response<Organization | ErrorBody>
-) {
-  try {
-    const { login } = paramsToOwnerIdentity(req.params)
-    const organization = await application.organization.findOrganization(login)
-
-    if (organization == null) {
-      throw new Error('Not found')
-    }
-    res.json(organization)
-    return
-  } catch (error) {
-    if (error instanceof ParamsValidationError) {
-      responseError({ status: 400, res, error })
+      if (organization == null) {
+        throw new Error('Not found')
+      }
+      reply.send(organization)
       return
-    }
+    } catch (error) {
+      if (error instanceof ParamsValidationError) {
+        reply.status(400).send(errorBody({ error }))
+        return
+      }
 
-    if (error instanceof Error && error.message === 'Not found') {
-      responseError({ status: 404, res, error })
+      if (error instanceof Error && error.message === 'Not found') {
+        reply.status(404).send(errorBody({ error }))
+        return
+      }
+
+      reply.status(500).send(errorBody({ error: error as Error }))
+    }
+  })
+
+  app.get('/organization/:login/followers', async function getOrganizationFollowers(
+    request,
+    reply: FastifyReply<{ Reply: CursorConnection<Follower> | ErrorBody }>
+  ) {
+    try {
+      const { login } = paramsToOwnerIdentity(request)
+      const pagination = queryToPaginationArgs(request.query)
+      const followers = await application.organization.findFollowers(login, pagination)
+
+      reply.send(followers)
       return
+    } catch (error) {
+      if (error instanceof ParamsValidationError || error instanceof QueryValidationError) {
+        reply.status(400).send(errorBody({ error }))
+        return
+      }
+
+      reply.status(500).send(errorBody({ error: error as Error }))
     }
+  })
 
-    responseError({ res, error: error as Error })
-  }
-}
+  app.get('/organization/:login/people', async function getOrganizationMembers(
+    request,
+    reply: FastifyReply<{ Reply: CursorConnection<OrganizationMember> | ErrorBody }>
+  ) {
+    try {
+      const { login } = paramsToOwnerIdentity(request)
+      const pagination = queryToPaginationArgs(request.query)
+      const members = await application.organization.findMembers(login, pagination)
 
-async function getOrganizationFollowers(
-  req: Request,
-  res: Response<CursorConnection<Follower> | ErrorBody>
-) {
-  try {
-    const { login } = paramsToOwnerIdentity(req.params)
-    const pagination = queryToPaginationArgs(req.query)
-    const followers = await application.organization.findFollowers(login, pagination)
-
-    res.json(followers)
-    return
-  } catch (error) {
-    if (error instanceof ParamsValidationError || error instanceof QueryValidationError) {
-      responseError({ status: 400, res, error })
+      reply.send(members)
       return
+    } catch (error) {
+      if (error instanceof ParamsValidationError || error instanceof QueryValidationError) {
+        reply.status(400).send(errorBody({ error }))
+        return
+      }
+
+      reply.status(500).send(errorBody({ error: error as Error }))
     }
+  })
 
-    responseError({ res, error: error as Error })
-  }
-}
+  app.get('/organization/:login/repositories', async function getOrganizationRepositories(
+    request,
+    reply: FastifyReply<{ Reply: CursorConnection<Repository> | ErrorBody }>
+  ) {
+    try {
+      const { login } = paramsToOwnerIdentity(request)
+      const pagination = queryToPaginationArgs(request.query)
+      const repositories = await application.organization.findRepositories(login, pagination)
 
-async function getOrganizationMembers(
-  req: Request,
-  res: Response<CursorConnection<OrganizationMember> | ErrorBody>
-) {
-  try {
-    const { login } = paramsToOwnerIdentity(req.params)
-    const pagination = queryToPaginationArgs(req.query)
-    const members = await application.organization.findMembers(login, pagination)
-
-    res.json(members)
-    return
-  } catch (error) {
-    if (error instanceof ParamsValidationError || error instanceof QueryValidationError) {
-      responseError({ status: 400, res, error })
+      reply.send(repositories)
       return
+    } catch (error) {
+      if (error instanceof ParamsValidationError || error instanceof QueryValidationError) {
+        reply.status(400).send(errorBody({ error }))
+        return
+      }
+
+      reply.status(500).send(errorBody({ error: error as Error }))
     }
-
-    responseError({ res, error: error as Error })
-  }
-}
-
-async function getOrganizationRepositories(
-  req: Request,
-  res: Response<CursorConnection<Repository> | ErrorBody>
-) {
-  try {
-    const { login } = paramsToOwnerIdentity(req.params)
-    const pagination = queryToPaginationArgs(req.query)
-    const repositories = await application.organization.findRepositories(login, pagination)
-
-    res.json(repositories)
-    return
-  } catch (error) {
-    if (error instanceof ParamsValidationError || error instanceof QueryValidationError) {
-      responseError({ status: 400, res, error })
-      return
-    }
-
-    responseError({ res, error: error as Error })
-  }
+  })
 }

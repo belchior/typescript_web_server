@@ -1,4 +1,4 @@
-# Learning Postgres
+# Learning Fastify
 
 > The purpose of this repository is to practice acquired knowledge in build web services with TypeScript as well as your ecosystem
 
@@ -10,7 +10,7 @@ The `server` is based on
 
 - [TypeScript](https://github.com/microsoft/TypeScript)
 - [Node.js](https://github.com/nodejs/node)
-- [Express](https://github.com/expressjs/express)
+- [Fastify](https://fastify.dev/docs/latest/Guides/Getting-Started/)
 - [PostgreSQL](https://www.postgresql.org/)
 - [Swagger](https://swagger.io/)
 
@@ -60,6 +60,7 @@ Some links that have somehow helped to develop this project or influence my deci
 - [Swagger OpenAPI Guide](https://swagger.io/docs/specification/v3_0/basic-structure/)
 - [SWR Getting Started](https://swr.vercel.app/docs/getting-started)
 - [Postgres - Don't Do This](https://wiki.postgresql.org/wiki/Don%27t_Do_This)
+- [Fastify Reference](https://fastify.dev/docs/latest/Reference/)
 
 
 ### Articles
