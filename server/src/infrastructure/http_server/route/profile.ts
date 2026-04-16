@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express'
 
 import application from '../../../application'
-import { ErrorBody, ParamsValidationError, responseError } from '../util/error_handler'
+import { errorBody, ErrorBody, ParamsValidationError } from '../util/error_handler'
 import { Organization, User } from '../../database'
 import { paramsToOwnerIdentity } from '../util/request_validation'
 
@@ -58,15 +58,15 @@ async function getProfile(
     return
   } catch (error) {
     if (error instanceof ParamsValidationError) {
-      responseError({ status: 400, res, error })
+      res.status(400).json(errorBody({ error }))
       return
     }
 
     if (error instanceof Error && error.message === 'Not found') {
-      responseError({ status: 404, res, error })
+      res.status(404).json(errorBody({ error }))
       return
     }
 
-    responseError({ res, error: error as Error })
+    res.status(500).json(errorBody({ error: error as Error }))
   }
 }

@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express'
 
 import application from '../../../application'
 import { CursorConnection } from '../../util/cursor_connection/cursor_connection'
-import { ErrorBody, ParamsValidationError, QueryValidationError, responseError } from '../util/error_handler'
+import { errorBody, ErrorBody, ParamsValidationError, QueryValidationError } from '../util/error_handler'
 import { Follower, Organization, OrganizationMember, Repository } from '../../database'
 import { paramsToOwnerIdentity, queryToPaginationArgs } from '../util/request_validation'
 
@@ -194,16 +194,16 @@ async function getOrganization(
     return
   } catch (error) {
     if (error instanceof ParamsValidationError) {
-      responseError({ status: 400, res, error })
+      res.status(400).json(errorBody({ error }))
       return
     }
 
     if (error instanceof Error && error.message === 'Not found') {
-      responseError({ status: 404, res, error })
+      res.status(404).json(errorBody({ error }))
       return
     }
 
-    responseError({ res, error: error as Error })
+    res.status(500).json(errorBody({ error: error as Error }))
   }
 }
 
@@ -220,11 +220,11 @@ async function getOrganizationFollowers(
     return
   } catch (error) {
     if (error instanceof ParamsValidationError || error instanceof QueryValidationError) {
-      responseError({ status: 400, res, error })
+      res.status(400).json(errorBody({ error }))
       return
     }
 
-    responseError({ res, error: error as Error })
+    res.status(500).json(errorBody({ error: error as Error }))
   }
 }
 
@@ -241,11 +241,11 @@ async function getOrganizationMembers(
     return
   } catch (error) {
     if (error instanceof ParamsValidationError || error instanceof QueryValidationError) {
-      responseError({ status: 400, res, error })
+      res.status(400).json(errorBody({ error }))
       return
     }
 
-    responseError({ res, error: error as Error })
+    res.status(500).json(errorBody({ error: error as Error }))
   }
 }
 
@@ -262,10 +262,10 @@ async function getOrganizationRepositories(
     return
   } catch (error) {
     if (error instanceof ParamsValidationError || error instanceof QueryValidationError) {
-      responseError({ status: 400, res, error })
+      res.status(400).json(errorBody({ error }))
       return
     }
 
-    responseError({ res, error: error as Error })
+    res.status(500).json(errorBody({ error: error as Error }))
   }
 }
