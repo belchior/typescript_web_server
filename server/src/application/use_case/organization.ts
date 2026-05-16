@@ -6,7 +6,7 @@ export async function findOrganization(login: string) {
 }
 
 export async function findFollowers(login: string, args: PaginationArguments) {
-  const referenceFrom = (item: Follower) => item.followed_at.toISOString()
+  const referenceFrom = (item: Follower) => item.follows_since.toISOString()
   const items = await database.profileOwner.findFollowersByUserLogin(login, args)
 
   if (items.length === 0) return emptyCursorConnection<Follower>()

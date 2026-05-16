@@ -20,5 +20,9 @@ EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 
 # To build and run
-# docker build -t client --build-arg SERVER_URL=http://localhost:4000 .
-# docker run --rm -it -p ${CLIENT_PORT}:80 client:latest
+# docker build -t client --build-arg VITE_SERVER_URL=http://localhost:4000 .
+# docker run -it --rm \
+#   --name client \
+#   --publish=5173:80 \
+#   --network=typescript_web_server_mynetwork \
+#   client

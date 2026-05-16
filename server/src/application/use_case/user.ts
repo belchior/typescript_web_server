@@ -6,7 +6,7 @@ export async function findUser(login: string) {
 }
 
 export async function findFollowers(login: string, args: PaginationArguments) {
-  const referenceFrom = (item: Follower) => item.followed_at.toISOString()
+  const referenceFrom = (item: Follower) => item.follows_since.toISOString()
   const items = await database.profileOwner.findFollowersByUserLogin(login, args)
 
   if (items.length === 0) return emptyCursorConnection<Follower>()
@@ -20,7 +20,7 @@ export async function findFollowers(login: string, args: PaginationArguments) {
 }
 
 export async function findFollowingProfiles(login: string, args: PaginationArguments) {
-  const referenceFrom = (item: Following) => item.following_at.toISOString()
+  const referenceFrom = (item: Following) => item.followed_since.toISOString()
   const items = await database.user.findFollowingByLogin(login, args)
 
   if (items.length === 0) return emptyCursorConnection<Following>()

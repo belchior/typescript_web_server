@@ -14,7 +14,7 @@ export type ProfileOwner = {
   url: User['url'] | Organization['url']
 }
 
-export type Following = ProfileOwner & { following_at: Date };
+export type Following = ProfileOwner & { followed_since: Date };
 
 export async function findFollowersByUserLogin(login: string, args: PaginationArguments) {
   const pagination = paginationArgsToQueryArgs(args)
@@ -26,7 +26,7 @@ export async function findFollowersByUserLogin(login: string, args: PaginationAr
   const query = `
     SELECT *
     FROM (
-      SELECT u.*, uf.created_at AS followed_at
+      SELECT u.*, uf.created_at AS follows_since
       FROM users_following uf
       LEFT JOIN users u ON u.login = uf.user_login
       LEFT JOIN organizations o ON o.login = uf.user_login
@@ -36,7 +36,7 @@ export async function findFollowersByUserLogin(login: string, args: PaginationAr
       ORDER BY uf.created_at ${pagination.order}
       LIMIT $2
     )
-    ORDER BY followed_at ASC
+    ORDER BY follows_since ASC
   `
   const params = [login, pagination.limit]
   const { rows: items } = await conn.find<Readonly<Follower>>(query, params)
