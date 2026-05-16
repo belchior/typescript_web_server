@@ -72,7 +72,7 @@ describe('Organization', () => {
             url: user.url,
             user_id: user.user_id,
             website_url: user.website_url,
-            followed_at: followingData?.created_at?.toISOString(),
+            follows_since: followingData?.created_at?.toISOString(),
           }),
         }),
       ],

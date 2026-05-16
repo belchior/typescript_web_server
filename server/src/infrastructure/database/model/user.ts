@@ -20,7 +20,7 @@ export type User = {
   website_url?: string
 }
 
-export type Follower = User & { followed_at: Date };
+export type Follower = User & { follows_since: Date };
 export type UserOrganization = Organization & { joined_at: Date };
 
 export async function findOneByLogin(login: string) {
@@ -50,7 +50,7 @@ export async function findFollowingByLogin(login: string, args: PaginationArgume
     SELECT *
     FROM (
       SELECT
-        uf.created_at AS following_at,
+        uf.created_at AS followed_since,
         ${ownerColumns}
       FROM users_following uf
       LEFT JOIN users u ON u.login = uf.following_login
@@ -61,7 +61,7 @@ export async function findFollowingByLogin(login: string, args: PaginationArgume
       ORDER BY uf.created_at ${pagination.order}
       LIMIT $2
     )
-    ORDER BY following_at ASC
+    ORDER BY followed_since ASC
   `
   const params = [login, pagination.limit]
   const { rows: items } = await conn.find<Readonly<Following>>(query, params)

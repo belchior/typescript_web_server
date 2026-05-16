@@ -50,6 +50,8 @@ To run the client in development mode execute the command below
 docker compose up client
 ```
 
+Now you can access http://localhost:5173/ to use the app
+
 ## References
 
 Some links that have somehow helped to develop this project or influence my decisions

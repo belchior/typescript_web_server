@@ -7,8 +7,7 @@ services:
     container_name: server
     depends_on:
       - database_schema
-    env_file:
-      - ./.env
+    env_file: ./.env
     ports:
       - ${SERVER_PORT}:${SERVER_PORT}
     networks:
@@ -26,8 +25,7 @@ services:
   database:
     image: postgres:18
     container_name: database
-    env_file:
-      - ./.env
+    env_file: ./.env
     environment:
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
       - POSTGRES_DB=${DATABASE_DB}
@@ -41,8 +39,7 @@ services:
     image: postgres:18
     container_name: database_schema
     command: scripts/database_schema.sh
-    env_file:
-      - ./.env
+    env_file: ./.env
     depends_on:
       - database
     networks:
@@ -54,8 +51,7 @@ services:
     image: postgres:18
     container_name: database_seed
     command: scripts/database_seed.sh
-    env_file:
-      - ./.env
+    env_file: ./.env
     depends_on:
       - database_schema
     networks:
@@ -69,8 +65,7 @@ services:
       context: ./client
       dockerfile: Dockerfile.dev
     container_name: client
-    env_file:
-      - ./.env
+    env_file: ./.env
     ports:
       - ${CLIENT_PORT}:${CLIENT_PORT}
     networks:
@@ -87,6 +82,15 @@ services:
       - ./client/tsconfig.node.json:/usr/app/tsconfig.node.json:ro
       - ./client/vite.config.ts:/usr/app/vite.config.ts:ro
     restart: always
+
+  client_build:
+    image: client
+    container_name: client
+    build:
+      context: ./client
+      args:
+        - SERVER_URL=http://localhost:${SERVER_PORT}
+    env_file: ./.env
 
 networks:
   mynetwork:
